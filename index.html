@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1.0"/>
+<title>Entrega Já – Restaurante</title>
+<meta name="theme-color" content="#0f1a2e"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Entrega Já"/>
+<link rel="manifest" id="manifest-link"/>
+<link rel="apple-touch-icon" id="apple-icon"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#080f1e;--card:#0f1a2e;--card2:#1a2540;--azul2:#1a2a4a;--azul3:#243656;
+  --dourado:#fbbf24;--dourado2:#f59e0b;--dourado3:#b45309;
+  --border:rgba(251,191,36,0.2);--text:#f0e6c8;--muted:#7a8fa8;
+  --verde:#22c55e;--danger:#ef4444;
+  --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--satmin:max(env(safe-area-inset-top,0px),12px);
+}
+html,body{height:100%;font-family:-apple-system,sans-serif;color:var(--text);overflow:hidden;touch-action:pan-x pan-y;-webkit-user-select:none;user-select:none;background:#080f1e;}
+input,textarea{-webkit-user-select:text!important;user-select:text!important;}
+@keyframes gira{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+@keyframes load{0%{transform:translateX(-100%);}100%{transform:translateX(350%);}}
+@keyframes fadein{from{opacity:0;}to{opacity:1;}}
+
+/* CANVAS PARTÍCULAS */
+#cv{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;display:block;}
+
+/* SCREENS */
+.screen{display:none;position:fixed;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;flex-direction:column;z-index:2;background:transparent;}
+.screen.ativo{display:flex;}
+#tela-perfil>*{flex-shrink:0;}
+
+/* SPLASH */
+#tela-splash{align-items:center;justify-content:center;gap:18px;padding-top:max(40px,var(--sat));}
+.splash-logo{width:130px;height:130px;border-radius:32px;overflow:hidden;box-shadow:0 0 50px rgba(251,191,36,0.35);animation:float 3s ease-in-out infinite;}
+.splash-logo img{width:100%;height:100%;object-fit:cover;}
+.splash-title{font-size:30px;font-weight:900;color:#fff;text-align:center;}
+.splash-title span{color:var(--dourado);}
+.splash-sub{font-size:13px;color:var(--muted);}
+.splash-bar{width:44px;height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
+.splash-bar::after{content:"";display:block;height:100%;width:40%;background:linear-gradient(90deg,var(--dourado3),var(--dourado));animation:load 1.2s ease-in-out infinite;}
+
+/* LOGIN */
+#tela-login{min-height:100%;padding-top:max(40px,var(--sat));padding-bottom:40px;}
+.login-header{padding:16px 22px 20px;text-align:center;}
+.login-logo{width:80px;height:80px;border-radius:20px;overflow:hidden;margin:0 auto 12px;box-shadow:0 6px 24px rgba(251,191,36,0.25);}
+.login-logo img{width:100%;height:100%;object-fit:cover;}
+.login-header h1{font-size:22px;font-weight:900;color:#fff;margin-bottom:3px;}
+.login-header p{font-size:12px;color:var(--muted);}
+.login-body{padding:0 22px;display:flex;flex-direction:column;gap:11px;}
+.modo-tabs{display:flex;background:var(--card);border-radius:14px;padding:3px;border:1px solid var(--border);}
+.modo-tab{flex:1;padding:9px;border-radius:11px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.modo-tab.ativo{background:var(--azul2);color:var(--dourado);border:1px solid var(--border);}
+.campo-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px;}
+.campo-input{width:100%;padding:13px 15px;background:var(--card);border:1px solid var(--border);border-radius:13px;color:var(--text);font-size:15px;font-family:inherit;outline:none;-webkit-appearance:none;-webkit-user-select:text;user-select:text;}
+.campo-input:focus{border-color:var(--dourado);}
+.campo-input::placeholder{color:var(--muted);}
+.emerg-box{background:rgba(251,191,36,0.05);border:1px solid var(--border);border-radius:14px;padding:14px;}
+.emerg-titulo{font-size:12px;font-weight:700;color:var(--dourado);margin-bottom:5px;}
+.emerg-desc{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.sobre-row{display:flex;align-items:center;gap:11px;padding:10px 13px;background:var(--card2);border:1px solid var(--border);border-radius:12px;}
+.sobre-row span{font-size:20px;}
+.sobre-lb{font-size:13px;font-weight:700;color:#fff;}
+.sobre-vl{font-size:11px;color:var(--muted);margin-top:1px;}
+.termos-texto{max-height:50vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:6px;}
+.termos-texto h4{font-size:13px;font-weight:800;color:var(--dourado);margin:14px 0 5px;}
+.termos-texto h4:first-child{margin-top:0;}
+.termos-texto p{font-size:12px;color:var(--text);line-height:1.55;margin-bottom:4px;}
+.termos-check{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--muted);cursor:pointer;padding:4px 2px;line-height:1.4;}
+.termos-check input{width:20px;height:20px;flex-shrink:0;accent-color:var(--dourado);margin-top:1px;}
+.termos-check a{color:var(--dourado);font-weight:600;text-decoration:underline;cursor:pointer;}
+.seg-box{background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.25);border-radius:14px;padding:14px;}
+.seg-titulo{font-size:12px;font-weight:700;color:#60a5fa;margin-bottom:5px;}
+.seg-desc{font-size:11px;color:var(--muted);margin-bottom:10px;}
+select.campo-input{-webkit-appearance:none;appearance:none;}
+.foto-btn{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--card);border:1px solid var(--border);border-radius:13px;cursor:pointer;}
+.foto-prev{width:50px;height:50px;border-radius:50%;background:var(--card2);border:2px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;}
+.foto-prev img{width:100%;height:100%;object-fit:cover;}
+input[type=file]{display:none;}
+.btn-p{width:100%;padding:15px;border-radius:15px;background:var(--azul2);border:1px solid var(--border);color:var(--dourado);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-p:active{opacity:0.85;}
+.btn-sec{width:100%;padding:12px;border-radius:13px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* HOME */
+#tela-home{padding-bottom:24px;}
+.home-header{padding:20px 18px 14px;padding-top:calc(env(safe-area-inset-top,0px) + 16px);background:linear-gradient(180deg,rgba(26,42,74,0.96) 0%,rgba(15,26,46,0.7) 70%,transparent 100%);}
+.home-header-top{display:flex;align-items:center;gap:10px;position:relative;min-height:72px;}
+.avatar{width:48px;height:48px;border-radius:50%;background:var(--card2);border:2px solid var(--dourado);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;font-size:14px;font-weight:700;color:var(--dourado);}
+.avatar img{width:100%;height:100%;object-fit:cover;}
+.header-info{flex:1;}
+.header-saudacao{font-size:11px;color:rgba(255,255,255,0.6);}
+.header-nome{font-size:16px;font-weight:800;color:#fff;}
+.btn-ham{background:rgba(251,191,36,0.08);border:1px solid var(--border);border-radius:13px;color:var(--dourado);font-size:22px;cursor:pointer;padding:9px 13px;flex-shrink:0;}
+
+/* ATALHOS SCROLL */
+.atalhos-wrap{padding:8px 14px 4px;}
+.atalhos-scroll{display:flex;gap:8px;overflow-x:scroll;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding:0 2px 6px;scrollbar-width:none;cursor:grab;}
+.atalhos-scroll::-webkit-scrollbar{display:none;}
+.atalho-item{flex-shrink:0;width:90px;position:relative;border-radius:14px;padding:2px;overflow:hidden;cursor:pointer;transition:transform 0.18s ease,box-shadow 0.18s ease,filter 0.18s ease;}
+.atalho-item.drag-ativo{overflow:hidden;transform:scale(1.18) translateY(-10px) rotate(2deg)!important;z-index:1000;box-shadow:0 22px 48px rgba(251,191,36,0.7),0 12px 22px rgba(0,0,0,0.6)!important;filter:brightness(1.15);transition:none!important;touch-action:none;}
+.atalhos-scroll.reordenando{overflow:visible;touch-action:none;}
+.atalho-luz{position:absolute;top:50%;left:50%;width:200%;height:200%;animation:gira 2s linear infinite;border-radius:14px;}
+.atalho-conteudo{position:relative;z-index:2;background:var(--card2);border-radius:12px;padding:11px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;}
+.atalho-ic{font-size:22px;}
+.atalho-lb{font-size:11px;font-weight:600;color:var(--muted);text-align:center;line-height:1.2;}
+.atalho-end{font-size:9px;color:var(--muted);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:76px;}
+
+/* CARD DESTINO */
+.dest-card{margin:12px 14px 10px;background:rgba(15,26,46,0.55);border:1px solid var(--border);border-radius:20px;padding:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+.dest-titulo{font-size:15px;font-weight:800;color:#fff;margin-bottom:10px;}
+.chips{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none;margin-bottom:8px;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;padding:5px 13px;border-radius:18px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;}
+.chip.ativo{background:var(--azul2);color:var(--dourado);border-color:var(--border);}
+.busca-row{display:flex;gap:7px;margin-bottom:7px;position:relative;}
+.campo-busca{flex:1;padding:12px 14px;background:var(--card2);border:1px solid var(--border);border-radius:13px;color:var(--text);font-size:14px;font-family:inherit;outline:none;-webkit-appearance:none;-webkit-user-select:text;user-select:text;}
+.campo-busca:focus{border-color:var(--dourado);}
+.campo-busca::placeholder{color:var(--muted);}
+.btn-mapa-ic{width:44px;height:44px;border-radius:13px;background:var(--azul2);border:1px solid var(--border);color:var(--dourado);font-size:19px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.sugestoes{position:absolute;top:calc(100% + 4px);left:0;right:52px;background:var(--card);border:1px solid var(--border);border-radius:13px;z-index:200;overflow:hidden;display:none;max-height:200px;overflow-y:auto;}
+.sug-item{padding:10px 14px;border-bottom:1px solid rgba(251,191,36,0.05);cursor:pointer;}
+.sug-item:last-child{border-bottom:none;}
+.sug-nome{font-size:13px;font-weight:600;color:var(--text);margin-bottom:1px;}
+.sug-end{font-size:11px;color:var(--muted);}
+.sug-item:active{background:var(--card2);}
+.sug-mais{padding:10px 14px;text-align:center;font-size:12px;font-weight:600;color:var(--dourado);cursor:pointer;background:rgba(251,191,36,0.04);}
+.origem-row{display:flex;align-items:center;gap:9px;padding:10px 13px;background:var(--card2);border:1px solid var(--border);border-radius:13px;margin-bottom:7px;}
+.origem-txt{flex:1;font-size:12px;color:var(--muted);}
+.origem-txt.ok{color:var(--verde);}
+.campo-obs{width:100%;padding:10px 13px;background:var(--card2);border:1px solid var(--border);border-radius:13px;color:var(--text);font-size:13px;font-family:inherit;outline:none;-webkit-appearance:none;margin-bottom:7px;-webkit-user-select:text;user-select:text;}
+.campo-obs::placeholder{color:var(--muted);}
+.pgto-sec{margin-bottom:8px;}
+.pgto-titulo{font-size:13px;font-weight:800;color:#fff;margin-bottom:8px;}
+.pgto-opcoes{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.pgto-btn{padding:11px 8px;border-radius:12px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.pgto-btn.ativo{background:rgba(251,191,36,0.12);border-color:var(--dourado);color:var(--dourado);}
+.valor-card{background:rgba(251,191,36,0.07);border:1px solid var(--border);border-radius:13px;padding:10px 14px;margin-bottom:8px;display:none;}
+.valor-num{font-size:22px;font-weight:900;color:var(--dourado);}
+.valor-info{font-size:11px;color:var(--muted);}
+
+/* BOTÃO CHAMAR */
+@property --bordaAng{syntax:"<angle>";initial-value:0deg;inherits:false;}
+@keyframes giraBorda{to{--bordaAng:360deg;}}
+@keyframes giraRot{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+.btn-chamar-wrap{
+  position:relative;border-radius:20px;padding:3px;
+  background:conic-gradient(from var(--bordaAng),#ef4444,#f97316,#fbbf24,#22c55e,#3b82f6,#a855f7,#ef4444);
+  animation:giraBorda 3s linear infinite;
+}
+.btn-chamar{
+  width:100%;padding:16px 20px;border-radius:17px;
+  background:linear-gradient(135deg,#1e40af,#2563eb,#1d4ed8);
+  border:none;
+  color:#ffffff;
+  font-size:18px;font-weight:900;
+  cursor:pointer;font-family:inherit;
+  position:relative;z-index:2;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  letter-spacing:0.5px;
+  text-shadow:0 1px 5px rgba(0,0,0,0.5);
+}
+/* Luz reluzente interna - passa de fora a fora */
+.btn-chamar::before{
+  content:"";position:absolute;
+  top:-60%;left:-60%;width:220%;height:220%;
+  background:linear-gradient(45deg,transparent 42%,rgba(255,255,255,0.4) 50%,transparent 58%);
+  animation:luzReluzente 2.8s linear infinite;
+  pointer-events:none;
+}
+@keyframes luzReluzente{0%,100%{transform:translateX(-60%);}50%{transform:translateX(60%);}}
+@keyframes heroBrilho{0%{transform:translateX(-200%);}100%{transform:translateX(400%);}}100%{left:160%;}}100%{transform:translateX(55%);}}
+.btn-chamar img,.btn-chamar span{position:relative;z-index:1;}
+.btn-chamar:disabled{opacity:0.92;cursor:default;}
+
+/* MAPA MOTOBOYS */
+.mapa-mot-wrap{margin:0 14px 12px;border-radius:18px;overflow:hidden;border:1px solid rgba(34,197,94,0.2);height:200px;position:relative;background:#060d18;}
+#mapa-motoboys{position:absolute;top:0;left:0;bottom:0;right:0;width:100%;height:100%;}
+.mot-badge{position:absolute;z-index:999;pointer-events:none;border-radius:9px;padding:4px 10px;font-size:10px;font-weight:600;}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,26,46,0.96);border-top:1px solid var(--border);display:flex;padding-bottom:max(8px,var(--sab));z-index:100;backdrop-filter:blur(10px);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 0 0;gap:3px;cursor:pointer;border:none;background:none;font-family:inherit;}
+.nav-ic{font-size:20px;}
+.nav-lb{font-size:9px;font-weight:600;color:var(--muted);}
+.nav-btn.ativo .nav-lb{color:var(--dourado);}
+
+/* BUSCANDO */
+#tela-buscando{align-items:center;justify-content:center;gap:14px;padding:24px;padding-top:max(60px,calc(var(--sat)+40px));}
+.busc-logo{width:84px;height:84px;border-radius:20px;overflow:hidden;animation:float 2s ease-in-out infinite;}
+.busc-logo img{width:100%;height:100%;object-fit:cover;}
+.busc-titulo{font-size:20px;font-weight:900;color:#fff;text-align:center;}
+.busc-sub{font-size:13px;color:var(--muted);text-align:center;}
+.busc-spinner{width:48px;height:48px;border:3px solid rgba(251,191,36,0.12);border-top-color:var(--dourado);border-radius:50%;animation:spin 0.9s linear infinite;}
+.busc-num{font-size:34px;font-weight:900;color:var(--dourado);}
+.busc-label{font-size:11px;color:var(--muted);margin-top:-10px;}
+.dev-retangulo{position:relative;display:inline-block;border-radius:13px;padding:2px;overflow:hidden;}
+.dev-luz{position:absolute;top:50%;left:50%;width:200%;height:200%;background:conic-gradient(#ef4444,#3b82f6,var(--dourado),#22c55e,#ef4444);animation:gira 2s linear infinite;}
+.dev-inner{position:relative;z-index:1;background:var(--card);border-radius:11px;padding:7px 18px;text-align:center;}
+.dev-por{font-size:10px;color:var(--muted);}
+.dev-nome{font-size:12px;font-weight:800;color:var(--dourado);white-space:nowrap;}
+.btn-cancelar-busca{padding:12px 26px;border-radius:13px;background:transparent;border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* EM CORRIDA */
+#tela-entrega{flex-direction:column;}
+#mapa-entrega{flex:1;min-height:42vh;position:relative;}
+.btn-full{position:absolute;top:max(10px,var(--sat));right:10px;z-index:999;background:rgba(8,15,30,0.9);border:1px solid var(--border);border-radius:9px;padding:5px 11px;font-size:11px;font-weight:600;color:var(--dourado);cursor:pointer;}
+.eta{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:999;background:rgba(8,15,30,0.92);border:1px solid var(--border);border-radius:18px;padding:4px 14px;font-size:11px;font-weight:700;color:var(--dourado);white-space:nowrap;display:none;}
+.entrega-painel{background:var(--card);border-top:1px solid var(--border);border-radius:22px 22px 0 0;padding:14px 16px;padding-bottom:max(14px,calc(var(--sab)+14px));}
+.entrega-status{font-size:13px;font-weight:700;color:var(--dourado);margin-bottom:9px;}
+.mot-card{display:flex;align-items:center;gap:11px;padding:11px;background:var(--card2);border-radius:14px;border:1px solid var(--border);margin-bottom:9px;cursor:pointer;}
+.mot-foto{width:48px;height:48px;border-radius:50%;background:var(--bg);border:2px solid var(--dourado);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:18px;}
+.mot-foto img{width:100%;height:100%;object-fit:cover;}
+.mot-nome{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;}
+.mot-veic{font-size:11px;color:var(--muted);}
+.mot-placa{font-size:11px;font-weight:700;color:var(--dourado);}
+.entrega-valor{font-size:22px;font-weight:900;color:var(--dourado);text-align:center;margin-bottom:9px;}
+.acoes{display:flex;gap:7px;margin-bottom:9px;}
+.btn-acao{flex:1;padding:10px;border-radius:13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px;border:1px solid var(--border);}
+.btn-cancelar-cor{width:100%;padding:11px;border-radius:13px;background:transparent;border:1px solid rgba(239,68,68,0.2);color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* CHAT */
+#modal-chat{display:none;position:fixed;inset:0;z-index:9980;background:rgba(0,0,0,0.8);align-items:flex-end;backdrop-filter:blur(6px);}
+#modal-chat.show{display:flex;}
+.chat-sheet{background:var(--card);border-radius:22px 22px 0 0;border-top:1px solid var(--border);width:100%;height:68vh;display:flex;flex-direction:column;}
+.chat-hdr{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.chat-tit{flex:1;font-size:14px;font-weight:700;color:#fff;}
+.chat-msgs{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:7px;}
+.msg{max-width:78%;padding:8px 13px;border-radius:14px;font-size:13px;line-height:1.4;}
+.msg.minha{align-self:flex-end;background:var(--azul2);color:var(--dourado);border-bottom-right-radius:3px;}
+.msg.dele{align-self:flex-start;background:var(--card2);color:var(--text);border-bottom-left-radius:3px;}
+.msg-time{font-size:9px;color:var(--muted);margin-top:2px;text-align:right;}
+.chat-inp-row{padding:9px 12px;padding-bottom:max(9px,var(--sab));border-top:1px solid var(--border);display:flex;gap:7px;}
+.chat-inp{flex:1;padding:10px 13px;background:var(--card2);border:1px solid var(--border);border-radius:18px;color:var(--text);font-size:13px;font-family:inherit;outline:none;-webkit-user-select:text;user-select:text;}
+.chat-inp::placeholder{color:var(--muted);}
+.btn-send{width:40px;height:40px;border-radius:50%;background:var(--azul2);border:1px solid var(--border);color:var(--dourado);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+/* PERFIL */
+#tela-perfil{padding-bottom:72px;}
+.perf-hdr{background:linear-gradient(180deg,rgba(26,42,74,0.95),transparent);padding:14px 18px 18px;padding-top:calc(env(safe-area-inset-top,0px) + 14px);}
+.perf-hdr h2{font-size:20px;font-weight:800;color:#fff;}
+.perf-card{margin:0 16px 12px;background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;}
+.perf-user{display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid var(--border);cursor:pointer;}
+.perf-av{width:64px;height:64px;border-radius:50%;background:var(--card2);border:3px solid var(--dourado);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--dourado);position:relative;flex-shrink:0;}
+.perf-av img{width:100%;height:100%;object-fit:cover;}
+.perf-edit{position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--dourado);display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;border:2px solid var(--card);}
+.perf-nome{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px;}
+.perf-fone{font-size:12px;color:var(--muted);}
+.perf-badge{display:inline-flex;margin-top:4px;background:rgba(251,191,36,0.08);border:1px solid var(--border);border-radius:7px;padding:2px 8px;font-size:10px;font-weight:700;color:var(--dourado);}
+/* PERFIL NOVO */
+.perf-hdr{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.perf-marca{display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 0 14px;}
+.perf-marca-logo{width:54px;height:54px;border-radius:14px;object-fit:cover;box-shadow:0 4px 14px rgba(251,191,36,0.25);}
+.perf-marca-txt{font-size:11px;color:var(--muted);}
+.perf-marca-txt b{color:var(--dourado);font-weight:700;}
+.perf-hero{position:relative;margin:0 16px 16px;border-radius:22px;border:1px solid var(--border);background:linear-gradient(135deg,#1e40af 0%,#2563eb 35%,#7c3aed 65%,#b45309 100%);overflow:hidden;}
+.perf-hero-bg{position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;pointer-events:none;}
+.perf-hero-bg::after{content:"";position:absolute;top:0;left:0;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,0.28),transparent);animation:heroBrilho 3s linear infinite;}
+.perf-hero-content{position:relative;z-index:2;padding:20px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+.perf-av-outer{position:relative;width:104px;height:104px;}
+.perf-av-ring{position:relative;width:104px;height:104px;border-radius:50%;padding:4px;overflow:hidden;background:var(--nivel-grad,conic-gradient(#cd7f32,#f0b97d,#8b5a2b,#cd7f32));}
+.perf-av-ring::before{content:"";position:absolute;top:50%;left:50%;width:150%;height:150%;border-radius:50%;background:var(--nivel-grad,conic-gradient(#cd7f32,#f0b97d,#8b5a2b,#cd7f32));animation:giraRot 3s linear infinite;z-index:0;}
+.perf-av-big{position:relative;z-index:1;width:96px;height:96px;border-radius:50%;background:var(--card2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:42px;box-shadow:0 4px 14px rgba(0,0,0,0.5);}
+.perf-av-big img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.perf-av-outer .perf-edit{position:absolute;bottom:-2px;right:-2px;width:32px;height:32px;border-radius:50%;background:var(--dourado);border:3px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
+.perf-nome-big{font-size:22px;font-weight:900;color:#fff;margin-top:12px;text-shadow:0 2px 8px rgba(0,0,0,0.6);}
+.perf-nivel{margin-top:8px;background:rgba(0,0,0,0.3);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 15px;font-size:12px;font-weight:700;color:#ffe9b0;}
+.perf-stats-row{display:flex;gap:10px;margin:0 16px 16px;}
+.perf-stat-wrap{flex:1;position:relative;border-radius:16px;padding:2px;overflow:hidden;}
+.perf-stat-wrap::before{content:"";position:absolute;top:50%;left:50%;width:250%;height:250%;background:conic-gradient(#ef4444,#f97316,#fbbf24,#22c55e,#3b82f6,#a855f7,#ef4444);animation:giraRot 4s linear infinite;}
+.perf-stat{position:relative;z-index:2;background:var(--card);border-radius:14px;padding:16px 8px;text-align:center;}
+.perf-stat-num{font-size:21px;font-weight:900;color:var(--dourado);}
+.perf-stat-lb{font-size:10px;color:var(--muted);margin-top:4px;font-weight:600;}
+.perf-sec-tit{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:18px 18px 9px;}
+.perf-info-card{margin:0 16px;background:var(--card2);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.perf-info-row{display:flex;align-items:center;gap:13px;padding:14px 16px;border-bottom:1px solid rgba(251,191,36,0.07);}
+.perf-info-row:last-child{border-bottom:none;}
+.perf-info-ic{font-size:20px;width:26px;text-align:center;flex-shrink:0;}
+.perf-info-txt{flex:1;min-width:0;}
+.perf-info-lb{font-size:11px;color:var(--muted);margin-bottom:3px;}
+.perf-info-vl{font-size:15px;color:#fff;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.perf-emerg{border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.05);}
+.perf-acoes{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 16px;}
+.perf-acao{display:flex;align-items:center;gap:9px;padding:15px 13px;background:var(--card);border:1px solid var(--border);border-radius:14px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left;}
+.perf-acao span{font-size:18px;}
+.perf-acao:active{background:var(--card2);}
+.perf-hist{margin:0 16px;display:flex;flex-direction:column;gap:8px;}
+
+.hist-item{display:flex;align-items:center;gap:11px;padding:12px 16px;border-bottom:1px solid rgba(251,191,36,0.04);}
+.hist-item:last-child{border-bottom:none;}
+.hist-ic{width:36px;height:36px;border-radius:11px;background:var(--card2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
+.hist-local{font-size:13px;font-weight:600;color:var(--text);margin-bottom:1px;}
+.hist-data{font-size:11px;color:var(--muted);}
+.hist-val{font-size:13px;font-weight:700;color:var(--dourado);}
+.btn-sair{margin:0 16px;width:calc(100% - 32px);padding:13px;border-radius:14px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.18);color:#ef4444;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* MAPA DESTINO */
+#modal-mapa-dest{display:none;position:fixed;inset:0;z-index:9970;flex-direction:column;}
+#modal-mapa-dest.show{display:flex;}
+#mapa-dest-div{flex:1;position:relative;}
+.dest-hdr{background:var(--card);border-bottom:1px solid var(--border);padding:13px 18px;padding-top:max(13px,calc(var(--sat)+8px));display:flex;align-items:center;gap:11px;}
+.dest-hdr-tit{flex:1;font-size:13px;font-weight:700;color:#fff;}
+.btn-fechar-dest{padding:7px 13px;border-radius:11px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.dest-footer{background:var(--card);border-top:1px solid var(--border);padding:11px 16px;padding-bottom:max(11px,var(--sab));}
+.dest-end-txt{font-size:12px;color:var(--muted);margin-bottom:8px;min-height:16px;}
+.btn-confirmar{width:100%;padding:14px;border-radius:14px;background:var(--azul2);border:1px solid var(--border);color:var(--dourado);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-confirmar:disabled{opacity:0.38;}
+.pin-centro{position:absolute;top:50%;left:50%;transform:translate(-50%,-100%);z-index:9971;font-size:34px;pointer-events:none;}
+
+/* MAPA FULL */
+#modal-mapa-full{display:none;position:fixed;inset:0;z-index:9960;background:#000;flex-direction:column;}
+#modal-mapa-full.show{display:flex;}
+#mapa-full-div{flex:1;}
+.btn-fechar-full{position:fixed;top:max(70px,calc(var(--sat)+60px));left:14px;z-index:9961;background:rgba(8,15,30,0.97);border:2px solid var(--dourado);border-radius:13px;padding:13px 20px;font-size:14px;font-weight:700;color:var(--dourado);cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.5);}
+
+/* MODAL MOTOBOY */
+#modal-mot{display:none;position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,0.9);align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+#modal-mot.show{display:flex;}
+.mot-modal-box{background:var(--card);border-radius:22px;border:1px solid var(--border);padding:22px;width:86%;max-width:320px;text-align:center;}
+.mot-modal-foto{width:88px;height:88px;border-radius:50%;background:var(--card2);border:3px solid var(--dourado);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 11px;}
+.mot-modal-foto img{width:100%;height:100%;object-fit:cover;}
+
+/* MODAIS BASE */
+.modal-base{display:none;position:fixed;inset:0;z-index:9985;background:rgba(0,0,0,0.87);align-items:flex-end;backdrop-filter:blur(5px);}
+.modal-base.show{display:flex;}
+.modal-sheet{background:var(--card);border-radius:26px 26px 0 0;border-top:1px solid var(--border);padding:22px;padding-bottom:max(38px,calc(var(--sab)+22px));width:100%;animation:slideUp 0.3s ease;max-height:88vh;overflow-y:auto;}
+.btn-ok{width:100%;padding:15px;border-radius:14px;background:var(--azul2);border:1px solid var(--border);color:var(--dourado);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:7px;}
+.btn-cancel{width:100%;padding:12px;border-radius:13px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;}
+
+/* MENU */
+#menu-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:8000;}
+#menu-lateral{display:none;position:fixed;top:0;right:0;bottom:0;width:282px;background:var(--card);border-left:1px solid var(--border);z-index:8001;overflow-y:auto;}
+.menu-hdr{padding:max(54px,calc(var(--sat)+42px)) 18px 18px;background:linear-gradient(180deg,var(--azul2),var(--card));border-bottom:1px solid var(--border);text-align:center;}
+.menu-logo{width:80px;height:80px;border-radius:22px;overflow:hidden;margin:0 auto 12px;box-shadow:0 6px 20px rgba(251,191,36,0.3);}
+.menu-logo img{width:100%;height:100%;object-fit:cover;}
+.menu-app{font-size:18px;font-weight:900;color:#fff;margin-bottom:4px;}
+.menu-dev-por{font-size:10px;color:var(--muted);margin-bottom:5px;}
+.menu-ret{position:relative;display:inline-block;border-radius:12px;padding:2px;overflow:hidden;}
+.menu-ret-luz{position:absolute;top:50%;left:50%;width:200%;height:200%;background:conic-gradient(#ef4444,#3b82f6,var(--dourado),#22c55e,#ef4444);animation:gira 2s linear infinite;}
+.menu-ret-inner{position:relative;z-index:1;background:var(--card2);border-radius:10px;padding:6px 16px;}
+.menu-ret-nome{font-size:12px;font-weight:800;color:var(--dourado);white-space:nowrap;}
+.menu-items{padding:8px 18px 36px;}
+.menu-item{padding:16px 0;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;border-bottom:1px solid rgba(251,191,36,0.05);display:flex;align-items:center;gap:9px;}
+.menu-item:last-child{border-bottom:none;}
+.menu-sep{height:1px;background:var(--border);margin:5px 0;}
+
+/* CONFIG */
+#tela-config{display:none;position:fixed;inset:0;z-index:8002;overflow-y:auto;background:var(--bg);}
+.config-hdr{padding:max(18px,calc(var(--sat)+14px)) 16px 12px;background:linear-gradient(180deg,rgba(26,42,74,0.95),transparent);display:flex;align-items:center;gap:11px;}
+.config-tit{font-size:17px;font-weight:800;color:#fff;}
+.config-sec{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:12px 16px 6px;}
+.config-item{display:flex;align-items:center;gap:11px;padding:12px 16px;border-bottom:1px solid rgba(251,191,36,0.04);}
+.config-ic{font-size:22px;width:38px;text-align:center;}
+.config-info{flex:1;}
+.config-nome{font-size:13px;font-weight:600;color:var(--text);}
+.config-end{font-size:11px;color:var(--muted);}
+.toggle{width:42px;height:23px;border-radius:11px;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;}
+.toggle.on{background:var(--verde);}
+.toggle.off{background:var(--card2);border:1px solid var(--border);}
+.toggle::after{content:"";position:absolute;top:2px;width:19px;height:19px;border-radius:50%;background:#fff;transition:left 0.2s;}
+.toggle.on::after{left:21px;}
+.toggle.off::after{left:2px;}
+
+/* MODAL CRIAR ATALHO */
+#modal-criar-atalho{display:none;position:fixed;inset:0;z-index:9986;background:rgba(0,0,0,0.88);align-items:flex-end;backdrop-filter:blur(5px);}
+#modal-criar-atalho.show{display:flex;}
+.icone-op{width:40px;height:40px;border-radius:11px;background:var(--card2);border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-size:21px;cursor:pointer;transition:border-color 0.15s;}
+.icone-op.sel{border-color:var(--dourado);}
+.cor-op{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color 0.15s;}
+.cor-op.sel{border-color:#fff;}
+
+/* CROP */
+.crop-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:20000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:22px;}
+.crop-container{width:260px;height:260px;border-radius:50%;overflow:hidden;border:3px solid var(--dourado);flex-shrink:0;}
+.crop-canvas{width:260px;height:260px;display:block;}
+
+/* ESTRELAS */
+.estrela{font-size:36px;color:rgba(255,255,255,0.12);cursor:pointer;transition:color 0.1s;}
+.estrela.on{color:var(--dourado);}
+
+/* PWA */
+#pwa-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:9997;padding:11px 16px;padding-bottom:max(11px,var(--sab));background:rgba(15,26,46,0.97);border-top:1px solid var(--border);backdrop-filter:blur(10px);}
+#pwa-banner.show{display:block;animation:slideUp 0.4s ease;}
+.pwa-inner{display:flex;align-items:center;gap:11px;}
+.pwa-logo{width:42px;height:42px;border-radius:11px;overflow:hidden;flex-shrink:0;}
+.pwa-logo img{width:100%;height:100%;object-fit:cover;}
+.pwa-txt strong{display:block;font-size:13px;font-weight:700;color:#fff;}
+.pwa-txt span{font-size:11px;color:var(--muted);}
+.pwa-btns{display:flex;gap:7px;align-items:center;margin-left:auto;}
+.btn-inst{padding:7px 13px;border-radius:18px;background:var(--azul2);border:1px solid var(--border);color:var(--dourado);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-x{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.07);border:none;color:var(--muted);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#ios-guide{display:none;position:fixed;bottom:0;left:0;right:0;z-index:9997;padding:18px 16px;padding-bottom:max(18px,var(--sab));background:rgba(15,26,46,0.97);border-top:1px solid var(--border);}
+#ios-guide.show{display:block;animation:slideUp 0.4s ease;}
+.ios-tit{font-size:14px;font-weight:700;color:#fff;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;}
+.ios-steps{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.ios-step{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:rgba(255,255,255,0.62);line-height:1.5;}
+.ios-n{width:19px;height:19px;border-radius:50%;background:rgba(251,191,36,0.1);color:var(--dourado);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ios-step em{font-style:normal;color:#fff;font-weight:600;}
+.chip-ios{background:rgba(251,191,36,0.08);border-radius:5px;padding:1px 6px;font-size:10px;color:var(--dourado);font-weight:600;}
+
+/* TOAST / LOADING */
+#toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--card);border:1px solid var(--border);border-radius:13px;padding:10px 16px;font-size:12px;font-weight:600;color:var(--text);z-index:99999;opacity:0;transition:all 0.3s;text-align:center;max-width:88vw;pointer-events:none;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#loading{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9998;align-items:center;justify-content:center;}
+#loading.show{display:flex;}
+.ld-spin{width:44px;height:44px;border:3px solid rgba(251,191,36,0.12);border-top-color:var(--dourado);border-radius:50%;animation:spin 0.8s linear infinite;}
+.ped-av-outer{position:relative;width:104px;height:104px;}
+.ped-av-ring{position:relative;width:104px;height:104px;border-radius:50%;padding:4px;overflow:hidden;background:var(--nivel-grad,conic-gradient(#cd7f32,#f0b97d,#8b5a2b,#cd7f32));}
+.ped-av-ring::before{content:"";position:absolute;top:50%;left:50%;width:150%;height:150%;border-radius:50%;background:var(--nivel-grad,conic-gradient(#cd7f32,#f0b97d,#8b5a2b,#cd7f32));animation:giraRot 3s linear infinite;}
+.ped-av-big{position:relative;z-index:1;width:96px;height:96px;border-radius:50%;background:var(--card2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:40px;}
+.ped-av-big img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.ped-badge{background:rgba(251,191,36,0.12);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#ffe9b0;}
+.ped-comentario{background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:11px 13px;margin-bottom:12px;}
+</style>
+</head>
+<body>
+<!-- CANVAS PARTÍCULAS -->
+<canvas id="cv"></canvas>
+
+<!-- SPLASH -->
+<div class="screen ativo" id="tela-splash">
+  <div class="splash-logo"><img id="logo-splash" src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" alt="Entrega Já" style="width:100%;height:100%;object-fit:cover;border-radius:32px;"/></div>
+  <div class="splash-title">Entrega <span>Já</span></div>
+  <div class="splash-sub">Seu transporte rápido e seguro</div>
+  <div class="splash-bar"></div>
+</div>
+
+<!-- LOGIN -->
+<div class="screen" id="tela-login">
+  <div class="login-header">
+    <div class="login-logo"><img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" alt=""/></div>
+    <h1>Entrega Já</h1>
+    <p>Área do restaurante</p>
+  </div>
+  <div class="login-body">
+    <div class="modo-tabs">
+      <button class="modo-tab ativo" id="tab-cad" onclick="altTab('cad')">Cadastrar</button>
+      <button class="modo-tab" id="tab-ent" onclick="altTab('ent')">Entrar</button>
+    </div>
+    <div id="form-cad">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div><div class="campo-label">Nome do restaurante</div><input class="campo-input" id="cad-nome" type="text" placeholder="Ex: Pizzaria do João" autocomplete="organization"/></div>
+        <div><div class="campo-label">Endereço do restaurante *</div><input class="campo-input" id="cad-endereco" type="text" placeholder="Rua, número, bairro"/></div>
+        <div><div class="campo-label">WhatsApp</div><input class="campo-input" id="cad-fone" type="tel" placeholder="(19) 99999-9999"/></div>
+        <div><div class="campo-label">CPF *</div><input class="campo-input" id="cad-cpf" type="text" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)"/></div>
+        <div><div class="campo-label">Data de nascimento *</div><input class="campo-input" id="cad-nasc" type="date" placeholder="dd/mm/aaaa"/></div>
+        <div><div class="campo-label">Senha *</div><input class="campo-input" id="cad-senha" type="password" placeholder="Crie uma senha (mín. 4 dígitos)" autocomplete="new-password"/></div>
+        <div class="seg-box">
+          <div class="seg-titulo">🔐 Recuperação de senha</div>
+          <div class="seg-desc">Caso esqueça a senha, você poderá redefini-la respondendo esta pergunta.</div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <select class="campo-input" id="cad-pergunta">
+              <option value="">Escolha uma pergunta de segurança</option>
+              <option value="Qual o nome do seu primeiro animal de estimação?">Nome do seu primeiro animal de estimação?</option>
+              <option value="Qual a cidade onde você nasceu?">Cidade onde você nasceu?</option>
+              <option value="Qual o nome de solteira da sua mãe?">Nome de solteira da sua mãe?</option>
+              <option value="Qual o nome da sua primeira escola?">Nome da sua primeira escola?</option>
+              <option value="Qual o seu prato favorito?">Seu prato favorito?</option>
+            </select>
+            <input class="campo-input" id="cad-resposta" type="text" placeholder="Sua resposta"/>
+          </div>
+        </div>
+        <div class="emerg-box">
+          <div class="emerg-titulo">🛡️ Para sua segurança</div>
+          <div class="emerg-desc">Deixe um contato de emergência. Em caso de necessidade, poderemos acioná-lo.</div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <input class="campo-input" id="cad-emerg-nome" type="text" placeholder="Nome do contato de emergência"/>
+            <input class="campo-input" id="cad-emerg-fone" type="tel" placeholder="WhatsApp do contato"/>
+          </div>
+        </div>
+        <div>
+          <div class="campo-label">Foto (opcional)</div>
+          <div class="foto-btn" onclick="document.getElementById('inp-foto-cad').click()">
+            <div class="foto-prev" id="foto-prev-cad">📷</div>
+            <div><strong id="foto-txt-cad" style="display:block;font-size:13px;color:var(--text);margin-bottom:2px;">Adicionar foto</strong><span style="font-size:11px;color:var(--muted);">Toque para escolher</span></div>
+          </div>
+          <input type="file" id="inp-foto-cad" accept="image/*" onchange="processarFoto(this,'foto-prev-cad','foto-txt-cad')"/>
+        </div>
+        <label class="termos-check">
+          <input type="checkbox" id="cad-termos"/>
+          <span>Li e aceito os <a onclick="event.preventDefault();document.getElementById('modal-termos').classList.add('show')">Termos de Uso e Política de Responsabilidade</a></span>
+        </label>
+        <button class="btn-p" onclick="cadastrar()">Criar minha conta</button>
+        <button class="btn-sec" onclick="entrarSemConta()">Continuar sem cadastro</button>
+      </div>
+    </div>
+    <div id="form-ent" style="display:none;">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div><div class="campo-label">WhatsApp</div><input class="campo-input" id="ent-fone" type="tel" placeholder="(19) 99999-9999"/></div>
+        <div><div class="campo-label">Senha</div><input class="campo-input" id="ent-senha" type="password" placeholder="Sua senha" autocomplete="current-password"/></div>
+        <button class="btn-p" onclick="entrar()">Entrar</button>
+        <button class="btn-link" onclick="abrirRecuperar()" style="background:none;border:none;color:var(--dourado);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:6px;">Esqueci minha senha</button>
+        <button class="btn-sec" onclick="entrarSemConta()">Continuar sem cadastro</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="tela-home">
+  <div class="home-header">
+    <div class="home-header-top">
+      <!-- ESQUERDA: foto + saudacao + nome -->
+      <div style="display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;" onclick="irPara('perfil')">
+        <div class="avatar" id="home-avatar"><span id="home-initial">👤</span></div>
+        <div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.65);" id="saudacao">Bom dia!</div>
+          <div style="font-size:18px;font-weight:800;color:#fff;line-height:1.1;" id="home-nome">...</div>
+        </div>
+      </div>
+      <!-- CENTRO: logo absolutamente centralizado -->
+      <div style="position:absolute;left:0;right:0;display:flex;justify-content:center;align-items:center;pointer-events:none;z-index:0;">
+        <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" style="width:66px;height:66px;border-radius:18px;object-fit:cover;box-shadow:0 6px 20px rgba(251,191,36,0.45);margin-top:6px;"/>
+      </div>
+      <!-- DIREITA: hamburger -->
+      <div style="flex:1;"></div>
+      <button class="btn-ham" onclick="abrirMenu()" style="flex-shrink:0;position:relative;z-index:1;">☰</button>
+    </div>
+  </div>
+  <div class="dest-card">
+    <div class="dest-titulo">Nova entrega 🏍️</div>
+    <div class="atalhos-scroll" id="atalhos-container" style="margin-bottom:10px;"></div>
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">Cidade de entrega</div>
+    <div class="chips" id="chips-cidade">
+      <div class="chip" data-c="Holambra" onclick="selCidade(this)">Holambra</div>
+      <div class="chip" data-c="Jaguariúna" onclick="selCidade(this)">Jaguariúna</div>
+      <div class="chip" data-c="Arthur Nogueira" onclick="selCidade(this)">Arthur Nogueira</div>
+      <div class="chip" data-c="Mogi Mirim" onclick="selCidade(this)">Mogi Mirim</div>
+      <div class="chip" data-c="Mogi Guaçu" onclick="selCidade(this)">Mogi Guaçu</div>
+      <div class="chip" data-c="Campinas" onclick="selCidade(this)">Campinas</div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;margin-top:6px;">Endereço de entrega (cliente)</div>
+    <div style="position:relative;">
+      <div class="busca-row">
+        <input class="campo-busca" id="campo-busca" type="text" placeholder="Rua, bairro do cliente..." autocomplete="off" oninput="buscarDest(this.value)"/>
+        <button class="btn-mapa-ic" onclick="abrirMapaDest()">🗺️</button>
+      </div>
+      <div class="sugestoes" id="sugestoes"></div>
+    </div>
+    <div class="origem-row">
+      <span style="font-size:15px;">🏪</span>
+      <div class="origem-txt" id="origem-txt">Retirada: endereço do restaurante</div>
+    </div>
+    <input class="campo-obs" id="campo-obs" type="text" placeholder="O que está sendo entregue? (ex: 2 pizzas, troco p/ R$50)" autocomplete="off"/>
+
+    <div class="valor-card" id="valor-card" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div class="valor-num" id="valor-num">R$ --</div><div class="valor-info" id="valor-dist">calculando...</div></div>
+        <div class="valor-info" id="valor-tempo" style="text-align:right;"></div>
+      </div>
+    </div>
+    <div class="btn-chamar-wrap">
+      <button class="btn-chamar" id="btn-chamar" onclick="chamarEntrega()" disabled>
+        <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" style="width:52px;height:52px;border-radius:13px;object-fit:cover;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,0.4);"/>
+        <span>Chamar Entrega Já!</span>
+      </button>
+    </div>
+  </div>
+  <div class="mapa-mot-wrap">
+    <div id="mapa-motoboys"></div>
+    <div style="position:absolute;bottom:8px;right:8px;z-index:999;background:rgba(8,15,30,0.85);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:10px;font-weight:600;color:var(--dourado);cursor:pointer;" onclick="abrirMapaFull()">⛶ Ampliar</div>
+    <div class="mot-badge" style="top:8px;left:8px;background:rgba(4,13,4,0.88);border:1px solid rgba(34,197,94,0.3);color:#22c55e;">🟢 Motoboys online</div>
+    <div class="mot-badge" style="top:8px;right:8px;background:rgba(8,15,30,0.88);border:1px solid var(--border);color:var(--dourado);" id="count-mot">0 disponíveis</div>
+  </div>
+  
+</div>
+
+<!-- MODAL MAPA DESTINO -->
+<div id="modal-mapa-dest">
+  <div class="dest-hdr">
+    <div class="dest-hdr-tit">📍 Arraste o mapa para posicionar o pin</div>
+    <button class="btn-fechar-dest" onclick="fecharMapaDest()">Cancelar</button>
+  </div>
+  <div id="mapa-dest-div" style="flex:1;position:relative;">
+    <div class="pin-centro">📍</div>
+  </div>
+  <div class="dest-footer">
+    <div class="dest-end-txt" id="dest-end-txt">Posicione o pin no local desejado</div>
+    <button class="btn-confirmar" id="btn-confirmar-dest" onclick="confirmarDestMapa()" disabled>Confirmar este local</button>
+  </div>
+</div>
+
+<!-- BUSCANDO -->
+<div class="screen" id="tela-buscando">
+  <div class="busc-logo"><img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" alt=""/></div>
+  <div class="busc-titulo">Buscando motoboy...</div>
+  <div class="busc-sub" id="busc-dest">Aguarde um momento</div>
+  <div class="busc-spinner"></div>
+  <div class="busc-num" id="busc-num">0</div>
+  <div class="busc-label">segundos aguardando</div>
+  <div class="dev-retangulo">
+    <div class="dev-luz"></div>
+    <div class="dev-inner">
+      <div class="dev-por">Desenvolvido por</div>
+      <div class="dev-nome">Heitor Serra Neto</div>
+    </div>
+  </div>
+  <button class="btn-cancelar-busca" onclick="cancelarBusca()">Cancelar</button>
+</div>
+
+<!-- EM CORRIDA -->
+<div class="screen" id="tela-corrida">
+  <div id="mapa-corrida">
+    <button class="btn-full" onclick="abrirMapaFull()">⛶ Ampliar</button>
+    <div class="eta" id="eta"></div>
+  </div>
+  <div class="corrida-painel">
+    <div class="corrida-status" id="corrida-status">🚗 Motoboy a caminho!</div>
+    <div class="mot-card" onclick="verPerfilMot()">
+      <div class="mot-foto" id="mot-foto">🚗</div>
+      <div style="flex:1;">
+        <div class="mot-nome" id="mot-nome">--</div>
+        <div class="mot-veic" id="mot-veic">--</div>
+        <div class="mot-placa" id="mot-placa">--</div>
+      </div>
+      <div style="color:var(--muted);font-size:17px;">›</div>
+    </div>
+    <div class="corrida-valor" id="corrida-valor">R$ --</div>
+    <div class="acoes">
+      <button class="btn-acao" style="background:rgba(59,130,246,0.12);color:#60a5fa;flex:2;" onclick="abrirChat()">💬 Chat com motoboy</button>
+      <button class="btn-acao" style="background:rgba(239,68,68,0.1);color:#ef4444;" onclick="sosEntrega()">🆘 SOS</button>
+      <button class="btn-acao" style="background:rgba(34,197,94,0.1);color:#22c55e;" onclick="compartilhar()">📤</button>
+    </div>
+    <button class="btn-cancelar-cor" onclick="cancelarEntrega()">Cancelar entrega</button>
+  </div>
+</div>
+
+<!-- MODAL PERFIL MOTOBOY -->
+<div id="modal-mot" onclick="this.classList.remove('show')">
+  <div class="mot-modal-box" onclick="event.stopPropagation()">
+    <div class="ped-av-outer" style="margin:0 auto 12px;">
+      <div class="ped-av-ring" id="mm-av-ring">
+        <div class="ped-av-big" id="mm-foto"><span>🚗</span></div>
+      </div>
+    </div>
+    <div style="font-size:18px;font-weight:900;color:#fff;margin-bottom:5px;" id="mm-nome">--</div>
+    <div style="display:flex;gap:7px;align-items:center;justify-content:center;margin-bottom:6px;">
+      <div class="ped-badge" id="mm-nivel">🥉 Bronze</div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:13px;" id="mm-info">--</div>
+    <div style="display:flex;gap:9px;margin-bottom:13px;">
+      <div style="flex:1;background:var(--card2);border-radius:12px;padding:10px;"><div style="font-size:14px;font-weight:800;color:#fff;" id="mm-placa">--</div><div style="font-size:10px;color:var(--muted);">Placa</div></div>
+      <div style="flex:1;background:var(--card2);border-radius:12px;padding:10px;"><div style="font-size:14px;font-weight:800;color:var(--dourado);" id="mm-aval">--</div><div style="font-size:10px;color:var(--muted);">Avaliação</div></div>
+      <div style="flex:1;background:var(--card2);border-radius:12px;padding:10px;"><div style="font-size:14px;font-weight:800;color:#fff;" id="mm-corridas">--</div><div style="font-size:10px;color:var(--muted);">Entregas</div></div>
+    </div>
+    <div class="ped-comentario" id="mm-comentario-wrap" style="display:none;text-align:left;">
+      <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:3px;">💬 ÚLTIMO COMENTÁRIO RECEBIDO</div>
+      <div style="font-size:13px;color:var(--text);font-style:italic;" id="mm-comentario">--</div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:13px;">⚠️ Confirme que este é o motoboy antes de entrar no veículo</div>
+    <button onclick="document.getElementById('modal-mot').classList.remove('show')" style="width:100%;padding:12px;border-radius:13px;background:var(--azul2);border:1px solid var(--border);color:var(--dourado);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">Fechar</button>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div id="modal-chat" onclick="fecharChat()">
+  <div class="chat-sheet" onclick="event.stopPropagation()">
+    <div class="chat-hdr">
+      <div style="font-size:18px;">💬</div>
+      <div class="chat-tit">Chat com motoboy</div>
+      <button onclick="fecharChat()" style="background:none;border:none;color:var(--muted);font-size:19px;cursor:pointer;">✕</button>
+    </div>
+    <div class="chat-msgs" id="chat-msgs"></div>
+    <div class="chat-inp-row">
+      <input class="chat-inp" id="chat-inp" type="text" placeholder="Digite uma mensagem..." onkeydown="if(event.key==='Enter')enviarMsg()"/>
+      <button class="btn-send" onclick="enviarMsg()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- AVALIAÇÃO -->
+<div class="modal-base" id="modal-aval">
+  <div class="modal-sheet">
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:26px;margin-bottom:7px;">⭐</div>
+      <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:3px;">Como foi com <span id="aval-nome">o motoboy</span>?</div>
+      <div style="font-size:11px;color:var(--muted);">Sua avaliação é obrigatória para continuar usando o app</div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:9px;margin-bottom:18px;" id="estrelas">
+      <span class="estrela" onclick="selEstrela(1)">★</span>
+      <span class="estrela" onclick="selEstrela(2)">★</span>
+      <span class="estrela" onclick="selEstrela(3)">★</span>
+      <span class="estrela" onclick="selEstrela(4)">★</span>
+      <span class="estrela" onclick="selEstrela(5)">★</span>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:7px;">Comentário (opcional)</div>
+    <textarea id="aval-comentario" placeholder="Como foi a corrida com este motoboy?" style="width:100%;min-height:90px;background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:12px;color:var(--text);font-family:inherit;font-size:13px;resize:none;margin-bottom:16px;"></textarea>
+    <button class="btn-ok" onclick="enviarAval()" style="width:100%;">Enviar avaliação</button>
+  </div>
+</div>
+
+<!-- CRÉDITOS -->
+<div class="modal-base" id="modal-cred">
+  <div class="modal-sheet">
+    <div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:5px;">💳 Comprar Créditos</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Envie via Pix e receba créditos para suas entregas</div>
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:13px;">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">Chave Pix</div>
+      <div style="font-size:15px;font-weight:700;color:#fff;">19982480386</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px;">WhatsApp · Heitor Serra Neto</div>
+    </div>
+    <div style="display:flex;gap:9px;margin-bottom:13px;">
+      <button onclick="copiarPix()" style="flex:1;padding:11px;border-radius:13px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📋 Copiar</button>
+      <button onclick="window.open('https://wa.me/5519982480386?text=Quero+comprar+créditos+Corrida+Já','_blank')" style="flex:1;padding:11px;border-radius:13px;background:#25d366;border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">WhatsApp</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:13px;">Após o pagamento, avise pelo WhatsApp com o comprovante</div>
+    <button class="btn-cancel" onclick="document.getElementById('modal-cred').classList.remove('show')">Fechar</button>
+  </div>
+</div>
+
+<!-- PERFIL -->
+<div class="screen" id="tela-perfil">
+  <div class="perf-hdr">
+    <button onclick="irPara('home')" style="background:none;border:none;color:var(--dourado);font-size:22px;cursor:pointer;padding:3px;">←</button>
+    <h2 style="margin:0;">Meu Perfil</h2>
+    <button onclick="abrirEditarPerfil()" style="background:rgba(251,191,36,0.1);border:1px solid var(--border);color:var(--dourado);font-size:12px;font-weight:700;cursor:pointer;padding:7px 14px;border-radius:20px;">✏️ Editar</button>
+  </div>
+
+  <div class="perf-marca">
+    <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" class="perf-marca-logo"/>
+    <div class="perf-marca-txt">Desenvolvido por <b>Heitor Serra Neto</b></div>
+  </div>
+
+  <div class="perf-hero">
+    <div class="perf-hero-bg"></div>
+    <div class="perf-hero-content">
+      <div class="perf-av-outer">
+        <div class="perf-av-ring" id="perf-av-ring">
+          <div class="perf-av-big" id="perf-av">
+            <span id="perf-initial">👤</span>
+          </div>
+        </div>
+        <div class="perf-edit" onclick="event.stopPropagation();document.getElementById('inp-foto-perf').click()">✏️</div>
+      </div>
+      <input type="file" id="inp-foto-perf" accept="image/*" onchange="atualizarFoto(this)"/>
+      <div class="perf-nome-big" id="perf-nome">--</div>
+      <div class="perf-nivel" id="perf-nivel">🥉 Passageiro Bronze</div>
+    </div>
+  </div>
+
+  <div class="perf-stats-row">
+    <div class="perf-stat-wrap"><div class="perf-stat"><div class="perf-stat-num" id="ps-corridas">0</div><div class="perf-stat-lb">Entregas</div></div></div>
+    <div class="perf-stat-wrap"><div class="perf-stat"><div class="perf-stat-num" id="ps-aval">5.0</div><div class="perf-stat-lb">⭐ Avaliação</div></div></div>
+    <div class="perf-stat-wrap"><div class="perf-stat"><div class="perf-stat-num" id="ps-membro">--</div><div class="perf-stat-lb">Membro desde</div></div></div>
+  </div>
+
+  <div class="perf-sec-tit">Dados pessoais</div>
+  <div class="perf-info-card">
+    <div class="perf-info-row"><span class="perf-info-ic">👤</span><div class="perf-info-txt"><div class="perf-info-lb">Nome completo</div><div class="perf-info-vl" id="pi-nome">--</div></div></div>
+    <div class="perf-info-row"><span class="perf-info-ic">📱</span><div class="perf-info-txt"><div class="perf-info-lb">WhatsApp</div><div class="perf-info-vl" id="pi-fone">--</div></div></div>
+    <div class="perf-info-row"><span class="perf-info-ic">🪪</span><div class="perf-info-txt"><div class="perf-info-lb">CPF</div><div class="perf-info-vl" id="pi-cpf">--</div></div></div>
+    <div class="perf-info-row"><span class="perf-info-ic">🎂</span><div class="perf-info-txt"><div class="perf-info-lb">Idade</div><div class="perf-info-vl" id="pi-idade">--</div></div></div>
+    <div class="perf-info-row"><span class="perf-info-ic">🎫</span><div class="perf-info-txt"><div class="perf-info-lb">Código de indicação</div><div class="perf-info-vl" id="pi-codigo">--</div></div></div>
+  </div>
+
+  <div class="perf-sec-tit">🛡️ Contato de emergência</div>
+  <div class="perf-info-card perf-emerg" id="perf-emerg-card">
+    <div class="perf-info-row"><span class="perf-info-ic">🆘</span><div class="perf-info-txt"><div class="perf-info-lb">Nome</div><div class="perf-info-vl" id="pi-emerg-nome">Não cadastrado</div></div></div>
+    <div class="perf-info-row"><span class="perf-info-ic">☎️</span><div class="perf-info-txt"><div class="perf-info-lb">WhatsApp</div><div class="perf-info-vl" id="pi-emerg-fone">Não cadastrado</div></div></div>
+  </div>
+  <div id="perf-emerg-aviso" style="display:none;margin:8px 16px 0;">
+    <button onclick="abrirEditarPerfil()" style="width:100%;padding:13px;border-radius:13px;background:rgba(239,68,68,0.1);border:1px dashed rgba(239,68,68,0.4);color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">⚠️ Cadastrar contato de emergência</button>
+  </div>
+
+  <div class="perf-sec-tit">Atalhos</div>
+  <div class="perf-acoes">
+    <button class="perf-acao" onclick="toast('💳 Compra de créditos disponível em breve! Por enquanto, combine o valor direto com o motoboy.')"><span>💳</span> Comprar créditos</button>
+    <button class="perf-acao" onclick="abrirAgendada()"><span>📅</span> Agendar entrega</button>
+    <button class="perf-acao" onclick="abrirIndicar()"><span>🎁</span> Indicar amigo</button>
+    <button class="perf-acao" onclick="abrirConfig()"><span>⚙️</span> Configurações</button>
+  </div>
+
+  <div id="hist-lista" style="display:none;"></div>
+
+  <button class="btn-sair" onclick="sair()">Sair da conta</button>
+  <div style="text-align:center;margin:16px 0 30px;font-size:10px;color:rgba(255,255,255,0.15);">Entrega Já · Desenvolvido por Heitor Serra Neto</div>
+</div>
+
+<!-- MODAL EDITAR PERFIL -->
+<div class="modal-base" id="modal-editar">
+  <div class="modal-sheet">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+    <div style="font-size:18px;font-weight:900;color:#fff;text-align:center;margin-bottom:18px;">Editar Perfil</div>
+    <div style="text-align:center;margin-bottom:18px;">
+      <div style="position:relative;display:inline-block;">
+        <div id="med-foto" style="width:84px;height:84px;border-radius:50%;background:var(--card2);border:3px solid var(--dourado);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto;cursor:pointer;" onclick="document.getElementById('inp-foto-mod').click()">👤</div>
+        <div style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:var(--dourado);border:2px solid var(--card);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;" onclick="document.getElementById('inp-foto-mod').click()">✏️</div>
+        <input type="file" id="inp-foto-mod" accept="image/*" onchange="atualizarFoto(this)"/>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:14px;">
+      <div><div class="campo-label">Nome completo</div><input id="ed-nome" class="campo-input" type="text" placeholder="Seu nome"/></div>
+      <div><div class="campo-label">WhatsApp</div><input id="ed-fone" class="campo-input" type="tel" placeholder="(19) 99999-9999"/></div>
+      <div><div class="campo-label">CPF</div><input id="ed-cpf" class="campo-input" type="text" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)"/></div>
+      <div class="emerg-box" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);border-radius:14px;padding:13px;">
+        <div style="font-size:13px;font-weight:800;color:#ef4444;margin-bottom:3px;">🛡️ Contato de emergência</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Será acionado no botão SOS e ao compartilhar sua entrega</div>
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <div><div class="campo-label">Nome do contato</div><input id="ed-emerg-nome" class="campo-input" type="text" placeholder="Ex: Maria (esposa)"/></div>
+          <div><div class="campo-label">WhatsApp do contato</div><input id="ed-emerg-fone" class="campo-input" type="tel" placeholder="(19) 99999-9999"/></div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-salvar" onclick="salvarPerfil()" style="width:100%;padding:15px;border-radius:14px;background:linear-gradient(135deg,var(--dourado2),var(--dourado));border:none;color:#1a1a1a;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;margin-bottom:9px;">Salvar alterações</button>
+    <button class="btn-cancel" onclick="fecharEditarPerfil()" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL RECUPERAR SENHA -->
+<div class="modal-base" id="modal-recuperar">
+  <div class="modal-sheet">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+    <div style="font-size:18px;font-weight:900;color:#fff;text-align:center;margin-bottom:8px;">🔐 Recuperar senha</div>
+    <div style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:18px;">Informe seu WhatsApp e responda a pergunta de segurança</div>
+    <div id="rec-passo1">
+      <div style="margin-bottom:11px;"><div class="campo-label">WhatsApp</div><input class="campo-input" id="rec-fone" type="tel" placeholder="(19) 99999-9999"/></div>
+      <button class="btn-p" onclick="recBuscar()" style="width:100%;">Continuar</button>
+    </div>
+    <div id="rec-passo2" style="display:none;">
+      <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);border-radius:13px;padding:13px;margin-bottom:11px;">
+        <div style="font-size:11px;color:#60a5fa;font-weight:700;margin-bottom:5px;">PERGUNTA DE SEGURANÇA</div>
+        <div id="rec-pergunta" style="font-size:14px;color:#fff;font-weight:600;">--</div>
+      </div>
+      <div style="margin-bottom:11px;"><div class="campo-label">Sua resposta</div><input class="campo-input" id="rec-resposta" type="text" placeholder="Resposta"/></div>
+      <div style="margin-bottom:11px;"><div class="campo-label">Nova senha</div><input class="campo-input" id="rec-nova" type="password" placeholder="Crie a nova senha"/></div>
+      <button class="btn-p" onclick="recRedefinir()" style="width:100%;margin-bottom:9px;">Redefinir senha</button>
+      <button onclick="recFalarAdmin()" style="width:100%;padding:13px;border-radius:13px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Não consigo lembrar — Falar com administrador</button>
+    </div>
+    <button class="btn-cancel" onclick="document.getElementById('modal-recuperar').classList.remove('show')" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:9px;">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL TERMOS -->
+<div class="modal-base" id="modal-termos">
+  <div class="modal-sheet" style="max-height:90vh;">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+    <div style="font-size:17px;font-weight:900;color:#fff;text-align:center;margin-bottom:4px;">Termos de Uso</div>
+    <div style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:16px;">Entrega Já · Política de Responsabilidade</div>
+    <div class="termos-texto">
+      <h4>1. Sobre a plataforma</h4>
+      <p>O Entrega Já é uma plataforma tecnológica que conecta passageiros a motoboys particulares independentes. Não somos uma empresa de transporte, não possuímos frota, não empregamos motoboys e não prestamos diretamente o serviço de transporte. A relação de transporte é estabelecida exclusivamente entre passageiro e motoboy.</p>
+      <h4>2. Cadastro e acesso</h4>
+      <p>O usuário deve fornecer dados verdadeiros (nome, CPF, telefone). O acesso é protegido por senha pessoal e intransferível, sendo o titular responsável por toda atividade na conta. O cadastro é individual. Passageiros menores de idade devem usar o serviço acompanhados de responsável legal.</p>
+      <h4>3. Forma de pagamento</h4>
+      <p>O valor da entrega é combinado diretamente entre passageiro e motoboy. O passageiro deve informar corretamente a forma de pagamento escolhida (dinheiro, Pix, débito ou crédito) para que o motoboy decida se aceita a entrega. A disponibilidade de maquininha de cartão é de responsabilidade exclusiva do motoboy. A plataforma não recebe, não intermedeia e não se responsabiliza pelos pagamentos entre as partes.</p>
+      <h4>4. Responsabilidades do motoboy</h4>
+      <p>O motoboy declara possuir CNH válida com EAR quando exigido, veículo regularizado e em boas condições, e seguro vigente. É responsável por conduzir com segurança, pela integridade dos passageiros, e por multas, acidentes ou danos durante a entrega. Atua como profissional autônomo, sem vínculo empregatício com a plataforma. O motoboy pode recusar entregas a seu critério.</p>
+      <h4>5. Responsabilidades do passageiro</h4>
+      <p>O passageiro deve fornecer informações corretas, tratar o motoboy com respeito, não transportar materiais ilícitos, zelar pelo veículo e efetuar o pagamento combinado. É responsável por seus pertences durante a entrega.</p>
+      <h4>6. Animais e bagagem</h4>
+      <p>O transporte de animais de estimação e de bagagem volumosa deve ser combinado previamente com o motoboy pelo chat, antes do início da entrega. O motoboy tem o direito de recusar a entrega caso não concorde com o transporte de animais, bagagem ou outras condições.</p>
+      <h4>7. Créditos (motoboy)</h4>
+      <p>Os créditos são utilizados pelo motoboy para receber pedidos de entrega. Ao aceitar uma entrega, os créditos são descontados conforme a distância (valores consultáveis no aplicativo do motoboy e sujeitos a alteração). Se a entrega for cancelada, os créditos são devolvidos automaticamente ao motoboy. Caso o crédito se esgote, o motoboy deixa de receber pedidos até nova recarga. Os créditos não são reembolsáveis: créditos adquiridos e não utilizados não geram direito a devolução.</p>
+      <h4>8. Relação entre as partes</h4>
+      <p>A entrega é um acordo direto entre passageiro e motoboy. Conflitos, danos ou prejuízos devem ser resolvidos diretamente entre eles, podendo recorrer aos meios legais. A plataforma não tem obrigação de intervir ou arbitrar conflitos.</p>
+      <h4>9. Isenção de responsabilidade</h4>
+      <p>Na máxima extensão permitida por lei, o Entrega Já não se responsabiliza por: acidentes de trânsito, danos materiais ou pessoais; furtos, roubos ou atos ilícitos; atrasos, cancelamentos ou condutas das partes; condições do veículo; veracidade das informações dos usuários; ou prejuízos indiretos. A plataforma é fornecida "no estado em que se encontra", podendo apresentar instabilidades.</p>
+      <h4>10. Segurança e botão SOS</h4>
+      <p>O botão SOS e o compartilhamento de localização são ferramentas auxiliares e não substituem os serviços oficiais de emergência. Em situação de risco, acione imediatamente a Polícia (190), o SAMU (192) ou os Bombeiros (193).</p>
+      <h4>11. Proteção de dados (LGPD)</h4>
+      <p>Em conformidade com a Lei nº 13.709/2018, coletamos dados pessoais (nome, CPF, telefone, localização, foto, contato de emergência) para viabilizar o serviço de intermediação, comunicação entre as partes e segurança. O usuário pode solicitar a exclusão de seus dados, ressalvado o que deva ser mantido por obrigação legal.</p>
+      <h4>12. Conduta proibida</h4>
+      <p>É vedado usar o aplicativo para fins ilícitos, assediar ou agredir usuários, fornecer informações falsas ou tentar fraudar o sistema. O descumprimento pode resultar em suspensão ou exclusão da conta.</p>
+      <h4>13. Disposições gerais</h4>
+      <p>Estes termos podem ser atualizados a qualquer momento. O uso continuado implica aceitação. Fica eleito o foro da comarca de Holambra/SP para dirimir conflitos. Ao concluir o cadastro, o usuário declara ter lido e aceito integralmente estes termos.</p>
+    </div>
+    <button class="btn-p" onclick="document.getElementById('cad-termos').checked=true;document.getElementById('modal-termos').classList.remove('show')" style="width:100%;margin-top:14px;">Li e aceito</button>
+    <button class="btn-cancel" onclick="document.getElementById('modal-termos').classList.remove('show')" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:9px;">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL FORMA DE PAGAMENTO -->
+<div class="modal-base" id="modal-pgto">
+  <div class="modal-sheet">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:6px;">
+      <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" style="width:64px;height:64px;border-radius:16px;object-fit:cover;box-shadow:0 4px 16px rgba(251,191,36,0.3);"/>
+      <div style="font-size:20px;font-weight:900;color:#fff;margin-top:8px;letter-spacing:0.5px;">Entrega Já</div>
+    </div>
+    <div style="font-size:14px;color:var(--text);text-align:center;margin-bottom:18px;font-weight:600;">Escolha a forma de pagamento desta entrega</div>
+    <div class="pgto-opcoes" style="margin-bottom:8px;">
+      <button class="pgto-btn ativo" data-pgto="Dinheiro" onclick="selPgto(this,'Dinheiro')">💵 Dinheiro</button>
+      <button class="pgto-btn" data-pgto="Pix" onclick="selPgto(this,'Pix')">📱 Pix</button>
+      <button class="pgto-btn" data-pgto="Débito" onclick="selPgto(this,'Débito')">💳 Débito</button>
+      <button class="pgto-btn" data-pgto="Crédito" onclick="selPgto(this,'Crédito')">💳 Crédito</button>
+    </div>
+    <input class="campo-input" id="pgto-troco" type="text" placeholder="Vai pagar com quanto? (ex: R$ 50 - p/ troco)" autocomplete="off" style="margin-bottom:14px;"/>
+    <button class="btn-p" onclick="confirmarPgtoEChamar()" style="width:100%;margin-bottom:9px;">Confirmar e chamar</button>
+    <button class="btn-cancel" onclick="cancelarPgto()" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL SOBRE -->
+<div class="modal-base" id="modal-sobre">
+  <div class="modal-sheet">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:16px;">
+      <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" style="width:78px;height:78px;border-radius:18px;object-fit:cover;box-shadow:0 6px 20px rgba(251,191,36,0.3);"/>
+      <div style="font-size:22px;font-weight:900;color:#fff;margin-top:10px;letter-spacing:0.5px;">Entrega Já</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px;">Versão 1.0</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px;">Desenvolvido por <b style="color:var(--dourado);">Heitor Serra Neto</b></div>
+    </div>
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;">
+      <div style="font-size:13px;color:var(--text);line-height:1.6;">O Entrega Já é uma plataforma que conecta passageiros a motoboys particulares de forma rápida e segura na sua região. Chame uma entrega, acompanhe o motoboy em tempo real e viaje com tranquilidade.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+      <div class="sobre-row"><span>🛡️</span><div><div class="sobre-lb">Segurança</div><div class="sobre-vl">Botão SOS e compartilhamento de entrega</div></div></div>
+      <div class="sobre-row"><span>📍</span><div><div class="sobre-lb">Cobertura</div><div class="sobre-vl">Holambra, Jaguariúna, Arthur Nogueira e região</div></div></div>
+      <div class="sobre-row"><span>💬</span><div><div class="sobre-lb">Suporte</div><div class="sobre-vl">WhatsApp (19) 98248-0386</div></div></div>
+    </div>
+    <button class="btn-p" onclick="document.getElementById('modal-sobre').classList.remove('show');document.getElementById('modal-termos').classList.add('show')" style="width:100%;margin-bottom:9px;background:var(--card2);color:var(--dourado);border:1px solid var(--border);">📄 Termos de Uso</button>
+    <button class="btn-cancel" onclick="document.getElementById('modal-sobre').classList.remove('show')" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Fechar</button>
+  </div>
+</div>
+
+<!-- CONFIG -->
+<div id="tela-config">
+  <div class="config-hdr">
+    <button onclick="fecharConfig()" style="background:none;border:none;color:var(--dourado);font-size:20px;cursor:pointer;padding:3px;">←</button>
+    <div class="config-tit">⚙️ Configurações</div>
+  </div>
+  <div class="config-sec">Atalhos da tela inicial</div>
+  <div id="config-lista"></div>
+  <div style="padding:10px 14px;">
+    <button onclick="abrirCriarAtalho()" style="width:100%;padding:12px;border-radius:13px;background:rgba(251,191,36,0.07);border:1px dashed var(--border);color:var(--dourado);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">+ Criar novo atalho</button>
+  </div>
+  <div class="config-sec">Notificações</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--card);border-bottom:1px solid var(--border);">
+    <div style="font-size:13px;font-weight:600;color:var(--text);">🔔 Receber notificações</div>
+    <div id="tog-notif" class="toggle on" onclick="toggleNotif()"></div>
+  </div>
+</div>
+
+<!-- MODAL CRIAR ATALHO -->
+<div id="modal-criar-atalho" onclick="fecharCriarAtalho()">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:3px;">✨ Criar atalho</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Personalize seu botão favorito</div>
+    <div style="margin-bottom:13px;"><div class="campo-label">Nome do atalho</div><input id="novo-nome" class="campo-input" type="text" placeholder="Ex: Casa da namorada, Academia..."/></div>
+    <div style="margin-bottom:13px;">
+      <div class="campo-label">Ícone</div>
+      <div id="grade-icones" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:5px;max-height:160px;overflow-y:auto;"></div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div class="campo-label">Cor da luz</div>
+      <div id="grade-cores" style="display:flex;gap:9px;margin-top:5px;flex-wrap:wrap;"></div>
+    </div>
+    <button class="btn-ok" onclick="salvarAtalho()">Criar atalho</button>
+    <button class="btn-cancel" onclick="fecharCriarAtalho()">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL AGENDAR CORRIDA -->
+<div class="modal-base" id="modal-agendada">
+  <div class="modal-sheet">
+    <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:5px;">📅 Agendar Entrega</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Escolha quando você vai precisar da entrega</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+      <div><div class="campo-label">Data</div><input id="ag-data" class="campo-input" type="date"/></div>
+      <div><div class="campo-label">Hora</div><input id="ag-hora" class="campo-input" type="time"/></div>
+      <div><div class="campo-label">Destino</div><input id="ag-dest" class="campo-input" type="text" placeholder="Para onde vai?"/></div>
+    </div>
+    <button class="btn-ok" onclick="confirmarAgendada()">Agendar entrega</button>
+    <button class="btn-cancel" onclick="document.getElementById('modal-agendada').classList.remove('show')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL INDICAR AMIGO -->
+<div class="modal-base" id="modal-indicar">
+  <div class="modal-sheet">
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:32px;margin-bottom:8px;">🎁</div>
+      <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:5px;">Indique um amigo!</div>
+      <div style="font-size:13px;color:var(--muted);">Compartilhe o link do Entrega Já e ganhe créditos quando seu amigo fizer a primeira entrega</div>
+    </div>
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:14px;text-align:center;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:5px;">Seu código de indicação</div>
+      <div style="font-size:20px;font-weight:900;color:var(--dourado);letter-spacing:2px;" id="cod-indicacao">--</div>
+    </div>
+    <button class="btn-ok" onclick="compartilharIndicacao()">📤 Compartilhar link</button>
+    <button class="btn-cancel" onclick="document.getElementById('modal-indicar').classList.remove('show')">Fechar</button>
+  </div>
+</div>
+
+<!-- MENU HAMBURGUER -->
+<div id="menu-overlay" onclick="fecharMenu()"></div>
+<div id="menu-lateral">
+  <div class="menu-hdr">
+    <div class="menu-logo" style="width:80px;height:80px;border-radius:22px;"><img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:22px;"/></div>
+    <div class="menu-app">Entrega Já</div>
+    <div class="menu-dev-por">Desenvolvido por</div>
+    <div class="menu-ret">
+      <div class="menu-ret-luz"></div>
+      <div class="menu-ret-inner"><div class="menu-ret-nome">Heitor Serra Neto</div></div>
+    </div>
+  </div>
+  <div class="menu-items">
+    <div class="menu-item" onclick="fecharMenu();irPara('perfil')">👤 Meu perfil</div>
+    <div class="menu-item" onclick="abrirConfig()">⚙️ Configurações</div>
+    <div class="menu-sep"></div>
+    <div class="menu-item" id="notif-item" onclick="toggleNotifMenu()">🔔 Notificações ativadas</div>
+    <div class="menu-item" onclick="fecharMenu();irPara('perfil');setTimeout(()=>document.getElementById('hist-lista').scrollIntoView({behavior:'smooth'}),400)">🕐 Histórico de entregas</div>
+    <div class="menu-sep"></div>
+    <div class="menu-item" onclick="toast('💳 Compra de créditos disponível em breve! Por enquanto, combine o valor direto com o motoboy.');fecharMenu()">💳 Comprar créditos (Pix)</div>
+    <div class="menu-item" onclick="abrirAgendada();fecharMenu()">📅 Agendar entrega</div>
+    <div class="menu-sep"></div>
+    <div class="menu-item" onclick="abrirIndicar();fecharMenu()">🎁 Indicar amigo</div>
+    <div class="menu-sep"></div>
+    <div class="menu-item" onclick="abrirSobre();fecharMenu()">ℹ️ Sobre o aplicativo</div>
+    <div class="menu-sep"></div>
+    <div class="menu-item" style="color:#ef4444;" onclick="sair()">🚪 Sair da conta</div>
+  </div>
+</div>
+
+<!-- MAPA FULL -->
+<div id="modal-mapa-full">
+  <button class="btn-fechar-full" onclick="fecharMapaFull()">✕ Fechar</button>
+  <div id="mapa-full-div"></div>
+</div>
+
+<!-- CROP -->
+<div class="crop-overlay" id="crop-overlay">
+  <div style="color:#fff;font-size:15px;font-weight:700;">Ajustar foto</div>
+  <div style="color:var(--muted);font-size:12px;margin-top:-8px;">Arraste e use dois dedos para zoom</div>
+  <div class="crop-container" id="crop-container">
+    <canvas class="crop-canvas" id="crop-canvas" width="260" height="260"></canvas>
+  </div>
+  <div style="display:flex;gap:11px;">
+    <button onclick="cancelarCrop()" style="padding:11px 22px;border-radius:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;font-size:13px;background:rgba(255,255,255,0.07);color:var(--muted);">Cancelar</button>
+    <button onclick="confirmarCrop()" style="padding:11px 22px;border-radius:13px;font-weight:700;border:1px solid var(--border);cursor:pointer;font-family:inherit;font-size:13px;background:var(--azul2);color:var(--dourado);">Usar foto</button>
+  </div>
+</div>
+
+<!-- PWA -->
+<div id="pwa-banner">
+  <div class="pwa-inner">
+    <div class="pwa-logo"><img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" alt=""/></div>
+    <div class="pwa-txt"><strong>Instalar Entrega Já</strong><span>Adicione à tela inicial</span></div>
+    <div class="pwa-btns"><button class="btn-inst" id="btn-inst">Instalar</button><button class="btn-x" onclick="fecharPWA()">✕</button></div>
+  </div>
+</div>
+<div id="ios-guide">
+  <div class="ios-tit">📲 Instalar no iPhone <button class="btn-x" onclick="fecharPWA()">✕</button></div>
+  <div class="ios-steps">
+    <div class="ios-step"><div class="ios-n">1</div><span>Toque em <span class="chip-ios">⬆ Compartilhar</span> na barra do Safari</span></div>
+    <div class="ios-step"><div class="ios-n">2</div><span>Role e toque em <em>"Adicionar à Tela de Início"</em></span></div>
+    <div class="ios-step"><div class="ios-n">3</div><span>Toque em <em>"Adicionar"</em> para confirmar</span></div>
+  </div>
+  <button onclick="fecharPWA()" style="width:100%;padding:10px;border-radius:16px;background:rgba(255,255,255,0.05);border:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Entendi</button>
+</div>
+
+<div id="toast"></div>
+<div id="loading"><div class="ld-spin"></div></div>
+<script>
+// Firebase
+const firebaseConfig={apiKey:"AIzaSyAts9fsoZ_GrF3MRHDRlAw61Xti2uBkdnM",authDomain:"staffcheck-d6f20.firebaseapp.com",projectId:"staffcheck-d6f20",storageBucket:"staffcheck-d6f20.firebasestorage.app",messagingSenderId:"1055570421019",appId:"1:1055570421019:web:7b5dcc564bfe1c30189fbe"};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+
+// ESTADO
+let user=null,entregaAtiva=null;
+let mapaHome=null,mapaMot=null,mapaEntrega=null,mapaFull=null,mapaDest=null;
+let posAtual=null,destSel=null,cidadeAtual="Holambra";
+// Modo de cobrança: "simples" (padrão, sem valor) ou "distancia" (calcula taxa por km, igual Entrega Já).
+// Configurável no Painel Admin do Entrega Já — hoje começa sempre em "simples".
+let MODO_COBRANCA="simples";
+async function carregarModoCobranca(){
+  try{
+    const snap=await db.collection("ej_config").doc("geral").get();
+    if(snap.exists&&snap.data().modoCobranca)MODO_COBRANCA=snap.data().modoCobranca;
+  }catch(e){}
+}
+let unsubEntrega=null,unsubMot=null,unsubChat=null,contBusc=null,_seg=0;
+let fotoFinalCad=null,cropImg=null,cropScale=1,cropTX=0,cropTY=0,cropBaseScale=1,cropBaseX=0,cropBaseY=0,cropCtx="";
+let marcsMot={},marcMot=null;
+let _sugTO=null,_destEnd=null,_destCoords=null;
+let _avalNota=5,_avalId=null;
+let _dragTO=null,_dragging=false,_dragIdx=null,_dragEl=null,_acabouDrag=false;
+let _novoIcon="⭐",_novoCor="#fbbf24";
+let _definindoAtalho=false,_tipoAtalho=null;
+
+// ── PARTÍCULAS ──
+(function(){
+  const cv=document.getElementById("cv");
+  if(!cv)return;
+  const ctx=cv.getContext("2d");
+  function resize(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
+  resize();
+  window.addEventListener("resize",resize);
+  const N=52,pts=[];
+  for(let i=0;i<N;i++)pts.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.6+.7});
+  function draw(){
+    ctx.fillStyle="#080f1e";ctx.fillRect(0,0,cv.width,cv.height);
+    for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<125){ctx.strokeStyle=`rgba(251,191,36,${(1-d/125)*.16})`;ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}
+    }
+    pts.forEach(p=>{
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle="rgba(251,191,36,.28)";ctx.fill();
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>cv.width)p.vx*=-1;if(p.y<0||p.y>cv.height)p.vy*=-1;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── PWA ──
+(function(){
+  const logoUrl=document.getElementById("logo-splash")?.src||"";
+  if(document.getElementById("apple-icon"))document.getElementById("apple-icon").href=logoUrl;
+  const m={name:"Entrega Já",short_name:"Entrega Já",start_url:"./",display:"standalone",background_color:"#080f1e",theme_color:"#0f1a2e",lang:"pt-BR",icons:[{src:logoUrl,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
+  document.getElementById("manifest-link").href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:"application/json"}));
+  if("serviceWorker"in navigator){
+    navigator.serviceWorker.register("./firebase-messaging-sw.js",{scope:"./"}).catch(()=>{
+      const sw=`const C="ej-r-v1";self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(["./"])));self.skipWaiting();});self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim();});self.addEventListener("fetch",e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
+      navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"application/javascript"})),{scope:"./"}).catch(()=>{});
+    });
+  }
+  const dismissed=localStorage.getItem("ej_pwa_ok");
+  const standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.MSStream;
+  let dp=null;
+  window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;if(!standalone&&!dismissed)setTimeout(()=>{document.getElementById("pwa-banner").classList.add("show");setTimeout(()=>document.getElementById("pwa-banner").classList.remove("show"),5000);},3000);});
+  document.getElementById("btn-inst").addEventListener("click",async()=>{if(!dp)return;dp.prompt();const{outcome}=await dp.userChoice;dp=null;fecharPWA();if(outcome==="accepted")localStorage.setItem("ej_pwa_ok","1");});
+  if(isIOS&&!standalone&&!dismissed)setTimeout(()=>{document.getElementById("ios-guide").classList.add("show");setTimeout(()=>document.getElementById("ios-guide").classList.remove("show"),8000);},3000);
+})();
+function fecharPWA(){document.getElementById("pwa-banner").classList.remove("show");document.getElementById("ios-guide").classList.remove("show");localStorage.setItem("ej_pwa_ok","1");}
+
+// ── NOTIF ──
+async function pedirNotif(){try{if("Notification"in window)await Notification.requestPermission();}catch(e){}}
+function notif(t,b){if(Notification.permission==="granted")try{new Notification(t,{body:b,icon:document.getElementById("logo-splash")?.src||"",tag:"cj",vibrate:[200,100,200]});}catch(e){}}
+
+// ── SOM ──
+let _ac=null;
+function getAC(){if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();if(_ac.state==="suspended")_ac.resume();return _ac;}
+function nota(f,s,d,v=.7){try{const c=getAC(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.setValueAtTime(f,c.currentTime+s);g.gain.setValueAtTime(0,c.currentTime+s);g.gain.linearRampToValueAtTime(v,c.currentTime+s+.01);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+s+d);o.start(c.currentTime+s);o.stop(c.currentTime+s+d+.05);}catch(e){}}
+function falar(txt){try{if(!("speechSynthesis"in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang="pt-BR";u.rate=1;u.pitch=1.1;const v=speechSynthesis.getVoices().find(x=>x.lang.startsWith("pt"));if(v)u.voice=v;speechSynthesis.speak(u);}catch(e){}}
+function somAceito(){nota(784,0,.1,.8);nota(1047,.12,.1,.8);nota(1318,.24,.08,.8);nota(1047,.34,.08,.7);nota(1318,.44,.4,.75);setTimeout(()=>falar("Entrega Já! Entrega aceita! Seu motoboy está a caminho!"),500);}
+function somChegou(){nota(784,0,.15,.7);nota(1047,.18,.15,.7);nota(1318,.36,.4,.65);setTimeout(()=>falar("Entrega Já! Seu motoboy chegou!"),600);}
+if("speechSynthesis"in window){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}
+
+// ── CROP ──
+function processarFoto(inp,prevId,txtId){
+  const f=inp.files[0];if(!f)return;cropCtx="cad";
+  const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{cropImg=img;const cw=260,ch=260,sw=cw/img.naturalWidth,sh=ch/img.naturalHeight;cropBaseScale=Math.max(sw,sh);cropBaseX=(cw-img.naturalWidth*cropBaseScale)/2;cropBaseY=(ch-img.naturalHeight*cropBaseScale)/2;cropScale=1;cropTX=0;cropTY=0;desenharCrop();document.getElementById("crop-overlay").style.display="flex";};img.src=e.target.result;};r.readAsDataURL(f);inp.value="";
+}
+function atualizarFoto(inp){
+  const f=inp.files[0];if(!f||!user)return;cropCtx="perfil";
+  const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{cropImg=img;const cw=260,ch=260,sw=cw/img.naturalWidth,sh=ch/img.naturalHeight;cropBaseScale=Math.max(sw,sh);cropBaseX=(cw-img.naturalWidth*cropBaseScale)/2;cropBaseY=(ch-img.naturalHeight*cropBaseScale)/2;cropScale=1;cropTX=0;cropTY=0;desenharCrop();document.getElementById("crop-overlay").style.display="flex";};img.src=e.target.result;};r.readAsDataURL(f);inp.value="";
+}
+function desenharCrop(){if(!cropImg)return;const cv=document.getElementById("crop-canvas"),ctx=cv.getContext("2d");ctx.clearRect(0,0,260,260);const sc=cropBaseScale*cropScale;ctx.save();ctx.beginPath();ctx.arc(130,130,130,0,Math.PI*2);ctx.clip();ctx.drawImage(cropImg,cropBaseX+cropTX,cropBaseY+cropTY,cropImg.naturalWidth*sc,cropImg.naturalHeight*sc);ctx.restore();}
+function cancelarCrop(){document.getElementById("crop-overlay").style.display="none";cropImg=null;}
+async function confirmarCrop(){
+  if(!cropImg)return;
+  const cv=document.getElementById("crop-canvas"),out=document.createElement("canvas");out.width=200;out.height=200;
+  const ctx=out.getContext("2d");ctx.save();ctx.beginPath();ctx.arc(100,100,100,0,Math.PI*2);ctx.clip();ctx.drawImage(cv,0,0,260,260,0,0,200,200);ctx.restore();
+  const url=out.toDataURL("image/jpeg",.75);
+  document.getElementById("crop-overlay").style.display="none";cropImg=null;
+  if(cropCtx==="cad"){fotoFinalCad=url;document.getElementById("foto-prev-cad").innerHTML=`<img src="${url}"/>`;document.getElementById("foto-txt-cad").textContent="Foto adicionada ✓";}
+  else if(cropCtx==="perfil"){
+    loading(true);
+    try{if(user.tipo!=="anonimo")await db.collection("ej_restaurantes").doc(user.id).update({foto:url});user.foto=url;localStorage.setItem("ej_user",JSON.stringify(user));atualizarHome();atualizarPerfil();const el=document.getElementById("med-foto");if(el)el.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;loading(false);toast("Foto atualizada! ✓");}catch(e){loading(false);toast("Erro ao salvar foto.");}
+  }
+}
+(()=>{
+  const cont=document.getElementById("crop-container");
+  let drag=false,lx=0,ly=0,ld=0;
+  cont.addEventListener("touchstart",e=>{if(e.touches.length===1){drag=true;lx=e.touches[0].clientX;ly=e.touches[0].clientY;}else if(e.touches.length===2){drag=false;ld=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}},{passive:true});
+  cont.addEventListener("touchmove",e=>{e.preventDefault();if(e.touches.length===1&&drag){cropTX+=e.touches[0].clientX-lx;cropTY+=e.touches[0].clientY-ly;lx=e.touches[0].clientX;ly=e.touches[0].clientY;desenharCrop();}else if(e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(ld){cropScale=Math.min(3,Math.max(.5,cropScale*(d/ld)));desenharCrop();}ld=d;}},{passive:false});
+  cont.addEventListener("touchend",()=>{drag=false;ld=0;});
+  cont.addEventListener("mousedown",e=>{drag=true;lx=e.clientX;ly=e.clientY;});
+  cont.addEventListener("mousemove",e=>{if(!drag)return;cropTX+=e.clientX-lx;cropTY+=e.clientY-ly;lx=e.clientX;ly=e.clientY;desenharCrop();});
+  cont.addEventListener("mouseup",()=>drag=false);
+})();
+
+// ── NAVEGAÇÃO ──
+function mostrarTela(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("ativo"));const el=document.getElementById(id);if(el)el.classList.add("ativo");}
+function irPara(dest){
+  switch(dest){
+    case"home":
+      mostrarTela("tela-home");
+      iniciarMapaMot();
+      setTimeout(()=>{atualizarHome();renderAtalhos();renderHistRapido();},50);
+      setTimeout(()=>{if(mapaMot)mapaMot.invalidateSize();},400);
+      break;
+    case"perfil":mostrarTela("tela-perfil");atualizarPerfil();carregarHist();break;
+  }
+}
+
+// ── CPF ──
+function mascaraCPF(el){
+  let v=el.value.replace(/\D/g,"").slice(0,11);
+  v=v.replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+  el.value=v;
+}
+function validarCPF(cpf){
+  cpf=(cpf||"").replace(/\D/g,"");
+  if(cpf.length!==11||/^(\d)\1{10}$/.test(cpf))return false;
+  let s=0;for(let i=0;i<9;i++)s+=parseInt(cpf[i])*(10-i);
+  let d1=(s*10)%11;if(d1===10)d1=0;if(d1!==parseInt(cpf[9]))return false;
+  s=0;for(let i=0;i<10;i++)s+=parseInt(cpf[i])*(11-i);
+  let d2=(s*10)%11;if(d2===10)d2=0;if(d2!==parseInt(cpf[10]))return false;
+  return true;
+}
+
+// ── LOGIN ──
+function altTab(t){["cad","ent"].forEach(x=>{document.getElementById("form-"+x).style.display="none";document.getElementById("tab-"+x).classList.remove("ativo");});document.getElementById("form-"+t).style.display="block";document.getElementById("tab-"+t).classList.add("ativo");}
+// ── RECUPERAR SENHA ──
+const ADMIN_WHATSAPP="5519982480386"; // configurável no painel admin futuramente
+let recUserDoc=null;
+function abrirSobre(){document.getElementById("modal-sobre").classList.add("show");}
+function abrirRecuperar(){
+  document.getElementById("modal-recuperar").classList.add("show");
+  document.getElementById("rec-passo1").style.display="block";
+  document.getElementById("rec-passo2").style.display="none";
+  document.getElementById("rec-fone").value=document.getElementById("ent-fone")?.value||"";
+  document.getElementById("rec-resposta").value="";
+  document.getElementById("rec-nova").value="";
+  recUserDoc=null;
+}
+async function recBuscar(){
+  const fone=document.getElementById("rec-fone").value.trim();
+  if(!fone){toast("Informe seu WhatsApp");return;}
+  loading(true);
+  try{
+    const snap=await db.collection("ej_restaurantes").where("fone","==",fone).limit(1).get();
+    if(snap.empty){loading(false);toast("Número não encontrado.");return;}
+    recUserDoc={id:snap.docs[0].id,...snap.docs[0].data()};
+    loading(false);
+    if(!recUserDoc.pergunta){
+      toast("Sua conta não tem pergunta de segurança. Fale com o administrador.");
+      return;
+    }
+    document.getElementById("rec-pergunta").textContent=recUserDoc.pergunta;
+    document.getElementById("rec-passo1").style.display="none";
+    document.getElementById("rec-passo2").style.display="block";
+  }catch(e){loading(false);toast("Erro ao buscar.");}
+}
+async function recRedefinir(){
+  const resp=(document.getElementById("rec-resposta").value||"").trim().toLowerCase();
+  const nova=(document.getElementById("rec-nova").value||"").trim();
+  if(!resp){toast("Responda a pergunta");return;}
+  if(nova.length<4){toast("Nova senha: mínimo 4 dígitos");return;}
+  if(!recUserDoc){toast("Erro. Tente novamente.");return;}
+  if(recUserDoc.respostaHash!==hashSenha(resp)){toast("Resposta incorreta.");return;}
+  loading(true);
+  try{
+    await db.collection("ej_restaurantes").doc(recUserDoc.id).update({senhaHash:hashSenha(nova)});
+    loading(false);
+    document.getElementById("modal-recuperar").classList.remove("show");
+    toast("Senha redefinida! Faça login. ✓");
+    altTab("ent");
+  }catch(e){loading(false);toast("Erro ao redefinir.");}
+}
+function recFalarAdmin(){
+  const fone=document.getElementById("rec-fone").value.trim();
+  const nome=recUserDoc?recUserDoc.nome:"--";
+  const msg=encodeURIComponent(`Olá! Preciso recuperar minha senha do Entrega Já.\nNome: ${nome}\nWhatsApp: ${fone}`);
+  window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`,"_blank");
+}
+
+// ── HASH SENHA ──
+function hashSenha(s){
+  let h=5381;const str=String(s);
+  for(let i=0;i<str.length;i++){h=((h<<5)+h+str.charCodeAt(i))>>>0;}
+  // segunda passada pra reforçar
+  let h2=52711;for(let i=str.length-1;i>=0;i--){h2=((h2<<5)+h2+str.charCodeAt(i))>>>0;}
+  return "h"+h.toString(36)+h2.toString(36);
+}
+
+async function cadastrar(){
+  const nome=document.getElementById("cad-nome").value.trim();
+  const endereco=(document.getElementById("cad-endereco")?.value||"").trim();
+  const fone=document.getElementById("cad-fone").value.trim();
+  const cpfVal=(document.getElementById("cad-cpf")?.value||"").trim();
+  const nascVal=(document.getElementById("cad-nasc")?.value||"").trim();
+  const senha=(document.getElementById("cad-senha")?.value||"").trim();
+  const pergunta=(document.getElementById("cad-pergunta")?.value||"").trim();
+  const resposta=(document.getElementById("cad-resposta")?.value||"").trim();
+  if(!nome||!fone){toast("Preencha o nome do restaurante e WhatsApp");return;}
+  if(!endereco){toast("Informe o endereço do restaurante");return;}
+  if(cpfVal&&!validarCPF(cpfVal)){toast("CPF/CNPJ inválido. Deixe em branco se não quiser informar agora.");return;}
+  if(senha.length<4){toast("Crie uma senha de pelo menos 4 dígitos");return;}
+  if(!pergunta){toast("Escolha uma pergunta de segurança");return;}
+  if(!resposta){toast("Responda a pergunta de segurança");return;}
+  if(!document.getElementById("cad-termos")?.checked){toast("Você precisa aceitar os Termos de Uso");return;}
+  loading(true);
+  try{
+    // verificar se telefone já existe
+    const ex=await db.collection("ej_restaurantes").where("fone","==",fone).limit(1).get();
+    if(!ex.empty){loading(false);toast("Este WhatsApp já está cadastrado. Use 'Entrar'.");return;}
+
+    // Geocodificar o endereço fixo do restaurante (necessário para validação por GPS do motoboy)
+    let enderecoLat=null,enderecoLng=null;
+    try{
+      const res=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(endereco+", SP, Brasil")}&format=json&limit=1`,{headers:{"User-Agent":"EntregaJa/1.0"}});
+      const data=await res.json();
+      if(data&&data[0]){enderecoLat=parseFloat(data[0].lat);enderecoLng=parseFloat(data[0].lon);}
+    }catch(e){}
+    if(!enderecoLat){
+      loading(false);
+      toast("Não conseguimos localizar esse endereço no mapa. Tente ser mais específico (rua, número, bairro).");
+      return;
+    }
+
+    const id="rest_"+Date.now();
+    const dados={id,nome,fone,
+      endereco,enderecoLat,enderecoLng,
+      cpf:cpfVal,
+      dataNascimento:nascVal||null,
+      senhaHash:hashSenha(senha),
+      pergunta:pergunta,
+      respostaHash:hashSenha(resposta.toLowerCase()),
+      termosAceitos:true,termosData:new Date().toISOString(),
+      emergNome:(document.getElementById("cad-emerg-nome")?.value||"").trim(),
+      emergFone:(document.getElementById("cad-emerg-fone")?.value||"").trim(),
+      foto:fotoFinalCad||null,tipo:"cadastrado",totalCorridas:0,criadoEm:new Date().toISOString()};
+    await db.collection("ej_restaurantes").doc(id).set(dados);
+    user=dados;localStorage.setItem("ej_user",JSON.stringify(user));
+    loading(false);irPara("home");pedirNotif();
+  }catch(e){loading(false);toast("Erro: "+e.message);}
+}
+function calcularIdadeCad(dataNasc){
+  if(!dataNasc)return null;
+  const hoje=new Date(),nasc=new Date(dataNasc+"T00:00:00");
+  let idade=hoje.getFullYear()-nasc.getFullYear();
+  const m=hoje.getMonth()-nasc.getMonth();
+  if(m<0||(m===0&&hoje.getDate()<nasc.getDate()))idade--;
+  return idade;
+}
+async function entrar(){
+  const fone=document.getElementById("ent-fone").value.trim();
+  const senha=(document.getElementById("ent-senha")?.value||"").trim();
+  if(!fone){toast("Informe seu WhatsApp");return;}
+  if(!senha){toast("Informe sua senha");return;}
+  loading(true);
+  try{
+    const snap=await db.collection("ej_restaurantes").where("fone","==",fone).limit(1).get();
+    if(snap.empty){toast("Número não encontrado.");loading(false);return;}
+    const dados={id:snap.docs[0].id,...snap.docs[0].data()};
+    // Conta antiga sem senha: define a senha digitada agora (migração)
+    if(!dados.senhaHash){
+      await db.collection("ej_restaurantes").doc(dados.id).update({senhaHash:hashSenha(senha)});
+      dados.senhaHash=hashSenha(senha);
+      toast("Senha definida para sua conta! ✓");
+    }else if(dados.senhaHash!==hashSenha(senha)){
+      loading(false);toast("Senha incorreta.");return;
+    }
+    user=dados;localStorage.setItem("ej_user",JSON.stringify(user));
+    loading(false);irPara("home");pedirNotif();
+  }catch(e){loading(false);toast("Erro ao entrar.");}
+}
+function entrarSemConta(){user={id:"anon_"+Date.now(),nome:"Passageiro",fone:"",foto:null,tipo:"anonimo"};irPara("home");}
+function sair(){if(unsubCorrida){unsubCorrida();unsubCorrida=null;}localStorage.removeItem("ej_user");user=null;mostrarTela("tela-login");}
+
+// ── ATALHOS ──
+const ATALHOS_PADRAO=[{icon:"🏠",label:"Casa",tipo:"casa",ativo:true,cor:"#fbbf24"},{icon:"💼",label:"Trabalho",tipo:"trabalho",ativo:true,cor:"#3b82f6"},{icon:"🗺️",label:"No mapa",tipo:"mapa",ativo:true,cor:"#22c55e"}];
+const ICONES_LIST=["🏠","💼","🏥","🏪","🎓","⛽","🏦","🍕","🏋️","🛒","🏖️","🌳","🎯","🎪","🚉","⛪","🏨","🎭","❤️","👩","👨","🎵","🍦","🧘","🏊","🚴","🎮","📚","☕","🍺","🎂","🌸","🐕","🐈","🏡","🌅","⭐","💎","🎁","🏟️","🌊","🏔️","🎪","🚗","✈️","🎸","🎬","🏀","⚽","🎾"];
+const CORES_LIST=["#fbbf24","#ef4444","#3b82f6","#22c55e","#a855f7","#ec4899","#f97316","#06b6d4","#84cc16","#ffffff"];
+
+function getAtalhos(){try{return JSON.parse(localStorage.getItem("ej_atalhos_v3")||"null")||ATALHOS_PADRAO;}catch(e){return ATALHOS_PADRAO;}}
+function saveAtalhos(a){localStorage.setItem("ej_atalhos_v3",JSON.stringify(a));}
+
+function renderAtalhos(){
+  const cont=document.getElementById("atalhos-container");
+  if(!cont)return;
+  const atalhos=getAtalhos().filter(a=>a.ativo!==false);
+  const casa=JSON.parse(localStorage.getItem("ej_atalho_casa")||"null");
+  const trab=JSON.parse(localStorage.getItem("ej_atalho_trabalho")||"null");
+  cont.innerHTML=atalhos.map((a,i)=>{
+    let end="Definir";
+    if(a.tipo==="casa"&&casa)end=casa.nome.split(",")[0];
+    else if(a.tipo==="trabalho"&&trab)end=trab.nome.split(",")[0];
+    else if(a.tipo==="mapa")end="Tocar";
+    else if(a.destino)end=a.destino.nome.split(",")[0];
+    const cor=a.cor||"#fbbf24";
+    return`<div class="atalho-item" data-idx="${i}" ontouchstart="iniciaDrag(event,${i})" ontouchmove="moveDrag(event)" ontouchend="fimDrag(event)" onclick="usarAtalho(${i})">
+      <div class="atalho-luz" style="background:conic-gradient(${cor},#fff2,${cor});"></div>
+      <div class="atalho-conteudo">
+        <div class="atalho-ic">${a.icon}</div>
+        <div class="atalho-lb">${a.label}</div>
+        <div class="atalho-end" id="atalho-end-${i}">${end}</div>
+      </div>
+    </div>`;
+  }).join("");
+  // garantir que nenhum item fique com drag preso e brilho vazando
+  cont.querySelectorAll(".atalho-item.drag-ativo").forEach(el=>el.classList.remove("drag-ativo"));
+  cont.classList.remove("reordenando");
+}
+
+function usarAtalho(idx){
+  if(_dragging||_acabouDrag)return;
+  const atalhos=getAtalhos().filter(a=>a.ativo!==false);
+  const a=atalhos[idx];if(!a)return;
+  if(a.tipo==="mapa"){abrirMapaDest();return;}
+  const salvo=JSON.parse(localStorage.getItem("ej_atalho_"+a.tipo)||"null");
+  if(salvo||a.destino){
+    const dest=salvo||a.destino;
+    destSel=dest;
+    document.getElementById("campo-busca").value=dest.nome.split(",")[0];
+    document.getElementById("btn-chamar").disabled=false;
+    calcularValor();
+    toast("Destino: "+dest.nome.split(",")[0]);
+  }else{
+    _tipoAtalho=a.tipo;_definindoAtalho=true;
+    toast("Defina o local no mapa");abrirMapaDest();
+  }
+}
+
+// ── DRAG & DROP (long-press pra reordenar; deslizar normal faz scroll) ──
+let _dragStartX=0,_dragStartY=0,_dragMoved=false;
+function iniciaDrag(e,idx){
+  // NAO chamar stopPropagation: deixa o scroll nativo rolar normalmente
+  const t=e.touches?e.touches[0]:e;
+  _dragStartX=t.clientX;_dragStartY=t.clientY;_dragMoved=false;
+  clearTimeout(_dragTO);
+  _dragTO=setTimeout(()=>{
+    // Long-press completado SEM ter rolado: entra no modo reordenar
+    if(_dragMoved)return;
+    _dragging=true;_dragIdx=idx;
+    _dragEl=document.querySelector(`.atalho-item[data-idx="${idx}"]`);
+    const cont=document.getElementById("atalhos-container");
+    if(cont)cont.classList.add("reordenando");
+    if(_dragEl)_dragEl.classList.add("drag-ativo");
+    if(navigator.vibrate)navigator.vibrate([50,20,50]);
+  },600);
+}
+function moveDrag(e){
+  const t=e.touches?e.touches[0]:e;
+  // Antes de ativar o drag: se o dedo mexeu, e' scroll -> cancela o long-press
+  if(!_dragging){
+    const dx=Math.abs(t.clientX-_dragStartX),dy=Math.abs(t.clientY-_dragStartY);
+    if(dx>8||dy>8){_dragMoved=true;clearTimeout(_dragTO);}
+    return; // deixa o scroll nativo agir
+  }
+  // Modo reordenar ativo: bloqueia scroll e move
+  e.preventDefault();
+  const x=t.clientX;
+  const cont=document.getElementById("atalhos-container");
+  const items=[...cont.querySelectorAll(".atalho-item:not(.drag-ativo)")];
+  items.forEach(item=>{
+    const r=item.getBoundingClientRect();
+    if(x>r.left+r.width*0.3&&x<r.right-r.width*0.3){
+      const j=parseInt(item.dataset.idx);
+      if(j===_dragIdx)return;
+      const todos=getAtalhos();
+      const ativos=todos.filter(a=>a.ativo!==false);
+      const inat=todos.filter(a=>a.ativo===false);
+      const tmp=ativos[_dragIdx];ativos[_dragIdx]=ativos[j];ativos[j]=tmp;
+      saveAtalhos([...ativos,...inat]);
+      _dragIdx=j;
+      renderAtalhos();
+      const cont2=document.getElementById("atalhos-container");
+      if(cont2)cont2.classList.add("reordenando");
+      const novoEl=document.querySelector(`.atalho-item[data-idx="${j}"]`);
+      if(novoEl){novoEl.classList.add("drag-ativo");_dragEl=novoEl;}
+      if(navigator.vibrate)navigator.vibrate(15);
+    }
+  });
+}
+function fimDrag(e){
+  clearTimeout(_dragTO);
+  const cont=document.getElementById("atalhos-container");
+  if(cont)cont.classList.remove("reordenando");
+  if(_dragging){
+    _dragging=false;_acabouDrag=true;setTimeout(()=>_acabouDrag=false,300);
+    document.querySelectorAll(".atalho-item.drag-ativo").forEach(el=>el.classList.remove("drag-ativo"));
+    renderAtalhos();
+  }
+  _dragEl=null;_dragMoved=false;
+}
+
+// ── CRIAR ATALHO ──
+function abrirCriarAtalho(){
+  _novoIcon="⭐";_novoCor="#fbbf24";
+  document.getElementById("novo-nome").value="";
+  // Grade ícones
+  const gi=document.getElementById("grade-icones");
+  gi.innerHTML=ICONES_LIST.map(ic=>`<div class="icone-op${ic==="⭐"?" sel":""}" data-ic="${ic}" onclick="selIcon('${ic}',this)">${ic}</div>`).join("");
+  // Grade cores
+  const gc=document.getElementById("grade-cores");
+  gc.innerHTML=CORES_LIST.map(c=>`<div class="cor-op${c==="#fbbf24"?" sel":""}" data-cor="${c}" style="background:${c};" onclick="selCor('${c}',this)"></div>`).join("");
+  document.getElementById("modal-criar-atalho").classList.add("show");
+}
+function fecharCriarAtalho(){document.getElementById("modal-criar-atalho").classList.remove("show");}
+function selIcon(ic,el){_novoIcon=ic;document.querySelectorAll(".icone-op").forEach(d=>d.classList.remove("sel"));if(el)el.classList.add("sel");}
+function selCor(cor,el){_novoCor=cor;document.querySelectorAll(".cor-op").forEach(d=>d.classList.remove("sel"));if(el)el.classList.add("sel");}
+function salvarAtalho(){
+  const nome=document.getElementById("novo-nome").value.trim();
+  if(!nome){toast("Digite um nome para o atalho");return;}
+  const todos=getAtalhos();
+  todos.push({icon:_novoIcon,label:nome,tipo:"custom_"+Date.now(),ativo:true,destino:null,cor:_novoCor});
+  saveAtalhos(todos);fecharCriarAtalho();renderAtalhos();renderConfig();
+  toast("'"+nome+"' criado! Toque nele para definir o local.");
+}
+
+// ── CONFIG ──
+function abrirConfig(){fecharMenu();document.getElementById("tela-config").style.display="block";renderConfig();}
+function fecharConfig(){document.getElementById("tela-config").style.display="none";}
+function renderConfig(){
+  const lista=document.getElementById("config-lista");if(!lista)return;
+  const todos=getAtalhos();
+  lista.innerHTML=todos.map((a,i)=>{
+    const salvo=a.tipo==="casa"?JSON.parse(localStorage.getItem("ej_atalho_casa")||"null"):a.tipo==="trabalho"?JSON.parse(localStorage.getItem("ej_atalho_trabalho")||"null"):null;
+    const end=salvo?salvo.nome.split(",")[0]:a.destino?a.destino.nome.split(",")[0]:a.tipo==="mapa"?"Abre mapa":"Não definido";
+    return`<div class="config-item">
+      <div class="config-ic">${a.icon}</div>
+      <div class="config-info"><div class="config-nome">${a.label}</div><div class="config-end">${end}</div></div>
+      <div class="toggle ${a.ativo!==false?"on":"off"}" onclick="toggleAtalho(${i})"></div>
+    </div>`;
+  }).join("");
+}
+function toggleAtalho(idx){const todos=getAtalhos();todos[idx].ativo=!(todos[idx].ativo!==false);saveAtalhos(todos);renderConfig();renderAtalhos();}
+function toggleNotif(){const on=localStorage.getItem("ej_notif")!=="false";localStorage.setItem("ej_notif",on?"false":"true");if(!on)pedirNotif();document.getElementById("tog-notif").className="toggle "+(on?"off":"on");}
+
+// ── MENU ──
+function abrirMenu(){document.getElementById("menu-overlay").style.display="block";document.getElementById("menu-lateral").style.display="block";}
+function fecharMenu(){document.getElementById("menu-overlay").style.display="none";document.getElementById("menu-lateral").style.display="none";}
+function toggleNotifMenu(){const on=localStorage.getItem("ej_notif")!=="false";localStorage.setItem("ej_notif",on?"false":"true");if(!on)pedirNotif();document.getElementById("notif-item").textContent=(on?"🔕":"🔔")+" Notificações "+(on?"desativadas":"ativadas");}
+function definirAtalho(tipo){fecharMenu();_tipoAtalho=tipo;_definindoAtalho=true;toast("Defina no mapa onde é sua "+(tipo==="casa"?"Casa":"Trabalho"));abrirMapaDest();}
+function copiarPix(){navigator.clipboard.writeText("19982480386").then(()=>toast("Chave Pix copiada!")).catch(()=>toast("Chave: 19982480386"));}
+
+// ── CIDADE ──
+function selCidade(el){document.querySelectorAll(".chip").forEach(c=>c.classList.remove("ativo"));el.classList.add("ativo");cidadeAtual=el.dataset.c;document.getElementById("campo-busca").value="";document.getElementById("sugestoes").style.display="none";destSel=null;document.getElementById("btn-chamar").disabled=true;document.getElementById("valor-card").style.display="none";}
+function detectarCidade(lat,lng){const cs=[{n:"Holambra",lat:-22.655,lng:-47.059,r:.08},{n:"Jaguariúna",lat:-22.703,lng:-47.020,r:.1},{n:"Arthur Nogueira",lat:-22.574,lng:-47.167,r:.08},{n:"Mogi Mirim",lat:-22.431,lng:-46.957,r:.1},{n:"Mogi Guaçu",lat:-22.372,lng:-46.942,r:.1},{n:"Campinas",lat:-22.906,lng:-47.063,r:.15}];for(const c of cs)if(Math.sqrt((lat-c.lat)**2+(lng-c.lng)**2)<=c.r)return c.n;return null;}
+
+// ── AUTOCOMPLETE ──
+async function buscarDest(q){clearTimeout(_sugTO);const el=document.getElementById("sugestoes");if(!q||q.length<2){el.style.display="none";destSel=null;document.getElementById("btn-chamar").disabled=true;document.getElementById("valor-card").style.display="none";return;}_sugTO=setTimeout(()=>_buscarNom(q,cidadeAtual,true),450);}
+async function _buscarNom(q,cidade,expandir){
+  const el=document.getElementById("sugestoes");
+  try{
+    const query=cidade==="todas"?`${q}, SP, Brasil`:`${q}, ${cidade}, SP, Brasil`;
+    const res=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=6&addressdetails=1&accept-language=pt-BR`,{headers:{"User-Agent":"EntregaJa/1.0"}});
+    const data=await res.json();
+    if(!data.length){el.innerHTML=`<div class="sug-item"><div class="sug-nome" style="color:var(--muted)">Nenhum resultado</div></div>`+(expandir?`<div class="sug-mais" onclick="_buscarNom(document.getElementById('campo-busca').value,'todas',false)">🔍 Buscar em todas as cidades</div>`:"");el.style.display="block";return;}
+    window._sugs=data;
+    el.innerHTML=data.map((d,i)=>{const p=d.display_name.split(",");return`<div class="sug-item" onclick="selDest(${i})"><div class="sug-nome">${p[0]}</div><div class="sug-end">${p.slice(1,3).join(",").trim()}</div></div>`;}).join("")+(expandir?`<div class="sug-mais" onclick="_buscarNom(document.getElementById('campo-busca').value,'todas',false)">🔍 Buscar em todas as cidades</div>`:"");
+    el.style.display="block";
+  }catch(e){el.style.display="none";}
+}
+function selDest(idx){
+  const d=window._sugs[idx],p=d.display_name.split(",");
+  document.getElementById("campo-busca").value=p.slice(0,2).join(",").trim();
+  document.getElementById("sugestoes").style.display="none";
+  destSel={nome:d.display_name,lat:parseFloat(d.lat),lng:parseFloat(d.lon)};
+  document.getElementById("btn-chamar").disabled=false;
+  calcularValor();salvarHist(destSel);
+}
+
+// ── VALOR ──
+function dKm(la1,lo1,la2,lo2){const R=6371,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180;const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+function tabela(km){const t=[{a:2,p:8},{a:5,p:12},{a:10,p:18},{a:20,p:28},{a:35,p:40},{a:50,p:52},{a:999,p:65}];for(const x of t)if(km<=x.a)return x.p;return 65;}
+async function calcularValor(){
+  if(!destSel||!posAtual)return;
+  document.getElementById("valor-card").style.display="block";
+  document.getElementById("valor-num").textContent="Calculando...";
+  try{
+    const url=`https://router.project-osrm.org/route/v1/driving/${posAtual[1]},${posAtual[0]};${destSel.lng},${destSel.lat}?overview=false`;
+    const res=await fetch(url);const data=await res.json();
+    if(data.routes&&data.routes[0]){
+      const km=data.routes[0].distance/1000,min=Math.round(data.routes[0].duration/60),val=tabela(km);
+      document.getElementById("valor-num").textContent="R$ "+val.toFixed(2).replace(".",",");
+      document.getElementById("valor-dist").textContent=km.toFixed(1)+" km pela rota";
+      document.getElementById("valor-tempo").textContent="~"+min+" min";
+      destSel.valorEst="R$ "+val.toFixed(2).replace(".",",");destSel.distKm=km.toFixed(1);
+    }
+  }catch(e){const km=dKm(posAtual[0],posAtual[1],destSel.lat,destSel.lng),val=tabela(km);document.getElementById("valor-num").textContent="R$ "+val.toFixed(2).replace(".",",");document.getElementById("valor-dist").textContent="~"+km.toFixed(1)+" km";destSel.valorEst="R$ "+val.toFixed(2).replace(".",",");destSel.distKm=km.toFixed(1);}
+}
+
+// ── HIST ──
+function salvarHist(d){
+  try{
+    let h=JSON.parse(localStorage.getItem("ej_hist")||"[]");
+    h=h.filter(x=>x.nome!==d.nome);
+    h.unshift({nome:d.nome,lat:d.lat,lng:d.lng});
+    localStorage.setItem("ej_hist",JSON.stringify(h.slice(0,8)));
+    renderHistRapido();
+  }catch(e){}
+}
+
+function renderHistRapido(){
+  try{
+    const h=JSON.parse(localStorage.getItem("ej_hist")||"[]");
+    const wrap=document.getElementById("hist-rapido");
+    const lista=document.getElementById("hist-rapido-lista");
+    if(!wrap||!lista)return;
+    if(h.length===0){wrap.style.display="none";return;}
+    wrap.style.display="block";
+    lista.innerHTML=h.slice(0,3).map((d,i)=>`
+      <div onclick="usarHistRapido(${i})" style="display:flex;align-items:center;gap:9px;padding:8px 12px;background:var(--card2);border-radius:11px;cursor:pointer;border:1px solid var(--border);">
+        <span style="font-size:14px;">🕐</span>
+        <div style="flex:1;overflow:hidden;">
+          <div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.nome.split(",")[0]}</div>
+          <div style="font-size:10px;color:var(--muted);">${d.nome.split(",").slice(1,2).join(",").trim()}</div>
+        </div>
+      </div>`).join("");
+    window._histRapido=h;
+  }catch(e){}
+}
+
+function usarHistRapido(idx){
+  const h=window._histRapido||[];
+  if(!h[idx])return;
+  destSel={nome:h[idx].nome,lat:h[idx].lat,lng:h[idx].lng};
+  document.getElementById("campo-busca").value=h[idx].nome.split(",")[0];
+  document.getElementById("btn-chamar").disabled=false;
+  calcularValor();
+}
+
+// ── AGENDAR CORRIDA ──
+function abrirAgendada(){
+  // Preencher data de hoje
+  const hoje=new Date();
+  document.getElementById("ag-data").value=hoje.toISOString().split("T")[0];
+  document.getElementById("ag-hora").value=hoje.toTimeString().slice(0,5);
+  if(destSel)document.getElementById("ag-dest").value=destSel.nome.split(",")[0];
+  document.getElementById("modal-agendada").classList.add("show");
+}
+async function confirmarAgendada(){
+  const data=document.getElementById("ag-data").value;
+  const hora=document.getElementById("ag-hora").value;
+  const dest=document.getElementById("ag-dest").value.trim();
+  if(!data||!hora||!dest){toast("Preencha data, hora e destino");return;}
+  // Salvar agendamento no Firestore
+  try{
+    await db.collection("ej_agendamentos").add({
+      clienteId:user.id,clienteNome:user.nome,clienteFone:user.fone||"",
+      destino:dest,data,hora,status:"agendado",
+      criadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById("modal-agendada").classList.remove("show");
+    toast("Entrega agendada para "+data.split("-").reverse().join("/")+" às "+hora+" ✓");
+  }catch(e){toast("Erro ao agendar: "+e.message);}
+}
+
+// ── INDICAR AMIGO ──
+function abrirIndicar(){
+  const cod=user?.id?.slice(-6).toUpperCase()||"------";
+  document.getElementById("cod-indicacao").textContent=cod;
+  document.getElementById("modal-indicar").classList.add("show");
+}
+function compartilharIndicacao(){
+  const cod=document.getElementById("cod-indicacao").textContent;
+  const msg=`🚗 Usa o Entrega Já! O melhor app de transporte da região.%0AUse meu código ${cod} e ganhe créditos na primeira entrega!%0Ahttps://heitorserra-81.github.io/ENTREGA-JA-Restaurante/`;
+  if(navigator.share)navigator.share({title:"Entrega Já",text:decodeURIComponent(msg)}).catch(()=>{});
+  else window.open(`https://wa.me/?text=${msg}`,"_blank");
+}
+
+// ── MAPA DESTINO ──
+function abrirMapaDest(){
+  const m=document.getElementById("modal-mapa-dest");m.style.display="flex";m.classList.add("show");
+  if(!mapaDest){
+    mapaDest=L.map("mapa-dest-div",{zoomControl:true,attributionControl:false});
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mapaDest);
+    mapaDest.setView(posAtual||[-22.655,-47.059],15);
+    mapaDest.on("moveend",()=>{const c=mapaDest.getCenter();_buscarRev(c.lat,c.lng);});
+  }else setTimeout(()=>mapaDest.invalidateSize(),100);
+}
+function fecharMapaDest(){const m=document.getElementById("modal-mapa-dest");m.style.display="none";m.classList.remove("show");_definindoAtalho=false;_tipoAtalho=null;}
+async function _buscarRev(lat,lng){
+  _destCoords=[lat,lng];
+  document.getElementById("dest-end-txt").textContent="Buscando endereço...";
+  document.getElementById("btn-confirmar-dest").disabled=true;
+  try{const res=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=pt-BR`,{headers:{"User-Agent":"EntregaJa/1.0"}});const data=await res.json();_destEnd=data.display_name;document.getElementById("dest-end-txt").textContent="📍 "+data.display_name.split(",").slice(0,3).join(",");document.getElementById("btn-confirmar-dest").disabled=false;}
+  catch(e){document.getElementById("dest-end-txt").textContent="Não foi possível obter o endereço";}
+}
+function confirmarDestMapa(){
+  if(!_destCoords||!_destEnd)return;
+  const dest={nome:_destEnd,lat:_destCoords[0],lng:_destCoords[1]};
+  if(_definindoAtalho&&_tipoAtalho){
+    localStorage.setItem("ej_atalho_"+_tipoAtalho,JSON.stringify(dest));
+    // Atualizar atalho customizado se existir
+    const todos=getAtalhos();const idx=todos.findIndex(a=>a.tipo===_tipoAtalho);
+    if(idx>=0){todos[idx].destino=dest;saveAtalhos(todos);}
+    renderAtalhos();
+    toast((_tipoAtalho==="casa"?"Casa":_tipoAtalho==="trabalho"?"Trabalho":"Atalho")+" definido: "+dest.nome.split(",")[0]);
+    _definindoAtalho=false;_tipoAtalho=null;fecharMapaDest();return;
+  }
+  destSel=dest;
+  document.getElementById("campo-busca").value=_destEnd.split(",").slice(0,2).join(",").trim();
+  document.getElementById("btn-chamar").disabled=false;
+  fecharMapaDest();calcularValor();salvarHist(dest);
+}
+
+// ── CHAMAR CORRIDA ──
+let formaPgto="Dinheiro";
+function selPgto(btn,forma){
+  formaPgto=forma;
+  document.querySelectorAll(".pgto-btn").forEach(b=>b.classList.remove("ativo"));
+  btn.classList.add("ativo");
+  const troco=document.getElementById("pgto-troco");
+  if(troco)troco.style.display=(forma==="Dinheiro")?"block":"none";
+}
+function cancelarPgto(){
+  document.getElementById("modal-pgto").classList.remove("show");
+  formaPgto="Dinheiro";
+  const t=document.getElementById("pgto-troco");if(t)t.value="";
+  irPara("home");
+}
+
+function chamarEntrega(){
+  if(!destSel){toast("Informe o endereço de entrega");return;}
+  if(!posAtual){toast("Endereço do restaurante não configurado. Verifique seu cadastro.");return;}
+  try{getAC();}catch(e){}
+  mostrarTela("tela-buscando");
+  document.getElementById("busc-dest").textContent="→ "+destSel.nome.split(",")[0];
+  document.getElementById("busc-num").textContent="0";
+  if(contBusc){clearInterval(contBusc);contBusc=null;}
+  // MODO SIMPLES (padrão): sem cobrança, chama a entrega direto, sem modal de pagamento.
+  // MODO_COBRANCA fica pronto para ativação futura pelo painel admin ("simples" | "distancia").
+  if(MODO_COBRANCA==="distancia"){
+    document.getElementById("modal-pgto").classList.add("show");
+  }else{
+    confirmarPgtoEChamar();
+  }
+}
+
+async function confirmarPgtoEChamar(){
+  const modalPgto=document.getElementById("modal-pgto");
+  if(modalPgto)modalPgto.classList.remove("show");
+  loading(true);
+  try{
+    const km=dKm(posAtual[0],posAtual[1],destSel.lat,destSel.lng);
+    const id="ped_"+Date.now();
+    const pedido={
+      id,status:"aguardando",
+      clienteId:user.id,clienteNome:user.nome,clienteFone:user.fone||"",clienteFoto:user.foto||null,clienteTipo:user.tipo||"cadastrado",
+      restauranteEndereco:user.endereco||null,
+      origemLat:posAtual[0],origemLng:posAtual[1],
+      destino:destSel.nome.split(",").slice(0,2).join(","),destinoLat:destSel.lat,destinoLng:destSel.lng,
+      obs:document.getElementById("campo-obs").value.trim()||null,
+      distanciaKm:destSel.distKm||km.toFixed(1),
+      criadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    };
+    // Campos de cobrança só preenchidos se o modo "distancia" estiver ativo (deixados prontos p/ ativação futura)
+    if(MODO_COBRANCA==="distancia"){
+      const val=tabela(km);
+      const troco=(formaPgto==="Dinheiro"?(document.getElementById("pgto-troco")?.value.trim()||null):null);
+      pedido.formaPgto=formaPgto;pedido.trocoPara=troco;
+      pedido.valorEstimado=destSel.valorEst||"R$ "+val.toFixed(2).replace(".",",");
+    }
+    await db.collection("ej_pedidos").doc(id).set(pedido);
+    entregaAtiva={...pedido,id};loading(false);
+    _seg=0;if(contBusc)clearInterval(contBusc);
+    contBusc=setInterval(()=>{_seg++;document.getElementById("busc-num").textContent=_seg;},1000);
+    escutarEntrega(id);
+  }catch(e){loading(false);toast("Erro: "+e.message);}
+}
+function pararBusc(){if(contBusc){clearInterval(contBusc);contBusc=null;}}
+
+// ── ESCUTAR CORRIDA ──
+function escutarEntrega(id){
+  if(unsubEntrega){unsubEntrega();unsubEntrega=null;}
+  unsubEntrega=db.collection("ej_pedidos").doc(id).onSnapshot(snap=>{
+    const d=snap.data();if(!d)return;
+    if(d.status==="aceita"&&d.motoboy){
+      pararBusc();entregaAtiva={...d,id};
+      try{getAC();}catch(e){}
+      somAceito();notif("🚗 Entrega Já! Motoboy encontrado!",d.motoboy.nome+" está a caminho!");
+      mostrarTelaCorrente(d);
+    }
+    if(d.status==="motoboy_chegou"){somChegou();notif("📍 Motoboy chegou!","Dirija-se ao veículo.");document.getElementById("entrega-status").textContent="📍 Seu motoboy chegou!";}
+    if(d.statusEtapa==="no_carro")document.getElementById("entrega-status").textContent="🚗 A caminho do destino!";
+    if(d.status==="concluida"){pararBusc();if(unsubEntrega){unsubEntrega();unsubEntrega=null;}const cId=entregaAtiva?.id||id,mNome=d.motoboy?.nome||"motoboy";toast("Entrega concluída! Obrigado! 🎉");setTimeout(()=>mostrarAval(cId,mNome),1000);setTimeout(()=>{entregaAtiva=null;irPara("home");},8000);}
+    if(d.status==="cancelada_motoboy"){pararBusc();if(unsubEntrega){unsubEntrega();unsubEntrega=null;}entregaAtiva=null;mostrarTela("tela-home");toast("Motoboy cancelou. Tente novamente.");}
+    if(d.motoboy&&d.motoboy.lat&&mapaEntrega){
+      const pos=[d.motoboy.lat,d.motoboy.lng];
+      const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32"><rect x="2" y="10" width="28" height="14" rx="5" fill="#f59e0b"/><rect x="6" y="5" width="18" height="9" rx="4" fill="#fcd34d"/><circle cx="8" cy="25" r="4" fill="#080f1e"/><circle cx="8" cy="25" r="2" fill="#fbbf24"/><circle cx="24" cy="25" r="4" fill="#080f1e"/><circle cx="24" cy="25" r="2" fill="#fbbf24"/></svg>`;
+      const ic=L.divIcon({html:`<div style="filter:drop-shadow(0 2px 5px rgba(0,0,0,.5));">${svg}</div>`,className:"",iconSize:[32,32],iconAnchor:[16,26]});
+      if(!marcMot)marcMot=L.marker(pos,{icon:ic}).addTo(mapaEntrega);else marcMot.setLatLng(pos);
+      if(!mapaEntrega._ui)mapaEntrega.panTo(pos,{animate:true,duration:.5});
+      if(posAtual)calcETA(pos[0],pos[1],posAtual[0],posAtual[1]);
+    }
+  });
+}
+
+function mostrarTelaCorrente(d){
+  const m=d.motoboy;
+  if(m.foto)document.getElementById("mot-foto").innerHTML=`<img src="${m.foto}"/>`;
+  document.getElementById("mot-nome").textContent=m.nome||"--";
+  const v={moto:"🏍️ Moto",carro:"🚗 Carro",van:"🚐 Van"};
+  document.getElementById("mot-veic").textContent=v[m.veiculo]||m.veiculo||"--";
+  document.getElementById("mot-placa").textContent=m.placa||"--";
+  document.getElementById("entrega-valor").textContent=d.valorEstimado||"--";
+  const fone=(m.fone||"").replace(/\D/g,"");
+  const btnZapEl=document.getElementById("btn-zap");if(btnZapEl)btnZapEl.onclick=()=>window.open("https://wa.me/55"+fone,"_blank");
+  mostrarTela("tela-entrega");
+  iniciarMapaEntrega(d);
+  iniciarChat(d.id||entregaAtiva.id);
+}
+
+async function cancelarBusca(){
+  if(entregaAtiva)try{await db.collection("ej_pedidos").doc(entregaAtiva.id).update({status:"cancelada_cliente"});}catch(e){}
+  pararBusc();if(unsubEntrega){unsubEntrega();unsubEntrega=null;}entregaAtiva=null;irPara("home");
+}
+async function cancelarEntrega(){
+  if(entregaAtiva)try{await db.collection("ej_pedidos").doc(entregaAtiva.id).update({status:"cancelada_cliente"});}catch(e){}
+  pararBusc();if(unsubEntrega){unsubEntrega();unsubEntrega=null;}if(unsubChat){unsubChat();unsubChat=null;}entregaAtiva=null;marcMot=null;irPara("home");
+}
+
+// ── PERFIL MOT ──
+async function verPerfilMot(){
+  if(!entregaAtiva?.motoboy)return;
+  const m=entregaAtiva.motoboy;
+  document.getElementById("modal-mot").classList.add("show");
+  const fEl=document.getElementById("mm-foto");
+  if(m.foto)fEl.innerHTML=`<img src="${m.foto}"/>`;else fEl.innerHTML="<span>🚗</span>";
+  document.getElementById("mm-nome").textContent=m.nome||"--";
+  const v={moto:"🏍️ Moto",carro:"🚗 Carro",van:"🚐 Van"};
+  document.getElementById("mm-info").textContent=(v[m.veiculo]||m.veiculo||"")+" • "+m.placa;
+  document.getElementById("mm-placa").textContent=m.placa||"--";
+  document.getElementById("mm-aval").textContent=m.avaliacao?"⭐ "+parseFloat(m.avaliacao).toFixed(1):"Novo";
+
+  // Buscar dados completos do motoboy (nível, entregas, comentário)
+  let dadosMot=null;
+  try{
+    if(m.id){const snap=await db.collection("ej_motoboys").doc(m.id).get();if(snap.exists)dadosMot=snap.data();}
+  }catch(e){}
+
+  const tc=dadosMot?.totalEntregas||0;
+  document.getElementById("mm-entregas").textContent=tc;
+  let nivel="🥉 Bronze",grad="conic-gradient(#cd7f32,#f0b97d,#8b5a2b,#cd7f32)";
+  if(tc>=50){nivel="💎 Diamante";grad="conic-gradient(#b9f2ff,#7fd4e8,#5fa8d3,#a0e9ff,#b9f2ff)";}
+  else if(tc>=20){nivel="🥇 Ouro";grad="conic-gradient(#ffd700,#fff3a0,#daa520,#ffd700)";}
+  else if(tc>=5){nivel="🥈 Prata";grad="conic-gradient(#c0c0c0,#f5f5f5,#a8a8a8,#e8e8e8,#c0c0c0)";}
+  document.getElementById("mm-nivel").textContent=nivel;
+  const ring=document.getElementById("mm-av-ring");
+  if(ring)ring.style.setProperty("--nivel-grad",grad);
+
+  const comentWrap=document.getElementById("mm-comentario-wrap");
+  if(dadosMot?.ultimoComentarioRecebido){
+    document.getElementById("mm-comentario").textContent=`"${dadosMot.ultimoComentarioRecebido}"`;
+    comentWrap.style.display="block";
+  }else comentWrap.style.display="none";
+}
+
+// ── SOS / COMPARTILHAR ──
+function sosEntrega(){
+  if(!posAtual){toast("Obtendo localização...");return;}
+  const m=entregaAtiva?.motoboy||{};
+  const emergFone=(user?.emergFone||"").replace(/\D/g,"");
+  const msg=`🆘 EMERGÊNCIA - Entrega Já!%0APosição: https://maps.google.com/?q=${posAtual[0]},${posAtual[1]}%0APassageiro: ${user?.nome||""}%0AMotoboy: ${m.nome||""} - Placa: ${m.placa||""}`;
+  if(emergFone&&emergFone.length>=10){
+    // Manda pro contato de emergência cadastrado
+    window.open(`https://wa.me/55${emergFone}?text=${msg}`,"_blank");
+    toast("SOS enviado para "+user.emergNome+"!");
+  } else {
+    // Se não tem contato de emergência, pede pra configurar
+    toast("Configure um contato de emergência no seu perfil!");
+    setTimeout(()=>abrirEditarPerfil(),1500);
+  }
+}
+function compartilhar(){
+  if(!entregaAtiva)return;
+  const m=entregaAtiva.motoboy||{};
+  const txt=`🚗 Estou em uma entrega pelo Entrega Já!%0ADestino: ${entregaAtiva.destino||""}${posAtual?`%0AMinha posição: https://maps.google.com/?q=${posAtual[0]},${posAtual[1]}`:""}`;
+  const emergFone=(user?.emergFone||"").replace(/\D/g,"");
+  if(emergFone&&emergFone.length>=10){
+    window.open(`https://wa.me/55${emergFone}?text=${txt}`,"_blank");
+  } else if(navigator.share){
+    navigator.share({title:"Minha entrega",text:decodeURIComponent(txt)}).catch(()=>{});
+  } else {
+    window.open(`https://wa.me/?text=${txt}`,"_blank");
+  }
+}
+
+// ── CHAT ──
+function iniciarChat(cId){
+  if(unsubChat){unsubChat();unsubChat=null;}
+  unsubChat=db.collection("ej_pedidos").doc(cId).collection("chat").orderBy("ts").onSnapshot(snap=>{
+    const msgs=document.getElementById("chat-msgs");if(!msgs)return;
+    snap.docChanges().forEach(ch=>{if(ch.type==="added"){const m=ch.doc.data();const isMinha=m.de==="passageiro";const div=document.createElement("div");div.className="msg "+(isMinha?"minha":"dele");div.innerHTML=m.texto+`<div class="msg-time">${m.ts?new Date(m.ts.toDate()).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):"--"}</div>`;msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;}});
+  });
+}
+function abrirChat(){document.getElementById("modal-chat").classList.add("show");}
+function fecharChat(){document.getElementById("modal-chat").classList.remove("show");}
+async function enviarMsg(){
+  const inp=document.getElementById("chat-inp");const txt=inp.value.trim();if(!txt||!entregaAtiva)return;inp.value="";
+  try{await db.collection("ej_pedidos").doc(entregaAtiva.id).collection("chat").add({texto:txt,de:"passageiro",nome:user?.nome||"Passageiro",ts:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){toast("Erro ao enviar.");}
+}
+
+// ── AVALIAÇÃO ──
+function mostrarAval(cId,nome){
+  _avalId=cId;_avalNota=5;
+  document.getElementById("aval-nome").textContent=nome||"o motoboy";
+  document.getElementById("aval-comentario").value="";
+  selEstrela(5);
+  document.getElementById("modal-aval").classList.add("show");
+}
+function selEstrela(n){_avalNota=n;document.querySelectorAll(".estrela").forEach((e,i)=>e.classList.toggle("on",i<n));}
+async function enviarAval(){
+  if(!_avalId)return;
+  const comentario=(document.getElementById("aval-comentario")?.value||"").trim();
+  loading(true);
+  try{
+    await db.collection("ej_pedidos").doc(_avalId).update({avaliacaoPassageiro:_avalNota,comentarioPassageiro:comentario||null});
+    // Atualiza o último comentário recebido pelo motoboy (se houver)
+    if(comentario){
+      try{
+        const cSnap=await db.collection("ej_pedidos").doc(_avalId).get();
+        const cData=cSnap.data();
+        if(cData?.motoboy?.id){
+          await db.collection("ej_motoboys").doc(cData.motoboy.id).update({ultimoComentarioRecebido:comentario});
+        }
+      }catch(e){}
+    }
+    loading(false);
+    localStorage.removeItem("ej_aval_pendente");
+    fecharAval();
+    toast("Obrigado pela avaliação! ⭐");
+  }catch(e){loading(false);toast("Erro ao enviar avaliação.");}
+}
+function fecharAval(){document.getElementById("modal-aval").classList.remove("show");}
+
+// ── ETA ──
+async function calcETA(la1,lo1,la2,lo2){
+  try{const res=await fetch(`https://router.project-osrm.org/route/v1/driving/${lo1},${la1};${lo2},${la2}?overview=false`);const data=await res.json();
+  if(data.routes&&data.routes[0]){const min=Math.round(data.routes[0].duration/60),km=(data.routes[0].distance/1000).toFixed(1);const el=document.getElementById("eta");if(el){el.style.display="block";el.textContent=min<=1?"🟢 Chegando!":min<5?`🟡 ~${min}min · ${km}km`:`🔴 ~${min}min · ${km}km`;}}}catch(e){}
+}
+
+// ── MAPAS ──
+function iniciarMapaHome(){
+  if(mapaHome)return;
+  mapaHome=L.map("mapa-home-div",{zoomControl:false,attributionControl:false});
+  // O mapa home não existe mais como separado - temos o mapa de motoboys
+}
+
+function iniciarMapaMot(){
+  if(mapaMot)return;
+  setTimeout(()=>{
+    mapaMot=L.map("mapa-motoboys",{zoomControl:false,attributionControl:false,dragging:true,touchZoom:true,scrollWheelZoom:false});
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mapaMot);
+    // Centraliza no GPS atual se disponível, senão Holambra
+    const centroInicial=posAtual||[-22.655,-47.059];
+    mapaMot.setView(centroInicial,13);
+    setTimeout(()=>{
+      mapaMot.invalidateSize();
+      // Recentralizar no GPS após carregar
+      if(posAtual)mapaMot.setView(posAtual,13);
+    },600);
+    setTimeout(()=>{mapaMot.invalidateSize();if(posAtual)mapaMot.setView(posAtual,13);},1400);
+    if(unsubMot){unsubMot();unsubMot=null;}
+    unsubMot=db.collection("ej_motoboys").where("online","==",true).onSnapshot(snap=>{
+      const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="30" height="30"><rect x="2" y="9" width="26" height="13" rx="5" fill="#f59e0b"/><rect x="5" y="4" width="17" height="9" rx="4" fill="#fcd34d"/><circle cx="7" cy="23" r="4" fill="#080f1e"/><circle cx="7" cy="23" r="2" fill="#fbbf24"/><circle cx="23" cy="23" r="4" fill="#080f1e"/><circle cx="23" cy="23" r="2" fill="#fbbf24"/></svg>`;
+      const ic=L.divIcon({html:`<div style="filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));">${svg}</div>`,className:"",iconSize:[30,30],iconAnchor:[15,25]});
+      const ativos=new Set();
+      snap.docs.forEach(d=>{const m=d.data();if(!m.lat||!m.lng)return;ativos.add(d.id);if(marcsMot[d.id])marcsMot[d.id].setLatLng([m.lat,m.lng]);else marcsMot[d.id]=L.marker([m.lat,m.lng],{icon:ic}).addTo(mapaMot);});
+      Object.keys(marcsMot).forEach(id=>{if(!ativos.has(id)){mapaMot.removeLayer(marcsMot[id]);delete marcsMot[id];}});
+      const count=ativos.size;const el=document.getElementById("count-mot");if(el)el.textContent=count===0?"Nenhum disponível":count+" disponível"+(count>1?"is":"");
+    });
+  },300);
+}
+
+function iniciarMapaEntrega(d){
+  if(!mapaEntrega){
+    mapaEntrega=L.map("mapa-entrega",{zoomControl:true,attributionControl:false});
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mapaEntrega);
+    mapaEntrega.on("dragstart zoomstart",()=>mapaEntrega._ui=true);
+    mapaEntrega.on("dragend",()=>setTimeout(()=>mapaEntrega._ui=false,5000));
+  }
+  if(posAtual){
+    mapaEntrega.setView(posAtual,14);
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 42" width="34" height="42"><circle cx="17" cy="9" r="8" fill="#fbbf24" stroke="#fff" stroke-width="2"/><path d="M3 40 Q3 25 17 23 Q31 25 31 40Z" fill="#fbbf24" stroke="#fff" stroke-width="2"/></svg>`;
+    L.divIcon&&L.marker(posAtual,{icon:L.divIcon({html:`<div style="filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));">${svg}</div>`,className:"",iconSize:[34,42],iconAnchor:[17,40]})}).addTo(mapaEntrega);
+  }
+}
+
+function abrirMapaFull(){
+  const m=document.getElementById("modal-mapa-full");m.style.display="flex";m.classList.add("show");
+  if(!mapaFull){mapaFull=L.map("mapa-full-div",{zoomControl:true,attributionControl:false});L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mapaFull);mapaFull.setView(posAtual||[-22.655,-47.059],14);}
+  else setTimeout(()=>mapaFull.invalidateSize(),100);
+}
+function fecharMapaFull(){const m=document.getElementById("modal-mapa-full");m.style.display="none";m.classList.remove("show");}
+
+// ── GPS ──
+function iniciarGPS(){
+  // Para o restaurante, a "origem" é sempre o endereço FIXO cadastrado (não o GPS do celular no momento),
+  // já que o pedido sempre parte do restaurante, não de onde o dono está usando o celular.
+  if(user&&user.enderecoLat&&user.enderecoLng){
+    posAtual=[user.enderecoLat,user.enderecoLng];
+    const el=document.getElementById("origem-txt");if(el){el.textContent="🏪 Retirada: "+(user.endereco||"seu restaurante");el.className="origem-txt ok";}
+    const c=detectarCidade(posAtual[0],posAtual[1]);
+    if(c){cidadeAtual=c;document.querySelectorAll(".chip").forEach(el=>el.classList.toggle("ativo",el.dataset.c===c));}
+    else document.querySelector(".chip")?.classList.add("ativo");
+    if(mapaMot){mapaMot.setView(posAtual,13);}
+    else{setTimeout(()=>{if(mapaMot)mapaMot.setView(posAtual,13);},1000);}
+  }else{
+    document.querySelector(".chip")?.classList.add("ativo");
+  }
+}
+
+// ── HOME / PERFIL ──
+function atualizarHome(){
+  if(!user)return;
+  const h=new Date().getHours();
+  document.getElementById("saudacao").textContent=h<12?"Bom dia!":h<18?"Boa tarde!":"Boa noite!";
+  document.getElementById("home-nome").textContent=(user.nome||"").trim().split(" ")[0];
+  const av=document.getElementById("home-avatar");
+  if(user.foto)av.innerHTML=`<img src="${user.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
+  else av.innerHTML=`<span style="font-size:15px;font-weight:700;color:var(--dourado);">${(user.nome||"P")[0].toUpperCase()}</span>`;
+}
+function atualizarPerfil(){
+  if(!user)return;
+  const g=id=>document.getElementById(id);
+  g("perf-nome").textContent=user.nome||"--";
+  const av=g("perf-av");
+  if(user.foto)av.innerHTML=`<img src="${user.foto}"/>`;
+  else g("perf-initial").textContent=(user.nome||"P")[0].toUpperCase();
+  // Nivel por nº de entregas + cor do anel girando
+  const tc=user.totalEntregas||0;
+  let nivel="🥉 Passageiro Bronze";
+  let grad="conic-gradient(#cd7f32,#f0b97d,#8b5a2b,#cd7f32)"; // bronze
+  if(tc>=50){nivel="💎 Passageiro Diamante";grad="conic-gradient(#b9f2ff,#7fd4e8,#5fa8d3,#a0e9ff,#b9f2ff)";}
+  else if(tc>=20){nivel="🥇 Passageiro Ouro";grad="conic-gradient(#ffd700,#fff3a0,#daa520,#ffd700)";}
+  else if(tc>=5){nivel="🥈 Passageiro Prata";grad="conic-gradient(#c0c0c0,#f5f5f5,#a8a8a8,#e8e8e8,#c0c0c0)";}
+  if(g("perf-nivel"))g("perf-nivel").textContent=nivel;
+  const ring=g("perf-av-ring");
+  if(ring)ring.style.setProperty("--nivel-grad",grad);
+  // Stats
+  if(g("ps-entregas"))g("ps-entregas").textContent=tc;
+  if(g("ps-aval"))g("ps-aval").textContent=(user.avaliacao||5).toFixed(1);
+  if(g("ps-membro")){
+    let m="--";
+    if(user.criadoEm){const d=new Date(user.criadoEm);m=d.toLocaleDateString("pt-BR",{month:"short",year:"2-digit"});}
+    g("ps-membro").textContent=m;
+  }
+  // Dados pessoais
+  if(g("pi-nome"))g("pi-nome").textContent=user.nome||"--";
+  if(g("pi-fone"))g("pi-fone").textContent=user.fone||"--";
+  if(g("pi-cpf"))g("pi-cpf").textContent=user.cpf||"Não informado";
+  if(g("pi-idade")){
+    const idd=calcularIdadeCad(user.dataNascimento);
+    g("pi-idade").textContent=idd!==null?idd+" anos":"Não informada";
+  }
+  if(g("pi-codigo"))g("pi-codigo").textContent=(user.id||"").slice(-6).toUpperCase()||"--";
+  // Emergencia
+  const temEmerg=user.emergNome&&user.emergFone;
+  if(g("pi-emerg-nome"))g("pi-emerg-nome").textContent=user.emergNome||"Não cadastrado";
+  if(g("pi-emerg-fone"))g("pi-emerg-fone").textContent=user.emergFone||"Não cadastrado";
+  if(g("perf-emerg-card"))g("perf-emerg-card").style.display=temEmerg?"block":"none";
+  if(g("perf-emerg-aviso"))g("perf-emerg-aviso").style.display=temEmerg?"none":"block";
+}
+function abrirEditarPerfil(){
+  if(!user)return;
+  document.getElementById("modal-editar").classList.add("show");
+  document.getElementById("ed-nome").value=user.nome||"";
+  document.getElementById("ed-fone").value=user.fone||"";
+  if(document.getElementById("ed-cpf"))document.getElementById("ed-cpf").value=user.cpf||"";
+  if(document.getElementById("ed-emerg-nome"))document.getElementById("ed-emerg-nome").value=user.emergNome||"";
+  if(document.getElementById("ed-emerg-fone"))document.getElementById("ed-emerg-fone").value=user.emergFone||"";
+  const fEl=document.getElementById("med-foto");
+  if(user.foto)fEl.innerHTML=`<img src="${user.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;else fEl.textContent=(user.nome||"P")[0].toUpperCase();
+}
+function fecharEditarPerfil(){document.getElementById("modal-editar").classList.remove("show");}
+async function salvarPerfil(){
+  const nome=document.getElementById("ed-nome").value.trim();
+  const fone=document.getElementById("ed-fone").value.trim();
+  const cpf=(document.getElementById("ed-cpf")?.value||"").trim();
+  const emergNome=(document.getElementById("ed-emerg-nome")?.value||"").trim();
+  const emergFone=(document.getElementById("ed-emerg-fone")?.value||"").trim();
+  if(!nome){toast("Informe seu nome");return;}
+  if(cpf&&!validarCPF(cpf)){toast("CPF inválido");return;}
+  loading(true);
+  try{
+    const upd={nome,fone,cpf,emergNome,emergFone};
+    if(user.tipo!=="anonimo")await db.collection("ej_restaurantes").doc(user.id).update(upd);
+    Object.assign(user,upd);
+    localStorage.setItem("ej_user",JSON.stringify(user));
+    atualizarPerfil();atualizarHome();fecharEditarPerfil();loading(false);
+    toast("Perfil atualizado! ✓");
+  }catch(e){loading(false);toast("Erro ao salvar.");}
+}
+async function carregarHist(){
+  if(!user||user.tipo==="anonimo")return;
+  try{const snap=await db.collection("ej_pedidos").where("clienteId","==",user.id).orderBy("criadoEm","desc").limit(10).get();const el=document.getElementById("hist-lista");if(snap.empty){el.innerHTML="<div style='padding:16px;text-align:center;color:var(--muted);font-size:12px;'>Nenhuma entrega ainda</div>";return;}el.innerHTML=snap.docs.map(d=>{const c=d.data();return`<div class="hist-item"><div class="hist-ic">🚗</div><div style="flex:1;"><div class="hist-local">${c.destino||"--"}</div><div class="hist-data">${fmtData(c.criadoEm)}</div></div><div class="hist-val">${c.valorEstimado||"--"}</div></div>`;}).join("");}catch(e){}
+}
+
+function fmtData(ts){if(!ts)return"--";const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString("pt-BR")+" "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});}
+function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),3400);}
+function loading(s){document.getElementById("loading").classList.toggle("show",s);}
+document.addEventListener("touchstart",e=>{if(!e.target.closest(".busca-row")&&!e.target.closest(".sugestoes"))document.getElementById("sugestoes").style.display="none";});
+
+// ── INICIALIZAÇÃO ──
+window.addEventListener("load",async()=>{
+  await carregarModoCobranca();
+  const s=localStorage.getItem("ej_user");
+  if(s){user=JSON.parse(s);irPara("home");}
+  else{
+    setTimeout(()=>mostrarTela("tela-login"),2000);
+  }
+  renderAtalhos();
+  renderHistRapido();
+  iniciarGPS();
+  setTimeout(iniciarMapaMot,800);
+});
+</script>
+</body>
+</html>
