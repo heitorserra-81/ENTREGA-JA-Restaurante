@@ -553,6 +553,10 @@ input[type=file]{display:none;}
     <div class="mot-badge" style="top:8px;left:8px;background:rgba(4,13,4,0.88);border:1px solid rgba(34,197,94,0.3);color:#22c55e;">🟢 Motoboys online</div>
     <div class="mot-badge" style="top:8px;right:8px;background:rgba(8,15,30,0.88);border:1px solid var(--border);color:var(--dourado);" id="count-mot">0 disponíveis</div>
   </div>
+  <div id="minhas-entregas-badge" style="display:none;margin:0 14px 12px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:16px;padding:13px 16px;align-items:center;justify-content:space-between;cursor:pointer;" onclick="abrirMinhasEntregas()">
+    <div style="font-size:13px;font-weight:800;color:#60a5fa;" id="minhas-entregas-badge-txt">📦 1 entrega em andamento</div>
+    <div style="font-size:12px;color:#60a5fa;">Ver todas ›</div>
+  </div>
   <div class="dest-card">
     <div class="dest-titulo">Nova entrega 🏍️</div>
     
@@ -698,6 +702,10 @@ input[type=file]{display:none;}
     <div class="eta" id="eta"></div>
   </div>
   <div class="corrida-painel">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">
+      <button onclick="voltarHomeSemCancelar()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:13px;font-weight:700;padding:7px 12px;border-radius:11px;cursor:pointer;font-family:inherit;">🏠 Home</button>
+      <div id="corrida-outras-badge" style="display:none;flex:1;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;font-size:12px;font-weight:700;padding:7px 12px;border-radius:11px;cursor:pointer;text-align:center;" onclick="abrirMinhasEntregas()"></div>
+    </div>
     <div class="corrida-status" id="corrida-status">🚗 Motoboy a caminho!</div>
     <div class="mot-card" onclick="verPerfilMot()">
       <div class="mot-foto" id="mot-foto">🚗</div>
@@ -1091,6 +1099,29 @@ input[type=file]{display:none;}
   </div>
 </div>
 
+<!-- MODAL MINHAS ENTREGAS (lista de entregas em andamento simultaneamente) -->
+<div class="modal-base" id="modal-minhas-entregas">
+  <div class="modal-sheet">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 14px;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+      <div style="font-size:17px;font-weight:900;color:#fff;">📦 Minhas entregas</div>
+      <button onclick="abrirMapaCombinado()" style="background:rgba(251,191,36,0.1);border:1px solid var(--border);color:var(--dourado);font-size:11px;font-weight:700;padding:7px 12px;border-radius:11px;cursor:pointer;font-family:inherit;">🗺️ Ver todos no mapa</button>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Toque em uma entrega para acompanhar em detalhe.</div>
+    <div id="lista-minhas-entregas" style="display:flex;flex-direction:column;gap:10px;margin-bottom:9px;"></div>
+    <button class="btn-cancel" onclick="document.getElementById('modal-minhas-entregas').classList.remove('show')">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL MAPA COMBINADO (todos os motoboys entregando para este restaurante agora) -->
+<div id="modal-mapa-combinado" class="modal-din" style="position:fixed;inset:0;z-index:9955;background:#000;flex-direction:column;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;padding-top:calc(env(safe-area-inset-top,0px) + 16px);background:var(--card);border-bottom:1px solid var(--border);">
+    <div style="font-size:15px;font-weight:800;color:#fff;">🗺️ Suas entregas no mapa</div>
+    <button onclick="fecharMapaCombinado()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:34px;height:34px;border-radius:10px;font-size:16px;cursor:pointer;">✕</button>
+  </div>
+  <div id="mapa-combinado-div" style="flex:1;"></div>
+</div>
+
 <!-- MAPA FULL -->
 <div id="modal-mapa-full">
   <button class="btn-fechar-full" onclick="fecharMapaFull()">✕ Fechar</button>
@@ -1445,6 +1476,11 @@ async function carregarModoCobranca(){
   }catch(e){}
 }
 let unsubEntrega=null,unsubMot=null,unsubChat=null,contBusc=null,_seg=0;
+// ── ACOMPANHAMENTO DE MÚLTIPLAS ENTREGAS SIMULTÂNEAS ──
+// entregaAtiva continua sendo "a que está sendo exibida na tela-corrida agora" (mantém todo o código já existente funcionando).
+// entregasAtivas guarda TODAS as entregas em andamento (aceitas, ainda não concluídas/canceladas), uma por motoboy,
+// para a lista "Minhas Entregas" e o mapa combinado — mesmo as que não estão em foco no momento continuam sendo atualizadas aqui.
+let entregasAtivas={},unsubsEntregas={};
 let fotoFinalCad=null,cropImg=null,cropScale=1,cropTX=0,cropTY=0,cropBaseScale=1,cropBaseX=0,cropBaseY=0,cropCtx="";
 let marcsMot={},marcMot=null;
 let _sugTO=null,_destEnd=null,_destCoords=null;
@@ -1608,7 +1644,14 @@ function irPara(dest){
   }
 }
 
-function sair(){if(unsubCorrida){unsubCorrida();unsubCorrida=null;}localStorage.removeItem("ej_user");user=null;mostrarTela("tela-login");}
+function sair(){
+  Object.values(unsubsEntregas).forEach(fn=>{try{fn();}catch(e){}});
+  unsubsEntregas={};entregasAtivas={};
+  if(unsubChat){unsubChat();unsubChat=null;}
+  if(unsubMot){unsubMot();unsubMot=null;}
+  entregaAtiva=null;
+  localStorage.removeItem("ej_user");user=null;mostrarTela("tela-login");
+}
 
 // ── ATALHOS ──
 const ATALHOS_PADRAO=[{icon:"🗺️",label:"No mapa",tipo:"mapa",ativo:true,cor:"#22c55e"}];
@@ -2292,20 +2335,56 @@ function pararBusc(){if(contBusc){clearInterval(contBusc);contBusc=null;}const a
 
 // ── ESCUTAR CORRIDA ──
 function escutarEntrega(id){
-  if(unsubEntrega){unsubEntrega();unsubEntrega=null;}
-  unsubEntrega=db.collection("ej_pedidos").doc(id).onSnapshot(snap=>{
+  if(unsubsEntregas[id])unsubsEntregas[id]();
+  unsubsEntregas[id]=db.collection("ej_pedidos").doc(id).onSnapshot(snap=>{
     const d=snap.data();if(!d)return;
-    if(d.status==="aceita"&&d.motoboy){
-      pararBusc();entregaAtiva={...d,id};
-      try{getAC();}catch(e){}
-      somAceito();notif("🚗 Entrega Já! Motoboy encontrado!",d.motoboy.nome+" está a caminho!");
-      mostrarTelaCorrente(d);
+    const emFoco=entregaAtiva&&entregaAtiva.id===id;
+
+    if(d.status==="concluida"||d.status==="cancelada_motoboy"||d.status==="cancelada_cliente"){
+      delete entregasAtivas[id];
+    }else{
+      entregasAtivas[id]={...d,id};
     }
-    if(d.status==="motoboy_chegou"){somChegou();notif("📍 Motoboy chegou!","Dirija-se ao veículo.");document.getElementById("corrida-status").textContent="📍 Seu motoboy chegou!";}
-    if(d.statusEtapa==="no_carro")document.getElementById("corrida-status").textContent="🚗 A caminho do destino!";
-    if(d.status==="concluida"){pararBusc();if(unsubEntrega){unsubEntrega();unsubEntrega=null;}const cId=entregaAtiva?.id||id,mNome=d.motoboy?.nome||"motoboy";try{getAC();}catch(e){}dispararConfete();toast("Entrega concluída! Obrigado! 🎉");setTimeout(()=>mostrarAval(cId,mNome),1000);setTimeout(()=>{entregaAtiva=null;irPara("home");},8000);}
-    if(d.status==="cancelada_motoboy"){pararBusc();if(unsubEntrega){unsubEntrega();unsubEntrega=null;}entregaAtiva=null;mostrarTela("tela-home");toast("Motoboy cancelou. Tente novamente.");}
-    if(d.motoboy&&d.motoboy.lat&&mapaEntrega){
+    atualizarBadgeMinhasEntregas();
+
+    if(d.status==="aceita"&&d.motoboy){
+      if(emFoco){
+        pararBusc();entregaAtiva={...d,id};
+        try{getAC();}catch(e){}
+        somAceito();notif("🚗 Entrega Já! Motoboy encontrado!",d.motoboy.nome+" está a caminho!");
+        mostrarTelaCorrente(d);
+      }else{
+        toast("🚗 "+d.motoboy.nome+" aceitou outra entrega sua!");
+      }
+    }
+    if(emFoco&&d.status==="motoboy_chegou"){somChegou();notif("📍 Motoboy chegou!","Dirija-se ao veículo.");document.getElementById("corrida-status").textContent="📍 Seu motoboy chegou!";}
+    if(emFoco&&d.statusEtapa==="no_carro")document.getElementById("corrida-status").textContent="🚗 A caminho do destino!";
+    if(d.status==="concluida"){
+      if(unsubsEntregas[id]){unsubsEntregas[id]();delete unsubsEntregas[id];}
+      const mNome=d.motoboy?.nome||"motoboy";
+      try{getAC();}catch(e){}
+      dispararConfete();
+      if(emFoco){
+        pararBusc();
+        toast("Entrega concluída! Obrigado! 🎉");
+        setTimeout(()=>mostrarAval(id,mNome),1000);
+        setTimeout(()=>focarProximaEntregaOuHome(),8000);
+      }else{
+        toast("🎉 Entrega concluída! ("+mNome+")");
+        setTimeout(()=>mostrarAval(id,mNome),1000);
+      }
+    }
+    if(d.status==="cancelada_motoboy"){
+      if(unsubsEntregas[id]){unsubsEntregas[id]();delete unsubsEntregas[id];}
+      if(emFoco){
+        pararBusc();
+        toast("Motoboy cancelou. Tente novamente.");
+        focarProximaEntregaOuHome();
+      }else{
+        toast("Um motoboy cancelou uma das suas entregas.");
+      }
+    }
+    if(emFoco&&d.motoboy&&d.motoboy.lat&&mapaEntrega){
       const pos=[d.motoboy.lat,d.motoboy.lng];
       const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32"><rect x="2" y="10" width="28" height="14" rx="5" fill="#f59e0b"/><rect x="6" y="5" width="18" height="9" rx="4" fill="#fcd34d"/><circle cx="8" cy="25" r="4" fill="#080f1e"/><circle cx="8" cy="25" r="2" fill="#fbbf24"/><circle cx="24" cy="25" r="4" fill="#080f1e"/><circle cx="24" cy="25" r="2" fill="#fbbf24"/></svg>`;
       const ic=L.divIcon({html:`<div style="filter:drop-shadow(0 2px 5px rgba(0,0,0,.5));">${svg}</div>`,className:"",iconSize:[32,32],iconAnchor:[16,26]});
@@ -2313,10 +2392,125 @@ function escutarEntrega(id){
       if(!mapaEntrega._ui)mapaEntrega.panTo(pos,{animate:true,duration:.5});
       if(posAtual)calcETA(pos[0],pos[1],posAtual[0],posAtual[1]);
     }
+    atualizarMapaCombinadoSeAberto();
   });
 }
 
+// ── MINHAS ENTREGAS (lista + badge + foco) ──
+function atualizarBadgeMinhasEntregas(){
+  const n=Object.keys(entregasAtivas).length;
+  const badgeHome=document.getElementById("minhas-entregas-badge");
+  if(badgeHome){
+    if(n>0){
+      document.getElementById("minhas-entregas-badge-txt").textContent="📦 "+n+" entrega"+(n>1?"s":"")+" em andamento";
+      badgeHome.style.display="flex";
+    }else badgeHome.style.display="none";
+  }
+  const badgeCorrida=document.getElementById("corrida-outras-badge");
+  if(badgeCorrida){
+    const outras=n-(entregaAtiva&&entregasAtivas[entregaAtiva.id]?1:0);
+    if(outras>0){
+      badgeCorrida.textContent="📦 +"+outras+" outra"+(outras>1?"s":"")+" em andamento — ver";
+      badgeCorrida.style.display="block";
+    }else badgeCorrida.style.display="none";
+  }
+  if(document.getElementById("modal-minhas-entregas")?.classList.contains("show"))renderListaMinhasEntregas();
+}
+function abrirMinhasEntregas(){
+  renderListaMinhasEntregas();
+  document.getElementById("modal-minhas-entregas").classList.add("show");
+}
+function renderListaMinhasEntregas(){
+  const el=document.getElementById("lista-minhas-entregas");
+  const itens=Object.values(entregasAtivas);
+  if(itens.length===0){
+    el.innerHTML="<div style='text-align:center;padding:20px;color:var(--muted);font-size:13px;'>Nenhuma entrega em andamento no momento.</div>";
+    return;
+  }
+  const statusLabel={aguardando:"🔎 Buscando motoboy",aceita:"🚗 Motoboy a caminho",motoboy_chegou:"📍 Motoboy no restaurante",a_caminho:"🏁 A caminho do cliente"};
+  el.innerHTML=itens.map(d=>{
+    const emFoco=entregaAtiva&&entregaAtiva.id===d.id;
+    const label=statusLabel[d.statusEtapa==="no_carro"?"a_caminho":d.status]||d.status;
+    return`<div onclick="focarEntregaRestaurante('${d.id}')" style="background:${emFoco?"rgba(251,191,36,0.08)":"var(--card2)"};border:1px solid ${emFoco?"var(--dourado)":"var(--border)"};border-radius:14px;padding:13px;cursor:pointer;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+        <div style="font-size:13px;font-weight:800;color:#fff;">${d.motoboy?.nome||"Aguardando motoboy"}</div>
+        ${emFoco?'<div style="font-size:10px;font-weight:700;color:var(--dourado);background:rgba(251,191,36,0.15);padding:2px 9px;border-radius:10px;">EM FOCO</div>':''}
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">${label}</div>
+      <div style="font-size:11px;color:var(--muted);">🏁 ${(d.destino||"--")}</div>
+    </div>`;
+  }).join("");
+}
+function focarEntregaRestaurante(id){
+  const d=entregasAtivas[id];
+  if(!d)return;
+  entregaAtiva={...d};
+  document.getElementById("modal-minhas-entregas").classList.remove("show");
+  fecharMapaCombinado();
+  if(d.status==="aguardando"){
+    mostrarTela("tela-buscando");
+    document.getElementById("busc-dest").textContent="→ "+(d.destino||"").split(",")[0];
+    document.getElementById("busc-num").textContent="0";
+    verificarMotoboysOnlineBusca();
+  }else{
+    mostrarTelaCorrente(d);
+  }
+  atualizarBadgeMinhasEntregas();
+}
+function focarProximaEntregaOuHome(){
+  const restantes=Object.keys(entregasAtivas);
+  if(restantes.length>0){
+    focarEntregaRestaurante(restantes[0]);
+  }else{
+    entregaAtiva=null;
+    irPara("home");
+  }
+}
+function voltarHomeSemCancelar(){
+  irPara("home");
+}
+
+// ── MAPA COMBINADO (todos os motoboys entregando agora) ──
+let mapaCombinado=null,marcsCombinado={};
+function abrirMapaCombinado(){
+  const m=document.getElementById("modal-mapa-combinado");m.classList.add("show");
+  if(!mapaCombinado){
+    mapaCombinado=L.map("mapa-combinado-div",{zoomControl:true,attributionControl:false});
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mapaCombinado);
+  }
+  setTimeout(()=>mapaCombinado.invalidateSize(),150);
+  atualizarMapaCombinadoSeAberto();
+}
+function fecharMapaCombinado(){
+  const m=document.getElementById("modal-mapa-combinado");if(m)m.classList.remove("show");
+}
+function atualizarMapaCombinadoSeAberto(){
+  if(!document.getElementById("modal-mapa-combinado")?.classList.contains("show"))return;
+  if(!mapaCombinado)return;
+  const ativos=new Set();
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32"><rect x="2" y="10" width="28" height="14" rx="5" fill="#f59e0b"/><rect x="6" y="5" width="18" height="9" rx="4" fill="#fcd34d"/><circle cx="8" cy="25" r="4" fill="#080f1e"/><circle cx="8" cy="25" r="2" fill="#fbbf24"/><circle cx="24" cy="25" r="4" fill="#080f1e"/><circle cx="24" cy="25" r="2" fill="#fbbf24"/></svg>`;
+  Object.values(entregasAtivas).forEach(d=>{
+    if(!d.motoboy||!d.motoboy.lat)return;
+    ativos.add(d.id);
+    const pos=[d.motoboy.lat,d.motoboy.lng];
+    const label=(d.motoboy.nome||"Motoboy")+" · "+(d.destino||"").split(",")[0];
+    if(marcsCombinado[d.id]){
+      marcsCombinado[d.id].setLatLng(pos);
+    }else{
+      const ic=L.divIcon({html:`<div style="filter:drop-shadow(0 2px 5px rgba(0,0,0,.5));">${svg}</div>`,className:"",iconSize:[32,32],iconAnchor:[16,26]});
+      marcsCombinado[d.id]=L.marker(pos,{icon:ic}).addTo(mapaCombinado).bindPopup(label);
+      marcsCombinado[d.id].on("click",()=>focarEntregaRestaurante(d.id));
+    }
+  });
+  Object.keys(marcsCombinado).forEach(id=>{if(!ativos.has(id)){mapaCombinado.removeLayer(marcsCombinado[id]);delete marcsCombinado[id];}});
+  const pontos=Object.values(marcsCombinado).map(m=>m.getLatLng());
+  if(pontos.length===1)mapaCombinado.setView(pontos[0],14);
+  else if(pontos.length>1)mapaCombinado.fitBounds(L.latLngBounds(pontos),{padding:[40,40]});
+  else if(posAtual)mapaCombinado.setView(posAtual,13);
+}
+
 function mostrarTelaCorrente(d){
+  if(marcMot&&mapaEntrega){mapaEntrega.removeLayer(marcMot);marcMot=null;}
   const m=d.motoboy;
   if(m.foto)document.getElementById("mot-foto").innerHTML=`<img src="${m.foto}"/>`;
   document.getElementById("mot-nome").textContent=m.nome||"--";
@@ -2326,18 +2520,30 @@ function mostrarTelaCorrente(d){
   document.getElementById("corrida-valor").textContent=d.valorEstimado||"--";
   const fone=(m.fone||"").replace(/\D/g,"");
   const btnZapEl=document.getElementById("btn-zap");if(btnZapEl)btnZapEl.onclick=()=>window.open("https://wa.me/55"+fone,"_blank");
-  mostrarTela("tela-entrega");
+  mostrarTela("tela-corrida");
   iniciarMapaEntrega(d);
   iniciarChat(d.id||entregaAtiva.id);
+  atualizarBadgeMinhasEntregas();
 }
 
 async function cancelarBusca(){
   if(entregaAtiva)try{await db.collection("ej_pedidos").doc(entregaAtiva.id).update({status:"cancelada_cliente"});}catch(e){}
-  pararBusc();if(unsubEntrega){unsubEntrega();unsubEntrega=null;}entregaAtiva=null;irPara("home");
+  pararBusc();
+  if(entregaAtiva&&unsubsEntregas[entregaAtiva.id]){unsubsEntregas[entregaAtiva.id]();delete unsubsEntregas[entregaAtiva.id];}
+  if(entregaAtiva)delete entregasAtivas[entregaAtiva.id];
+  entregaAtiva=null;
+  atualizarBadgeMinhasEntregas();
+  irPara("home");
 }
 async function cancelarEntrega(){
   if(entregaAtiva)try{await db.collection("ej_pedidos").doc(entregaAtiva.id).update({status:"cancelada_cliente"});}catch(e){}
-  pararBusc();if(unsubEntrega){unsubEntrega();unsubEntrega=null;}if(unsubChat){unsubChat();unsubChat=null;}entregaAtiva=null;marcMot=null;irPara("home");
+  pararBusc();
+  if(entregaAtiva&&unsubsEntregas[entregaAtiva.id]){unsubsEntregas[entregaAtiva.id]();delete unsubsEntregas[entregaAtiva.id];}
+  if(unsubChat){unsubChat();unsubChat=null;}
+  if(entregaAtiva)delete entregasAtivas[entregaAtiva.id];
+  marcMot=null;
+  atualizarBadgeMinhasEntregas();
+  focarProximaEntregaOuHome();
 }
 
 // ── PERFIL MOT ──
@@ -2409,6 +2615,7 @@ function compartilhar(){
 // ── CHAT ──
 function iniciarChat(cId){
   if(unsubChat){unsubChat();unsubChat=null;}
+  const msgsInicial=document.getElementById("chat-msgs");if(msgsInicial)msgsInicial.innerHTML="";
   unsubChat=db.collection("ej_pedidos").doc(cId).collection("chat").orderBy("ts").onSnapshot(snap=>{
     const msgs=document.getElementById("chat-msgs");if(!msgs)return;
     snap.docChanges().forEach(ch=>{if(ch.type==="added"){const m=ch.doc.data();const isMinha=m.de==="passageiro";const div=document.createElement("div");div.className="msg "+(isMinha?"minha":"dele");div.innerHTML=m.texto+`<div class="msg-time">${m.ts?new Date(m.ts.toDate()).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):"--"}</div>`;msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;}});
@@ -2495,7 +2702,7 @@ function iniciarMapaMot(){
 
 function iniciarMapaEntrega(d){
   if(!mapaEntrega){
-    mapaEntrega=L.map("mapa-entrega",{zoomControl:true,attributionControl:false});
+    mapaEntrega=L.map("mapa-corrida",{zoomControl:true,attributionControl:false});
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mapaEntrega);
     mapaEntrega.on("dragstart zoomstart",()=>mapaEntrega._ui=true);
     mapaEntrega.on("dragend",()=>setTimeout(()=>mapaEntrega._ui=false,5000));
@@ -2639,7 +2846,7 @@ document.addEventListener("touchstart",e=>{if(!e.target.closest(".busca-row")&&!
 window.addEventListener("load",async()=>{
   await carregarModoCobranca();
   const s=localStorage.getItem("ej_user");
-  if(s){user=JSON.parse(s);irPara("home");}
+  if(s){user=JSON.parse(s);irPara("home");restaurarEntregasAtivas();}
   else{
     setTimeout(()=>mostrarTela("tela-login"),2000);
   }
@@ -2648,6 +2855,21 @@ window.addEventListener("load",async()=>{
   iniciarGPS();
   setTimeout(iniciarMapaMot,800);
 });
+async function restaurarEntregasAtivas(){
+  if(!user||user.tipo==="anonimo")return;
+  try{
+    const snap=await db.collection("ej_pedidos")
+      .where("clienteId","==",user.id)
+      .where("status","in",["aguardando","aceita","motoboy_chegou"])
+      .get();
+    snap.docs.forEach(doc=>{
+      const d=doc.data();
+      entregasAtivas[doc.id]={...d,id:doc.id};
+      escutarEntrega(doc.id);
+    });
+    atualizarBadgeMinhasEntregas();
+  }catch(e){}
+}
 </script>
 <script>
 // ── CARDÁPIO (categorias + pratos com foto + busca + importação IA) ──
