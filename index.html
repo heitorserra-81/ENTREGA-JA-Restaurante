@@ -103,18 +103,42 @@ input[type=file]{display:none;}
 .header-nome{font-size:16px;font-weight:800;color:#fff;}
 .btn-ham{background:rgba(251,191,36,0.08);border:1px solid var(--border);border-radius:13px;color:var(--dourado);font-size:22px;cursor:pointer;padding:9px 13px;flex-shrink:0;}
 
-/* ATALHOS SCROLL */
-.atalhos-wrap{padding:8px 14px 4px;}
-.atalhos-scroll{display:flex;gap:8px;overflow-x:scroll;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding:0 2px 6px;scrollbar-width:none;cursor:grab;}
-.atalhos-scroll::-webkit-scrollbar{display:none;}
-.atalho-item{flex-shrink:0;width:90px;position:relative;border-radius:14px;padding:2px;overflow:hidden;cursor:pointer;transition:transform 0.18s ease,box-shadow 0.18s ease,filter 0.18s ease;}
-.atalho-item.drag-ativo{overflow:hidden;transform:scale(1.18) translateY(-10px) rotate(2deg)!important;z-index:1000;box-shadow:0 22px 48px rgba(251,191,36,0.7),0 12px 22px rgba(0,0,0,0.6)!important;filter:brightness(1.15);transition:none!important;touch-action:none;}
-.atalhos-scroll.reordenando{overflow:visible;touch-action:none;}
-.atalho-luz{position:absolute;top:50%;left:50%;width:200%;height:200%;animation:gira 2s linear infinite;border-radius:14px;}
-.atalho-conteudo{position:relative;z-index:2;background:var(--card2);border-radius:12px;padding:11px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;}
-.atalho-ic{font-size:22px;}
-.atalho-lb{font-size:11px;font-weight:600;color:var(--muted);text-align:center;line-height:1.2;}
-.atalho-end{font-size:9px;color:var(--muted);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:76px;}
+/* CARDS WIDGET (home customizável) */
+#cards-container{display:flex;flex-wrap:wrap;gap:10px;margin:0 14px 12px;position:relative;}
+#cards-container.reordenando{overflow:visible;}
+.card-widget{position:relative;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:15px;cursor:pointer;box-sizing:border-box;}
+.card-widget.tam-1{width:100%;}
+.card-widget.tam-2{width:calc(50% - 5px);}
+.card-widget.tam-3{width:calc(33.333% - 7px);}
+.card-widget:not(.drag-ativo){transition:transform 0.25s cubic-bezier(.2,.9,.3,1.3),box-shadow 0.25s ease;}
+.card-widget.drag-ativo{
+  position:fixed!important;z-index:9500;
+  box-shadow:0 24px 50px rgba(251,191,36,0.4),0 14px 26px rgba(0,0,0,0.55)!important;
+  filter:brightness(1.12);
+  transform:scale(1.06) rotate(-1.5deg)!important;
+  transition:box-shadow 0.2s ease,filter 0.2s ease!important;
+  pointer-events:none;
+}
+.card-widget-placeholder{border-radius:18px;border:2px dashed var(--border);background:rgba(251,191,36,0.04);box-sizing:border-box;}
+.card-widget-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.card-widget-titulo{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card-widget-icon{font-size:16px;flex-shrink:0;}
+.card-widget-val{font-size:22px;font-weight:900;color:var(--dourado);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card-widget-sub{font-size:11px;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card-widget.tam-3 .card-widget-val{font-size:17px;}
+/* CONFIG DE CARDS */
+.config-card-item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:15px;padding:13px;margin:0 16px 9px;}
+.config-card-icon{font-size:22px;width:32px;text-align:center;flex-shrink:0;}
+.config-card-info{flex:1;min-width:0;}
+.config-card-nome{font-size:13px;font-weight:700;color:#fff;}
+.config-card-desc{font-size:11px;color:var(--muted);margin-top:1px;}
+.config-toggle{position:relative;width:46px;height:26px;border-radius:13px;background:var(--card2);border:2px solid var(--border);cursor:pointer;flex-shrink:0;transition:background 0.25s;}
+.config-toggle::before{content:"";position:absolute;top:1px;left:1px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:transform 0.25s,background 0.25s;}
+.config-toggle.on{background:rgba(34,197,94,0.25);border-color:var(--verde);}
+.config-toggle.on::before{transform:translateX(20px);background:var(--verde);}
+.config-tam-sel{display:flex;gap:5px;margin-top:8px;}
+.config-tam-btn{flex:1;padding:6px;border-radius:8px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;}
+.config-tam-btn.ativo{background:rgba(251,191,36,0.15);border-color:var(--dourado);color:var(--dourado);}
 
 /* CARD DESTINO */
 .dest-card{margin:12px 14px 10px;background:rgba(15,26,46,0.55);border:1px solid var(--border);border-radius:20px;padding:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
@@ -373,14 +397,6 @@ input[type=file]{display:none;}
 .toggle.on::after{left:21px;}
 .toggle.off::after{left:2px;}
 
-/* MODAL CRIAR ATALHO */
-#modal-criar-atalho{display:none;position:fixed;inset:0;z-index:9986;background:rgba(0,0,0,0.88);align-items:flex-end;backdrop-filter:blur(5px);}
-#modal-criar-atalho.show{display:flex;}
-.icone-op{width:40px;height:40px;border-radius:11px;background:var(--card2);border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-size:21px;cursor:pointer;transition:border-color 0.15s;}
-.icone-op.sel{border-color:var(--dourado);}
-.cor-op{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color 0.15s;}
-.cor-op.sel{border-color:#fff;}
-
 /* CROP */
 .crop-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:20000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:22px;}
 .crop-container{width:260px;height:260px;border-radius:50%;overflow:hidden;border:3px solid var(--dourado);flex-shrink:0;}
@@ -533,34 +549,31 @@ input[type=file]{display:none;}
       <!-- ESQUERDA: foto + saudacao + nome -->
       <div style="display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;" onclick="irPara('perfil')">
         <div class="avatar" id="home-avatar"><span id="home-initial">👤</span></div>
-        <div>
+        <div style="min-width:0;max-width:132px;">
           <div style="font-size:13px;color:rgba(255,255,255,0.65);" id="saudacao">Bom dia!</div>
-          <div style="font-size:18px;font-weight:800;color:#fff;line-height:1.1;" id="home-nome">...</div>
+          <div style="font-size:18px;font-weight:800;color:#fff;line-height:1.2;word-break:normal;overflow-wrap:normal;" id="home-nome">...</div>
         </div>
       </div>
       <!-- CENTRO: logo absolutamente centralizado -->
-      <div style="position:absolute;left:0;right:0;display:flex;justify-content:center;align-items:center;pointer-events:none;z-index:0;">
-        <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" style="width:66px;height:66px;border-radius:18px;object-fit:cover;box-shadow:0 6px 20px rgba(251,191,36,0.45);margin-top:6px;"/>
+      <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);display:flex;justify-content:center;align-items:center;pointer-events:none;z-index:0;">
+        <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" style="width:66px;height:66px;border-radius:18px;object-fit:cover;box-shadow:0 6px 20px rgba(251,191,36,0.45);"/>
       </div>
       <!-- DIREITA: hamburger -->
       <div style="flex:1;"></div>
       <button class="btn-ham" onclick="abrirMenu()" style="flex-shrink:0;position:relative;z-index:1;">☰</button>
     </div>
   </div>
-  <div class="mapa-mot-wrap">
-    <div id="mapa-motoboys"></div>
-    <div style="position:absolute;bottom:8px;right:8px;z-index:999;background:rgba(8,15,30,0.85);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:10px;font-weight:600;color:var(--dourado);cursor:pointer;" onclick="abrirMapaFull()">⛶ Ampliar</div>
-    <div class="mot-badge" style="top:8px;left:8px;background:rgba(4,13,4,0.88);border:1px solid rgba(34,197,94,0.3);color:#22c55e;">🟢 Motoboys online</div>
-    <div class="mot-badge" style="top:8px;right:8px;background:rgba(8,15,30,0.88);border:1px solid var(--border);color:var(--dourado);" id="count-mot">0 disponíveis</div>
+  <div style="margin:0 14px 12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:14px;padding:11px 15px;display:flex;align-items:center;gap:9px;">
+    <span style="font-size:15px;">🟢</span>
+    <div id="count-mot" style="flex:1;font-size:12px;font-weight:700;color:var(--text);">Verificando motoboys online...</div>
   </div>
   <div id="minhas-entregas-badge" style="display:none;margin:0 14px 12px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:16px;padding:13px 16px;align-items:center;justify-content:space-between;cursor:pointer;" onclick="abrirMinhasEntregas()">
     <div style="font-size:13px;font-weight:800;color:#60a5fa;" id="minhas-entregas-badge-txt">📦 1 entrega em andamento</div>
     <div style="font-size:12px;color:#60a5fa;">Ver todas ›</div>
   </div>
+  <div id="cards-container"></div>
   <div class="dest-card">
     <div class="dest-titulo">Nova entrega 🏍️</div>
-    
-    <div class="atalhos-scroll" id="atalhos-container" style="margin-bottom:10px;"></div>
     <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">Cidade de entrega</div>
     <div class="chips" id="chips-cidade">
       <div class="chip" data-c="Holambra" onclick="selCidade(this)">Holambra</div>
@@ -1009,34 +1022,13 @@ input[type=file]{display:none;}
     <button onclick="fecharConfig()" style="background:none;border:none;color:var(--dourado);font-size:20px;cursor:pointer;padding:3px;">←</button>
     <div class="config-tit">⚙️ Configurações</div>
   </div>
-  <div class="config-sec">Atalhos da tela inicial</div>
+  <div class="config-sec">Cards da tela inicial</div>
+  <div style="margin:0 16px 12px;font-size:11px;color:var(--muted);">Ative os cards que quiser ver na tela inicial. Segure e arraste um card para reordenar. Escolha o tamanho tocando nas opções abaixo de cada um.</div>
   <div id="config-lista"></div>
-  <div style="padding:10px 14px;">
-    <button onclick="abrirCriarAtalho()" style="width:100%;padding:12px;border-radius:13px;background:rgba(251,191,36,0.07);border:1px dashed var(--border);color:var(--dourado);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">+ Criar novo atalho</button>
-  </div>
   <div class="config-sec">Notificações</div>
   <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--card);border-bottom:1px solid var(--border);">
     <div style="font-size:13px;font-weight:600;color:var(--text);">🔔 Receber notificações</div>
     <div id="tog-notif" class="toggle on" onclick="toggleNotif()"></div>
-  </div>
-</div>
-
-<!-- MODAL CRIAR ATALHO -->
-<div id="modal-criar-atalho" onclick="fecharCriarAtalho()">
-  <div class="modal-sheet" onclick="event.stopPropagation()">
-    <div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:3px;">✨ Criar atalho</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Personalize seu botão favorito</div>
-    <div style="margin-bottom:13px;"><div class="campo-label">Nome do atalho</div><input id="novo-nome" class="campo-input" type="text" placeholder="Ex: Casa da namorada, Academia..."/></div>
-    <div style="margin-bottom:13px;">
-      <div class="campo-label">Ícone</div>
-      <div id="grade-icones" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:5px;max-height:160px;overflow-y:auto;"></div>
-    </div>
-    <div style="margin-bottom:16px;">
-      <div class="campo-label">Cor da luz</div>
-      <div id="grade-cores" style="display:flex;gap:9px;margin-top:5px;flex-wrap:wrap;"></div>
-    </div>
-    <button class="btn-ok" onclick="salvarAtalho()">Criar atalho</button>
-    <button class="btn-cancel" onclick="fecharCriarAtalho()">Cancelar</button>
   </div>
 </div>
 
@@ -1461,7 +1453,7 @@ const db=firebase.firestore();
 
 // ESTADO
 let user=null,entregaAtiva=null;
-let mapaHome=null,mapaMot=null,mapaEntrega=null,mapaFull=null,mapaDest=null;
+let mapaHome=null,mapaEntrega=null,mapaFull=null,mapaDest=null;
 let posAtual=null,destSel=null,cidadeAtual="Holambra";
 // Modo de cobrança: "simples" (padrão, sem valor) ou "distancia" (calcula taxa por km, igual Entrega Já).
 // Configurável no Painel Admin do Entrega Já — hoje começa sempre em "simples".
@@ -1486,12 +1478,10 @@ let unsubEntrega=null,unsubMot=null,unsubChat=null,contBusc=null,_seg=0;
 // para a lista "Minhas Entregas" e o mapa combinado — mesmo as que não estão em foco no momento continuam sendo atualizadas aqui.
 let entregasAtivas={},unsubsEntregas={};
 let fotoFinalCad=null,cropImg=null,cropScale=1,cropTX=0,cropTY=0,cropBaseScale=1,cropBaseX=0,cropBaseY=0,cropCtx="";
-let marcsMot={},marcMot=null;
+let marcMot=null;
 let _sugTO=null,_destEnd=null,_destCoords=null;
 let _avalNota=5,_avalId=null;
 let _dragTO=null,_dragging=false,_dragIdx=null,_dragEl=null,_acabouDrag=false;
-let _novoIcon="⭐",_novoCor="#fbbf24";
-let _definindoAtalho=false,_tipoAtalho=null;
 
 // ── PARTÍCULAS ──
 (function(){
@@ -1641,8 +1631,7 @@ function irPara(dest){
     case"home":
       mostrarTela("tela-home");
       iniciarMapaMot();
-      setTimeout(()=>{atualizarHome();renderAtalhos();renderHistRapido();},50);
-      setTimeout(()=>{if(mapaMot)mapaMot.invalidateSize();},400);
+      setTimeout(()=>{atualizarHome();renderCardsHome();renderHistRapido();},50);
       break;
     case"perfil":mostrarTela("tela-perfil");atualizarPerfil();carregarHist();break;
   }
@@ -1657,343 +1646,274 @@ function sair(){
   localStorage.removeItem("ej_user");user=null;mostrarTela("tela-login");
 }
 
-// ── ATALHOS ──
-const ATALHOS_PADRAO=[{icon:"🗺️",label:"No mapa",tipo:"mapa",ativo:true,cor:"#22c55e"}];
+// ── CARDS WIDGET (home customizável do restaurante) ──
+const CARDS_DISPONIVEIS=[
+  {id:"entregas_andamento",nome:"Entregas em andamento",desc:"Quantas estão rolando agora",icon:"🚴"},
+  {id:"entregas_hoje",nome:"Entregas hoje",desc:"Total de pedidos hoje",icon:"📦"},
+  {id:"entregas_semana",nome:"Entregas da semana",desc:"Total de pedidos na semana",icon:"📦"},
+  {id:"entregas_mes",nome:"Entregas do mês",desc:"Total de pedidos no mês",icon:"📦"},
+  {id:"entregas_total",nome:"Total de entregas",desc:"Desde o início",icon:"📦"},
+  {id:"faturamento_hoje",nome:"Faturamento hoje",desc:"Total vendido hoje",icon:"💰"},
+  {id:"faturamento_semana",nome:"Faturamento da semana",desc:"Total vendido na semana",icon:"💰"},
+  {id:"comparativo_ontem",nome:"Comparado a ontem",desc:"Faturamento vs. ontem",icon:"📈"},
+  {id:"ticket_medio",nome:"Ticket médio",desc:"Valor médio por pedido",icon:"🧾"},
+  {id:"avaliacao_media",nome:"Sua avaliação",desc:"Nota média dos motoboys",icon:"⭐"},
+  {id:"motoboys_online",nome:"Motoboys online",desc:"Disponíveis agora na região",icon:"🟢"},
+  {id:"ultimo_pedido",nome:"Último pedido",desc:"Status mais recente",icon:"🕐"},
+  {id:"prato_mais_vendido",nome:"Prato mais vendido",desc:"O campeão de vendas",icon:"🏆"},
+  {id:"horario_pico",nome:"Horário de pico",desc:"Quando você mais vende",icon:"⏰"},
+  {id:"credito_saldo",nome:"Saldo de créditos",desc:"Créditos disponíveis",icon:"💳"},
+  {id:"cancelamentos_hoje",nome:"Cancelamentos hoje",desc:"Pedidos cancelados hoje",icon:"❌"},
+  {id:"total_clientes",nome:"Clientes atendidos",desc:"Clientes únicos no total",icon:"👥"},
+  {id:"motoboy_frequente",nome:"Motoboy mais frequente",desc:"Quem mais entrega pra você",icon:"🏍️"},
+];
 
-function getAtalhos(){try{return JSON.parse(localStorage.getItem("ej_atalhos_v3")||"null")||ATALHOS_PADRAO;}catch(e){return ATALHOS_PADRAO;}}
-function saveAtalhos(a){localStorage.setItem("ej_atalhos_v3",JSON.stringify(a));}
+function getConfigCards(){
+  try{
+    const s=localStorage.getItem("ej_rest_cards");
+    if(s)return JSON.parse(s);
+  }catch(e){}
+  // padrão inicial: os 4 mais úteis já ligados, o resto o restaurante escolhe
+  const def=CARDS_DISPONIVEIS.map((c,i)=>({id:c.id,ativo:["entregas_andamento","entregas_hoje","faturamento_hoje","motoboys_online"].includes(c.id),tam:1,ordem:i}));
+  localStorage.setItem("ej_rest_cards",JSON.stringify(def));
+  return def;
+}
+function saveConfigCards(cards){localStorage.setItem("ej_rest_cards",JSON.stringify(cards));}
 
-function renderAtalhos(){
-  const cont=document.getElementById("atalhos-container");
-  if(!cont)return;
-  const atalhos=getAtalhos().filter(a=>a.ativo!==false);
-  cont.innerHTML=atalhos.map((a,i)=>{
-    let end="Tocar";
-    if(a.destino)end=a.destino.nome.split(",")[0];
-    const cor=a.cor||"#fbbf24";
-    return`<div class="atalho-item" data-idx="${i}" ontouchstart="iniciaDrag(event,${i})" ontouchmove="moveDrag(event)" ontouchend="fimDrag(event)" onclick="usarAtalho(${i})">
-      <div class="atalho-luz" style="background:conic-gradient(${cor},#fff2,${cor});"></div>
-      <div class="atalho-conteudo">
-        <div class="atalho-ic">${a.icon}</div>
-        <div class="atalho-lb">${a.label}</div>
-        <div class="atalho-end" id="atalho-end-${i}">${end}</div>
-      </div>
+// ── RENDERIZAR CARDS NA HOME ──
+async function renderCardsHome(){
+  const cont=document.getElementById("cards-container");
+  if(!cont||!user)return;
+  const cards=getConfigCards().filter(c=>c.ativo).sort((a,b)=>a.ordem-b.ordem);
+  if(cards.length===0){cont.innerHTML="";return;}
+
+  const dados=await calcularDadosCardsRest();
+
+  cont.innerHTML=cards.map((c,i)=>{
+    const info=CARDS_DISPONIVEIS.find(x=>x.id===c.id);
+    if(!info)return"";
+    const d=dados[c.id]||{val:"--",sub:""};
+    const tam=c.tam||1;
+    return `<div class="card-widget tam-${tam}" data-idx="${i}" data-id="${c.id}" ontouchstart="iniciaDragCard(event,${i})" ontouchmove="moveDragCard(event)" ontouchend="fimDragCard(event)">
+      <div class="card-widget-header"><div class="card-widget-titulo">${info.nome}</div><div class="card-widget-icon">${info.icon}</div></div>
+      <div class="card-widget-val">${d.val}</div>
+      <div class="card-widget-sub">${d.sub}</div>
     </div>`;
   }).join("");
-  cont.querySelectorAll(".atalho-item.drag-ativo").forEach(el=>el.classList.remove("drag-ativo"));
-  cont.classList.remove("reordenando");
 }
 
-// ── TELEFONE ──
-function soDigitos(s){return(s||"").replace(/\D/g,"");}
-function formatarTelefoneExibicao(v){
-  const d=soDigitos(v);
-  if(d.length===11)return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
-  if(d.length===10)return `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;
-  return v||"";
-}
-function mascaraTelefone(el){
-  let v=el.value.replace(/\D/g,"").slice(0,11);
-  if(v.length>10)v=v.replace(/(\d{2})(\d{5})(\d{0,4})/,"($1) $2-$3");
-  else if(v.length>5)v=v.replace(/(\d{2})(\d{4})(\d{0,4})/,"($1) $2-$3");
-  else if(v.length>2)v=v.replace(/(\d{2})(\d{0,5})/,"($1) $2");
-  else if(v.length>0)v=v.replace(/(\d{0,2})/,"($1");
-  el.value=v.trim().replace(/-$/,"").replace(/\)\s*$/,")");
-}
+async function calcularDadosCardsRest(){
+  const dados={};
+  if(!user)return dados;
 
-// ── CPF ──
-function mascaraCPF(el){
-  let v=el.value.replace(/\D/g,"").slice(0,11);
-  v=v.replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})$/,"$1-$2");
-  el.value=v;
-}
-function validarCPF(cpf){
-  cpf=(cpf||"").replace(/\D/g,"");
-  if(cpf.length!==11||/^(\d)\1{10}$/.test(cpf))return false;
-  let s=0;for(let i=0;i<9;i++)s+=parseInt(cpf[i])*(10-i);
-  let d1=(s*10)%11;if(d1===10)d1=0;if(d1!==parseInt(cpf[9]))return false;
-  s=0;for(let i=0;i<10;i++)s+=parseInt(cpf[i])*(11-i);
-  let d2=(s*10)%11;if(d2===10)d2=0;if(d2!==parseInt(cpf[10]))return false;
-  return true;
-}
+  dados.entregas_andamento={val:Object.keys(entregasAtivas).length,sub:"agora"};
+  dados.avaliacao_media={val:(user.avaliacao||5).toFixed(1)+" ⭐",sub:"média com motoboys"};
+  dados.credito_saldo={val:"R$ "+(user.creditos||0).toFixed(0),sub:"disponível"};
 
-// ── LOGIN ──
-function altTab(t){["cad","ent"].forEach(x=>{document.getElementById("form-"+x).style.display="none";document.getElementById("tab-"+x).classList.remove("ativo");});document.getElementById("form-"+t).style.display="block";document.getElementById("tab-"+t).classList.add("ativo");}
-// ── RECUPERAR SENHA ──
-const ADMIN_WHATSAPP="5519982480386"; // configurável no painel admin futuramente
-let recUserDoc=null;
-function abrirSobre(){document.getElementById("modal-sobre").classList.add("show");}
-function abrirRecuperar(){
-  document.getElementById("modal-recuperar").classList.add("show");
-  document.getElementById("rec-passo1").style.display="block";
-  document.getElementById("rec-passo2").style.display="none";
-  document.getElementById("rec-fone").value=document.getElementById("ent-fone")?.value||"";
-  document.getElementById("rec-resposta").value="";
-  document.getElementById("rec-nova").value="";
-  recUserDoc=null;
-}
-async function recBuscar(){
-  const fone=soDigitos(document.getElementById("rec-fone").value);
-  if(!fone){toast("Informe seu WhatsApp");return;}
-  loading(true);
   try{
-    const snap=await db.collection("ej_restaurantes").where("fone","==",fone).limit(1).get();
-    if(snap.empty){loading(false);toast("Número não encontrado.");return;}
-    recUserDoc={id:snap.docs[0].id,...snap.docs[0].data()};
-    loading(false);
-    if(!recUserDoc.pergunta){
-      toast("Sua conta não tem pergunta de segurança. Fale com o administrador.");
-      return;
-    }
-    document.getElementById("rec-pergunta").textContent=recUserDoc.pergunta;
-    document.getElementById("rec-passo1").style.display="none";
-    document.getElementById("rec-passo2").style.display="block";
-  }catch(e){loading(false);toast("Erro ao buscar.");}
-}
-async function recRedefinir(){
-  const resp=(document.getElementById("rec-resposta").value||"").trim().toLowerCase();
-  const nova=(document.getElementById("rec-nova").value||"").trim();
-  if(!resp){toast("Responda a pergunta");return;}
-  if(nova.length<4){toast("Nova senha: mínimo 4 dígitos");return;}
-  if(!recUserDoc){toast("Erro. Tente novamente.");return;}
-  if(recUserDoc.respostaHash!==hashSenha(resp)){toast("Resposta incorreta.");return;}
-  loading(true);
+    const elCount=document.getElementById("count-mot");
+    const matchNum=elCount?elCount.textContent.match(/^(\d+)/):null;
+    dados.motoboys_online={val:matchNum?matchNum[1]:"--",sub:"online agora"};
+  }catch(e){dados.motoboys_online={val:"--",sub:"online agora"};}
+
   try{
-    await db.collection("ej_restaurantes").doc(recUserDoc.id).update({senhaHash:hashSenha(nova)});
-    loading(false);
-    document.getElementById("modal-recuperar").classList.remove("show");
-    toast("Senha redefinida! Faça login. ✓");
-    altTab("ent");
-  }catch(e){loading(false);toast("Erro ao redefinir.");}
-}
-function recFalarAdmin(){
-  const fone=document.getElementById("rec-fone").value.trim();
-  const nome=recUserDoc?recUserDoc.nome:"--";
-  const msg=encodeURIComponent(`Olá! Preciso recuperar minha senha do Entrega Já.\nNome: ${nome}\nWhatsApp: ${fone}`);
-  window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`,"_blank");
-}
+    const snap=await db.collection("ej_pedidos").where("clienteId","==",user.id).orderBy("criadoEm","desc").limit(200).get();
+    const hoje=new Date();hoje.setHours(0,0,0,0);
+    const ontem=new Date(hoje);ontem.setDate(ontem.getDate()-1);
+    const inicioSemana=new Date(hoje);inicioSemana.setDate(inicioSemana.getDate()-inicioSemana.getDay());
+    const inicioMes=new Date(hoje.getFullYear(),hoje.getMonth(),1);
 
-// ── HASH SENHA ──
-function hashSenha(s){
-  let h=5381;const str=String(s);
-  for(let i=0;i<str.length;i++){h=((h<<5)+h+str.charCodeAt(i))>>>0;}
-  // segunda passada pra reforçar
-  let h2=52711;for(let i=str.length-1;i>=0;i--){h2=((h2<<5)+h2+str.charCodeAt(i))>>>0;}
-  return "h"+h.toString(36)+h2.toString(36);
-}
+    let cHoje=0,cSemana=0,cMes=0,cTotal=0,vHoje=0,vOntem=0,vSemana=0,cancelHoje=0;
+    let concluidasHoje=[],todasConcluidas=[];
+    const clientesUnicos=new Set();
+    const pratosVendidos={};
+    const porHora=new Array(24).fill(0);
+    const motoboysContagem={};
+    let ultimoPedido=null;
 
-async function cadastrar(){
-  const nome=document.getElementById("cad-nome").value.trim();
-  const endereco=(document.getElementById("cad-endereco")?.value||"").trim();
-  const fone=soDigitos(document.getElementById("cad-fone").value);
-  const cnpjVal=(document.getElementById("cad-cpf")?.value||"").trim();
-  const senha=(document.getElementById("cad-senha")?.value||"").trim();
-  const pergunta=(document.getElementById("cad-pergunta")?.value||"").trim();
-  const resposta=(document.getElementById("cad-resposta")?.value||"").trim();
-  if(!nome||!fone){toast("Preencha o nome do restaurante e WhatsApp");return;}
-  if(!endereco){toast("Informe o endereço do restaurante");return;}
-  if(senha.length<4){toast("Crie uma senha de pelo menos 4 dígitos");return;}
-  if(!pergunta){toast("Escolha uma pergunta de segurança");return;}
-  if(!resposta){toast("Responda a pergunta de segurança");return;}
-  if(!document.getElementById("cad-termos")?.checked){toast("Você precisa aceitar os Termos de Uso");return;}
-  loading(true);
-  try{
-    // verificar se telefone já existe
-    const ex=await db.collection("ej_restaurantes").where("fone","==",fone).limit(1).get();
-    if(!ex.empty){loading(false);toast("Este WhatsApp já está cadastrado. Use 'Entrar'.");return;}
+    snap.docs.forEach((doc,idx)=>{
+      const c=doc.data();
+      const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
+      if(idx===0)ultimoPedido=c;
+      if(c.nomeClienteFinal)clientesUnicos.add(c.nomeClienteFinal.toLowerCase().trim());
+      if(c.status==="concluida"){
+        cTotal++;
+        todasConcluidas.push(c);
+        const v=c.valorPedido||c.valorTotal||0;
+        if(dt>=hoje){cHoje++;vHoje+=v;concluidasHoje.push(c);porHora[dt.getHours()]++;}
+        if(dt>=ontem&&dt<hoje)vOntem+=v;
+        if(dt>=inicioSemana){cSemana++;vSemana+=v;}
+        if(dt>=inicioMes)cMes++;
+        if(c.motoboy?.nome)motoboysContagem[c.motoboy.nome]=(motoboysContagem[c.motoboy.nome]||0)+1;
+        if(c.itensDetalhados)c.itensDetalhados.forEach(item=>{pratosVendidos[item.nome]=(pratosVendidos[item.nome]||0)+item.qtd;});
+      }
+      if((c.status||"").startsWith("cancelada")&&dt>=hoje)cancelHoje++;
+    });
 
-    // Geocodificar o endereço fixo do restaurante (necessário para validação por GPS do motoboy)
-    let enderecoLat=null,enderecoLng=null;
-    try{
-      const res=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(endereco+", SP, Brasil")}&format=json&limit=1`,{headers:{"User-Agent":"EntregaJa/1.0"}});
-      const data=await res.json();
-      if(data&&data[0]){enderecoLat=parseFloat(data[0].lat);enderecoLng=parseFloat(data[0].lon);}
-    }catch(e){}
-    if(!enderecoLat){
-      loading(false);
-      toast("Não localizamos esse endereço automaticamente. Arraste o pin até o local certo no mapa.");
-      const manual=await pedirLocalizacaoManualRest(cidadeAtual);
-      if(!manual){toast("Cadastro não concluído — posicione o pin para continuar.");return;}
-      enderecoLat=manual.lat;enderecoLng=manual.lng;
-      loading(true);
+    dados.entregas_hoje={val:cHoje,sub:"hoje"};
+    dados.entregas_semana={val:cSemana,sub:"esta semana"};
+    dados.entregas_mes={val:cMes,sub:"este mês"};
+    dados.entregas_total={val:cTotal,sub:"desde o início"};
+    dados.faturamento_hoje={val:"R$ "+vHoje.toFixed(2).replace(".",","),sub:"hoje"};
+    dados.faturamento_semana={val:"R$ "+vSemana.toFixed(2).replace(".",","),sub:"esta semana"};
+    dados.ticket_medio={val:cHoje>0?"R$ "+(vHoje/cHoje).toFixed(2).replace(".",","):"--",sub:"por pedido hoje"};
+    dados.cancelamentos_hoje={val:cancelHoje,sub:"hoje"};
+    dados.total_clientes={val:clientesUnicos.size,sub:"únicos"};
+
+    if(vOntem>0){
+      const pct=((vHoje-vOntem)/vOntem*100);
+      dados.comparativo_ontem={val:(pct>=0?"+":"")+pct.toFixed(0)+"%",sub:"vs. ontem"};
+    }else{
+      dados.comparativo_ontem={val:vHoje>0?"🎉":"--",sub:"sem dados de ontem"};
     }
 
-    const id="rest_"+Date.now();
-    const dados={id,nome,fone,
-      endereco,enderecoLat,enderecoLng,
-      cnpj:cnpjVal||null,
-      senhaHash:hashSenha(senha),
-      pergunta:pergunta,
-      respostaHash:hashSenha(resposta.toLowerCase()),
-      termosAceitos:true,termosData:new Date().toISOString(),
-      foto:fotoFinalCad||null,tipo:"cadastrado",totalPedidos:0,criadoEm:new Date().toISOString()};
-    await db.collection("ej_restaurantes").doc(id).set(dados);
-    user=dados;localStorage.setItem("ej_user",JSON.stringify(user));
-    loading(false);irPara("home");pedirNotif();
-  }catch(e){loading(false);toast("Erro: "+e.message);}
-}
-function calcularIdadeCad(dataNasc){
-  if(!dataNasc)return null;
-  const hoje=new Date(),nasc=new Date(dataNasc+"T00:00:00");
-  let idade=hoje.getFullYear()-nasc.getFullYear();
-  const m=hoje.getMonth()-nasc.getMonth();
-  if(m<0||(m===0&&hoje.getDate()<nasc.getDate()))idade--;
-  return idade;
-}
-async function entrar(){
-  const fone=soDigitos(document.getElementById("ent-fone").value);
-  const senha=(document.getElementById("ent-senha")?.value||"").trim();
-  if(!fone){toast("Informe seu WhatsApp");return;}
-  if(!senha){toast("Informe sua senha");return;}
-  loading(true);
-  try{
-    const snap=await db.collection("ej_restaurantes").where("fone","==",fone).limit(1).get();
-    if(snap.empty){toast("Número não encontrado.");loading(false);return;}
-    const dados={id:snap.docs[0].id,...snap.docs[0].data()};
-    // Conta antiga sem senha: define a senha digitada agora (migração)
-    if(!dados.senhaHash){
-      await db.collection("ej_restaurantes").doc(dados.id).update({senhaHash:hashSenha(senha)});
-      dados.senhaHash=hashSenha(senha);
-      toast("Senha definida para sua conta! ✓");
-    }else if(dados.senhaHash!==hashSenha(senha)){
-      loading(false);toast("Senha incorreta.");return;
+    const rankingPratos=Object.entries(pratosVendidos).sort((a,b)=>b[1]-a[1]);
+    dados.prato_mais_vendido=rankingPratos.length?{val:rankingPratos[0][0],sub:rankingPratos[0][1]+"x vendido"}:{val:"--",sub:"sem dados ainda"};
+
+    const picoIdx=porHora.indexOf(Math.max(...porHora));
+    dados.horario_pico=Math.max(...porHora)>0?{val:picoIdx+"h - "+(picoIdx+1)+"h",sub:"mais pedidos hoje"}:{val:"--",sub:"sem dados ainda"};
+
+    const rankingMotoboys=Object.entries(motoboysContagem).sort((a,b)=>b[1]-a[1]);
+    dados.motoboy_frequente=rankingMotoboys.length?{val:rankingMotoboys[0][0],sub:rankingMotoboys[0][1]+" entregas"}:{val:"--",sub:"sem dados ainda"};
+
+    if(ultimoPedido){
+      const statusLabel={aguardando:"Buscando motoboy",aceita:"Motoboy a caminho",motoboy_chegou:"Motoboy no local",concluida:"Concluído",cancelada_cliente:"Cancelado",cancelada_motoboy:"Cancelado pelo motoboy"};
+      dados.ultimo_pedido={val:statusLabel[ultimoPedido.status]||ultimoPedido.status,sub:ultimoPedido.destino?ultimoPedido.destino.split(",")[0]:""};
+    }else{
+      dados.ultimo_pedido={val:"--",sub:"nenhum pedido ainda"};
     }
-    user=dados;localStorage.setItem("ej_user",JSON.stringify(user));
-    loading(false);irPara("home");pedirNotif();
-  }catch(e){loading(false);toast("Erro ao entrar.");}
+  }catch(e){}
+  return dados;
 }
 
+// ── DRAG DOS CARDS (segue o dedo de verdade, position:fixed) ──
+let _cardDragTO=null,_cardDragging=false,_cardDragIdx=null,_cardDragEl=null,_cardDragMoved=false;
+let _cardDragStartX=0,_cardDragStartY=0,_cardOffsetX=0,_cardOffsetY=0,_cardW=0,_cardH=0,_cardPlaceholder=null;
 
-function usarAtalho(idx){
-  if(_dragging||_acabouDrag)return;
-  const atalhos=getAtalhos().filter(a=>a.ativo!==false);
-  const a=atalhos[idx];if(!a)return;
-  if(a.tipo==="mapa"){abrirMapaDest();return;}
-  const salvo=JSON.parse(localStorage.getItem("ej_atalho_"+a.tipo)||"null");
-  if(salvo||a.destino){
-    const dest=salvo||a.destino;
-    destSel=dest;
-    document.getElementById("campo-busca").value=dest.nome.split(",")[0];
-    document.getElementById("btn-chamar").disabled=false;
-    calcularValor();
-    toast("Destino: "+dest.nome.split(",")[0]);
-  }else{
-    _tipoAtalho=a.tipo;_definindoAtalho=true;
-    toast("Defina o local no mapa");abrirMapaDest();
-  }
-}
-
-// ── DRAG & DROP (long-press pra reordenar; deslizar normal faz scroll) ──
-let _dragStartX=0,_dragStartY=0,_dragMoved=false;
-function iniciaDrag(e,idx){
-  // NAO chamar stopPropagation: deixa o scroll nativo rolar normalmente
+function iniciaDragCard(e,idx){
   const t=e.touches?e.touches[0]:e;
-  _dragStartX=t.clientX;_dragStartY=t.clientY;_dragMoved=false;
-  clearTimeout(_dragTO);
-  _dragTO=setTimeout(()=>{
-    // Long-press completado SEM ter rolado: entra no modo reordenar
-    if(_dragMoved)return;
-    _dragging=true;_dragIdx=idx;
-    _dragEl=document.querySelector(`.atalho-item[data-idx="${idx}"]`);
-    const cont=document.getElementById("atalhos-container");
+  _cardDragStartX=t.clientX;_cardDragStartY=t.clientY;_cardDragMoved=false;
+  clearTimeout(_cardDragTO);
+  _cardDragTO=setTimeout(()=>{
+    if(_cardDragMoved)return;
+    _cardDragging=true;_cardDragIdx=idx;
+    _cardDragEl=document.querySelector(`.card-widget[data-idx="${idx}"]`);
+    if(!_cardDragEl)return;
+    const r=_cardDragEl.getBoundingClientRect();
+    _cardW=r.width;_cardH=r.height;
+    _cardOffsetX=t.clientX-r.left;_cardOffsetY=t.clientY-r.top;
+
+    _cardPlaceholder=document.createElement("div");
+    _cardPlaceholder.className="card-widget-placeholder "+_cardDragEl.className.replace("card-widget","").trim();
+    _cardPlaceholder.style.width=r.width+"px";
+    _cardPlaceholder.style.height=r.height+"px";
+    _cardDragEl.parentNode.insertBefore(_cardPlaceholder,_cardDragEl);
+
+    _cardDragEl.style.width=r.width+"px";
+    _cardDragEl.style.height=r.height+"px";
+    _cardDragEl.style.left=r.left+"px";
+    _cardDragEl.style.top=r.top+"px";
+    _cardDragEl.classList.add("drag-ativo");
+
+    const cont=document.getElementById("cards-container");
     if(cont)cont.classList.add("reordenando");
-    if(_dragEl)_dragEl.classList.add("drag-ativo");
     if(navigator.vibrate)navigator.vibrate([50,20,50]);
-  },600);
+  },500);
 }
-function moveDrag(e){
+function moveDragCard(e){
   const t=e.touches?e.touches[0]:e;
-  // Antes de ativar o drag: se o dedo mexeu, e' scroll -> cancela o long-press
-  if(!_dragging){
-    const dx=Math.abs(t.clientX-_dragStartX),dy=Math.abs(t.clientY-_dragStartY);
-    if(dx>8||dy>8){_dragMoved=true;clearTimeout(_dragTO);}
-    return; // deixa o scroll nativo agir
+  if(!_cardDragging){
+    const dx=Math.abs(t.clientX-_cardDragStartX),dy=Math.abs(t.clientY-_cardDragStartY);
+    if(dx>10||dy>10){_cardDragMoved=true;clearTimeout(_cardDragTO);}
+    return;
   }
-  // Modo reordenar ativo: bloqueia scroll e move
   e.preventDefault();
-  const x=t.clientX;
-  const cont=document.getElementById("atalhos-container");
-  const items=[...cont.querySelectorAll(".atalho-item:not(.drag-ativo)")];
-  items.forEach(item=>{
+  if(!_cardDragEl)return;
+  _cardDragEl.style.left=(t.clientX-_cardOffsetX)+"px";
+  _cardDragEl.style.top=(t.clientY-_cardOffsetY)+"px";
+  const cont=document.getElementById("cards-container");
+  const items=[...cont.querySelectorAll(".card-widget:not(.drag-ativo)")];
+  for(const item of items){
     const r=item.getBoundingClientRect();
-    if(x>r.left+r.width*0.3&&x<r.right-r.width*0.3){
-      const j=parseInt(item.dataset.idx);
-      if(j===_dragIdx)return;
-      const todos=getAtalhos();
-      const ativos=todos.filter(a=>a.ativo!==false);
-      const inat=todos.filter(a=>a.ativo===false);
-      const tmp=ativos[_dragIdx];ativos[_dragIdx]=ativos[j];ativos[j]=tmp;
-      saveAtalhos([...ativos,...inat]);
-      _dragIdx=j;
-      renderAtalhos();
-      const cont2=document.getElementById("atalhos-container");
-      if(cont2)cont2.classList.add("reordenando");
-      const novoEl=document.querySelector(`.atalho-item[data-idx="${j}"]`);
-      if(novoEl){novoEl.classList.add("drag-ativo");_dragEl=novoEl;}
-      if(navigator.vibrate)navigator.vibrate(15);
+    if(t.clientX>r.left&&t.clientX<r.right&&t.clientY>r.top&&t.clientY<r.bottom){
+      const rectPh=_cardPlaceholder.getBoundingClientRect();
+      const goingDown=r.top>rectPh.top||(r.top===rectPh.top&&r.left>rectPh.left);
+      if(goingDown)item.after(_cardPlaceholder);else item.before(_cardPlaceholder);
+      break;
     }
-  });
-}
-function fimDrag(e){
-  clearTimeout(_dragTO);
-  const cont=document.getElementById("atalhos-container");
-  if(cont)cont.classList.remove("reordenando");
-  if(_dragging){
-    _dragging=false;_acabouDrag=true;setTimeout(()=>_acabouDrag=false,300);
-    document.querySelectorAll(".atalho-item.drag-ativo").forEach(el=>el.classList.remove("drag-ativo"));
-    renderAtalhos();
   }
-  _dragEl=null;_dragMoved=false;
 }
-
-// ── CRIAR ATALHO ──
-function abrirCriarAtalho(){
-  _novoIcon="⭐";_novoCor="#fbbf24";
-  document.getElementById("novo-nome").value="";
-  // Grade ícones
-  const gi=document.getElementById("grade-icones");
-  gi.innerHTML=ICONES_LIST.map(ic=>`<div class="icone-op${ic==="⭐"?" sel":""}" data-ic="${ic}" onclick="selIcon('${ic}',this)">${ic}</div>`).join("");
-  // Grade cores
-  const gc=document.getElementById("grade-cores");
-  gc.innerHTML=CORES_LIST.map(c=>`<div class="cor-op${c==="#fbbf24"?" sel":""}" data-cor="${c}" style="background:${c};" onclick="selCor('${c}',this)"></div>`).join("");
-  document.getElementById("modal-criar-atalho").classList.add("show");
-}
-function fecharCriarAtalho(){document.getElementById("modal-criar-atalho").classList.remove("show");}
-function selIcon(ic,el){_novoIcon=ic;document.querySelectorAll(".icone-op").forEach(d=>d.classList.remove("sel"));if(el)el.classList.add("sel");}
-function selCor(cor,el){_novoCor=cor;document.querySelectorAll(".cor-op").forEach(d=>d.classList.remove("sel"));if(el)el.classList.add("sel");}
-function salvarAtalho(){
-  const nome=document.getElementById("novo-nome").value.trim();
-  if(!nome){toast("Digite um nome para o atalho");return;}
-  const todos=getAtalhos();
-  todos.push({icon:_novoIcon,label:nome,tipo:"custom_"+Date.now(),ativo:true,destino:null,cor:_novoCor});
-  saveAtalhos(todos);fecharCriarAtalho();renderAtalhos();renderConfig();
-  toast("'"+nome+"' criado! Toque nele para definir o local.");
+function fimDragCard(e){
+  clearTimeout(_cardDragTO);
+  const cont=document.getElementById("cards-container");
+  if(cont)cont.classList.remove("reordenando");
+  if(_cardDragging&&_cardDragEl&&_cardPlaceholder){
+    _cardDragging=false;
+    _cardPlaceholder.replaceWith(_cardDragEl);
+    _cardDragEl.classList.remove("drag-ativo");
+    _cardDragEl.style.position="";_cardDragEl.style.left="";_cardDragEl.style.top="";_cardDragEl.style.width="";_cardDragEl.style.height="";
+    const novaOrdemIds=[...cont.querySelectorAll(".card-widget")].map(el=>el.dataset.id);
+    const todos=getConfigCards();
+    novaOrdemIds.forEach((id,i)=>{
+      const c=todos.find(x=>x.id===id);
+      if(c)c.ordem=i;
+    });
+    saveConfigCards(todos);
+    if(navigator.vibrate)navigator.vibrate(15);
+    renderCardsHome();
+  }
+  _cardDragEl=null;_cardPlaceholder=null;_cardDragMoved=false;
 }
 
 // ── CONFIG ──
-function abrirConfig(){fecharMenu();document.getElementById("tela-config").style.display="block";renderConfig();}
+function abrirConfig(){fecharMenu();document.getElementById("tela-config").style.display="block";renderConfigCards();}
 function fecharConfig(){document.getElementById("tela-config").style.display="none";}
-function renderConfig(){
-  const lista=document.getElementById("config-lista");if(!lista)return;
-  const todos=getAtalhos();
-  lista.innerHTML=todos.map((a,i)=>{
-    const salvo=a.tipo==="casa"?JSON.parse(localStorage.getItem("ej_atalho_casa")||"null"):a.tipo==="trabalho"?JSON.parse(localStorage.getItem("ej_atalho_trabalho")||"null"):null;
-    const end=salvo?salvo.nome.split(",")[0]:a.destino?a.destino.nome.split(",")[0]:a.tipo==="mapa"?"Abre mapa":"Não definido";
-    return`<div class="config-item">
-      <div class="config-ic">${a.icon}</div>
-      <div class="config-info"><div class="config-nome">${a.label}</div><div class="config-end">${end}</div></div>
-      <div class="toggle ${a.ativo!==false?"on":"off"}" onclick="toggleAtalho(${i})"></div>
+function renderConfigCards(){
+  const el=document.getElementById("config-lista");
+  if(!el)return;
+  const cards=getConfigCards();
+  el.innerHTML=CARDS_DISPONIVEIS.map(info=>{
+    const c=cards.find(x=>x.id===info.id)||{ativo:false,tam:1};
+    const tam=c.tam||1;
+    return `<div class="config-card-item">
+      <div class="config-card-icon">${info.icon}</div>
+      <div class="config-card-info">
+        <div class="config-card-nome">${info.nome}</div>
+        <div class="config-card-desc">${info.desc}</div>
+        ${c.ativo?`<div class="config-tam-sel">
+          <button class="config-tam-btn ${tam===1?'ativo':''}" onclick="setTamCard('${info.id}',1)">Linha inteira</button>
+          <button class="config-tam-btn ${tam===2?'ativo':''}" onclick="setTamCard('${info.id}',2)">Metade</button>
+          <button class="config-tam-btn ${tam===3?'ativo':''}" onclick="setTamCard('${info.id}',3)">Terço</button>
+        </div>`:""}
+      </div>
+      <div class="config-toggle ${c.ativo?'on':''}" onclick="toggleCard('${info.id}')"></div>
     </div>`;
   }).join("");
 }
-function toggleAtalho(idx){const todos=getAtalhos();todos[idx].ativo=!(todos[idx].ativo!==false);saveAtalhos(todos);renderConfig();renderAtalhos();}
+function toggleCard(id){
+  const cards=getConfigCards();
+  const c=cards.find(x=>x.id===id);
+  if(c){
+    c.ativo=!c.ativo;
+    if(c.ativo&&!c.tam)c.tam=1;
+    if(c.ativo&&(c.ordem===undefined||c.ordem===null))c.ordem=Math.max(0,...cards.map(x=>x.ordem||0))+1;
+    saveConfigCards(cards);
+    renderConfigCards();
+    if(navigator.vibrate)navigator.vibrate(20);
+  }
+}
+function setTamCard(id,tam){
+  const cards=getConfigCards();
+  const c=cards.find(x=>x.id===id);
+  if(c){c.tam=tam;saveConfigCards(cards);renderConfigCards();}
+}
 function toggleNotif(){const on=localStorage.getItem("ej_notif")!=="false";localStorage.setItem("ej_notif",on?"false":"true");if(!on)pedirNotif();document.getElementById("tog-notif").className="toggle "+(on?"off":"on");}
+
 
 // ── MENU ──
 function abrirMenu(){document.getElementById("menu-overlay").style.display="block";document.getElementById("menu-lateral").style.display="block";}
 function fecharMenu(){document.getElementById("menu-overlay").style.display="none";document.getElementById("menu-lateral").style.display="none";}
 function toggleNotifMenu(){const on=localStorage.getItem("ej_notif")!=="false";localStorage.setItem("ej_notif",on?"false":"true");if(!on)pedirNotif();document.getElementById("notif-item").textContent=(on?"🔕":"🔔")+" Notificações "+(on?"desativadas":"ativadas");}
-function definirAtalho(tipo){fecharMenu();_tipoAtalho=tipo;_definindoAtalho=true;toast("Defina no mapa onde é sua "+(tipo==="casa"?"Casa":"Trabalho"));abrirMapaDest();}
 function copiarPix(){navigator.clipboard.writeText("19982480386").then(()=>toast("Chave Pix copiada!")).catch(()=>toast("Chave: 19982480386"));}
 
 // ── CIDADE ──
@@ -2149,7 +2069,7 @@ function abrirMapaDest(){
     setTimeout(()=>{mapaDest.invalidateSize();mapaDest.setView(centro,13);},100);
   }
 }
-function fecharMapaDest(){const m=document.getElementById("modal-mapa-dest");m.style.display="none";m.classList.remove("show");_definindoAtalho=false;_tipoAtalho=null;}
+function fecharMapaDest(){const m=document.getElementById("modal-mapa-dest");m.style.display="none";m.classList.remove("show");}
 async function _buscarRev(lat,lng){
   _destCoords=[lat,lng];
   document.getElementById("dest-end-txt").textContent="Buscando endereço...";
@@ -2160,15 +2080,6 @@ async function _buscarRev(lat,lng){
 function confirmarDestMapa(){
   if(!_destCoords||!_destEnd)return;
   const dest={nome:_destEnd,lat:_destCoords[0],lng:_destCoords[1]};
-  if(_definindoAtalho&&_tipoAtalho){
-    localStorage.setItem("ej_atalho_"+_tipoAtalho,JSON.stringify(dest));
-    // Atualizar atalho customizado se existir
-    const todos=getAtalhos();const idx=todos.findIndex(a=>a.tipo===_tipoAtalho);
-    if(idx>=0){todos[idx].destino=dest;saveAtalhos(todos);}
-    renderAtalhos();
-    toast((_tipoAtalho==="casa"?"Casa":_tipoAtalho==="trabalho"?"Trabalho":"Atalho")+" definido: "+dest.nome.split(",")[0]);
-    _definindoAtalho=false;_tipoAtalho=null;fecharMapaDest();return;
-  }
   destSel=dest;
   document.getElementById("campo-busca").value=_destEnd.split(",").slice(0,2).join(",").trim();
   document.getElementById("btn-chamar").disabled=false;
@@ -2689,29 +2600,12 @@ function iniciarMapaHome(){
 }
 
 function iniciarMapaMot(){
-  if(mapaMot)return;
-  setTimeout(()=>{
-    mapaMot=L.map("mapa-motoboys",{zoomControl:false,attributionControl:false,dragging:true,touchZoom:true,scrollWheelZoom:false});
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mapaMot);
-    // Centraliza no GPS atual se disponível, senão Holambra
-    const centroInicial=posAtual||[-22.655,-47.059];
-    mapaMot.setView(centroInicial,13);
-    setTimeout(()=>{
-      mapaMot.invalidateSize();
-      // Recentralizar no GPS após carregar
-      if(posAtual)mapaMot.setView(posAtual,13);
-    },600);
-    setTimeout(()=>{mapaMot.invalidateSize();if(posAtual)mapaMot.setView(posAtual,13);},1400);
-    if(unsubMot){unsubMot();unsubMot=null;}
-    unsubMot=db.collection("ej_motoboys").where("online","==",true).onSnapshot(snap=>{
-      const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 30" width="32" height="30"><circle cx="6" cy="23" r="5" fill="#080f1e" stroke="#fbbf24" stroke-width="1.5"/><circle cx="26" cy="23" r="5" fill="#080f1e" stroke="#fbbf24" stroke-width="1.5"/><path d="M6 23 L13 13 L20 13 L26 23" stroke="#fbbf24" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 13 L16 6 L20 6" stroke="#fbbf24" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="20" cy="6" r="2.2" fill="#fbbf24"/><rect x="9" y="16" width="7" height="4" rx="1.5" fill="#f59e0b"/></svg>`;
-      const ic=L.divIcon({html:`<div style="filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));">${svg}</div>`,className:"",iconSize:[30,30],iconAnchor:[15,25]});
-      const ativos=new Set();
-      snap.docs.forEach(d=>{const m=d.data();if(!m.lat||!m.lng)return;ativos.add(d.id);if(marcsMot[d.id])marcsMot[d.id].setLatLng([m.lat,m.lng]);else marcsMot[d.id]=L.marker([m.lat,m.lng],{icon:ic}).addTo(mapaMot);});
-      Object.keys(marcsMot).forEach(id=>{if(!ativos.has(id)){mapaMot.removeLayer(marcsMot[id]);delete marcsMot[id];}});
-      const count=ativos.size;const el=document.getElementById("count-mot");if(el)el.textContent=count===0?"Nenhum disponível":count+" disponível"+(count>1?"is":"");
-    });
-  },300);
+  if(unsubMot)return;
+  unsubMot=db.collection("ej_motoboys").where("online","==",true).onSnapshot(snap=>{
+    const count=snap.size;
+    const el=document.getElementById("count-mot");
+    if(el)el.textContent=count===0?"Nenhum motoboy online no momento":count+" motoboy"+(count>1?"s":"")+" online agora";
+  });
 }
 
 function iniciarMapaEntrega(d){
@@ -2745,8 +2639,6 @@ function iniciarGPS(){
     const c=detectarCidade(posAtual[0],posAtual[1]);
     if(c){cidadeAtual=c;document.querySelectorAll(".chip").forEach(el=>el.classList.toggle("ativo",el.dataset.c===c));}
     else document.querySelector(".chip")?.classList.add("ativo");
-    if(mapaMot){mapaMot.setView(posAtual,13);}
-    else{setTimeout(()=>{if(mapaMot)mapaMot.setView(posAtual,13);},1000);}
   }else{
     document.querySelector(".chip")?.classList.add("ativo");
   }
@@ -2757,10 +2649,27 @@ function atualizarHome(){
   if(!user)return;
   const h=new Date().getHours();
   document.getElementById("saudacao").textContent=h<12?"Bom dia!":h<18?"Boa tarde!":"Boa noite!";
-  document.getElementById("home-nome").textContent=(user.nome||"").trim().split(" ")[0];
+  const elNome=document.getElementById("home-nome");
+  elNome.textContent=(user.nome||"").trim();
+  ajustarFonteNomeHome();
   const av=document.getElementById("home-avatar");
   if(user.foto)av.innerHTML=`<img src="${user.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
   else av.innerHTML=`<span style="font-size:15px;font-weight:700;color:var(--dourado);">${(user.nome||"P")[0].toUpperCase()}</span>`;
+}
+// Se o nome do restaurante não couber bem em até 2 linhas (quebrando só em espaço, nunca no meio da palavra),
+// reduz a fonte gradualmente até caber — sem nunca tirar o logo do lugar.
+function ajustarFonteNomeHome(){
+  const el=document.getElementById("home-nome");
+  if(!el)return;
+  let tamanho=18;
+  el.style.fontSize=tamanho+"px";
+  const alturaMaxima=18*1.2*2+2; // ~2 linhas no tamanho base, com folga
+  let tentativas=0;
+  while(el.scrollHeight>alturaMaxima&&tamanho>12&&tentativas<8){
+    tamanho-=1;
+    el.style.fontSize=tamanho+"px";
+    tentativas++;
+  }
 }
 function atualizarPerfil(){
   if(!user)return;
@@ -2911,7 +2820,7 @@ window.addEventListener("load",async()=>{
   else{
     setTimeout(()=>mostrarTela("tela-login"),2000);
   }
-  renderAtalhos();
+  renderCardsHome();
   renderHistRapido();
   iniciarGPS();
   setTimeout(iniciarMapaMot,800);
