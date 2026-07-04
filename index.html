@@ -675,6 +675,11 @@ input[type=file]{display:none;}
   <div class="busc-spinner"></div>
   <div class="busc-num" id="busc-num">0</div>
   <div class="busc-label">segundos aguardando</div>
+  <div id="busc-mot-online" style="font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:5px 14px;">Verificando motoboys online...</div>
+  <div id="busc-demora-aviso" style="display:none;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:14px;padding:12px 16px;max-width:280px;text-align:center;">
+    <div style="font-size:12px;color:#f59e0b;font-weight:700;margin-bottom:4px;">⏱️ Está demorando um pouco mais</div>
+    <div style="font-size:11px;color:var(--muted);">Você pode continuar esperando ou cancelar e chamar novamente mais tarde.</div>
+  </div>
   <div class="dev-retangulo">
     <div class="dev-luz"></div>
     <div class="dev-inner">
@@ -2217,11 +2222,26 @@ async function confirmarPgtoEChamar(){
     document.getElementById("campo-numero-endereco").value="";
     document.getElementById("campo-nome-cliente").value="";
     _seg=0;if(contBusc)clearInterval(contBusc);
-    contBusc=setInterval(()=>{_seg++;document.getElementById("busc-num").textContent=_seg;},1000);
+    document.getElementById("busc-demora-aviso").style.display="none";
+    verificarMotoboysOnlineBusca();
+    contBusc=setInterval(()=>{
+      _seg++;
+      document.getElementById("busc-num").textContent=_seg;
+      if(_seg===90)document.getElementById("busc-demora-aviso").style.display="block";
+    },1000);
     escutarEntrega(id);
   }catch(e){loading(false);toast("Erro: "+e.message);}
 }
-function pararBusc(){if(contBusc){clearInterval(contBusc);contBusc=null;}}
+async function verificarMotoboysOnlineBusca(){
+  const el=document.getElementById("busc-mot-online");
+  if(!el)return;
+  try{
+    const snap=await db.collection("ej_motoboys").where("online","==",true).get();
+    const n=snap.size;
+    el.textContent=n===0?"⚠️ Nenhum motoboy online no momento":"🟢 "+n+" motoboy"+(n>1?"s":"")+" online na região";
+  }catch(e){el.textContent="";}
+}
+function pararBusc(){if(contBusc){clearInterval(contBusc);contBusc=null;}const av=document.getElementById("busc-demora-aviso");if(av)av.style.display="none";}
 
 // ── ESCUTAR CORRIDA ──
 function escutarEntrega(id){
