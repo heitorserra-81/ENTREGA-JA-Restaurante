@@ -1481,10 +1481,39 @@ function selPgtoRest(el){
   el.classList.add("ativo");
   document.getElementById("campo-troco").style.display=pgtoRestSel==="Dinheiro"?"block":"none";
 }
+let CONFIG_COBRANCA_REST={ativa:false,alertaSaldoBaixo:10};
+let _unsubSaldoRest=null,_avisoSaldoMostrado=false;
+const FRASES_SALDO_BAIXO=[
+  "🍕 Seus créditos estão quase no fim — só sobrou o cheirinho da pizza! Recarregue para não parar suas entregas.",
+  "🍔 Ó o saldo murchando que nem suflê fora do forno! Recarregue seus créditos e siga entregando.",
+  "🍝 O molho tá acabando! Com pouco crédito, suas próximas entregas podem ficar sem sabor. Recarregue!",
+  "🥡 Últimas garfadas do saldo! Recarregue seus créditos para as entregas continuarem quentinhas."
+];
+function iniciarEscutaSaldoRest(){
+  if(!user||user.tipo==="anonimo"||_unsubSaldoRest)return;
+  _unsubSaldoRest=db.collection("ej_restaurantes").doc(user.id).onSnapshot(snap=>{
+    if(!snap.exists)return;
+    const d=snap.data();
+    const saldoAnterior=user.creditos||0;
+    user.creditos=d.creditos||0;
+    localStorage.setItem("ej_user",JSON.stringify(user));
+    // Aviso de saldo baixo (uma vez por sessão, só com a cobrança ativa)
+    if(CONFIG_COBRANCA_REST.ativa&&user.creditos<=CONFIG_COBRANCA_REST.alertaSaldoBaixo&&user.creditos<saldoAnterior&&!_avisoSaldoMostrado){
+      _avisoSaldoMostrado=true;
+      const frase=FRASES_SALDO_BAIXO[Math.floor(Math.random()*FRASES_SALDO_BAIXO.length)];
+      setTimeout(()=>toast(frase),800);
+    }
+  });
+}
 async function carregarModoCobranca(){
   try{
     const snap=await db.collection("ej_config").doc("geral").get();
-    if(snap.exists&&snap.data().modoCobranca)MODO_COBRANCA=snap.data().modoCobranca;
+    if(snap.exists){
+      const d=snap.data();
+      if(d.modoCobranca)MODO_COBRANCA=d.modoCobranca;
+      CONFIG_COBRANCA_REST.ativa=d.cobrancaRestaurante===true;
+      CONFIG_COBRANCA_REST.alertaSaldoBaixo=d.alertaSaldoBaixo!==undefined?d.alertaSaldoBaixo:10;
+    }
   }catch(e){}
 }
 let unsubEntrega=null,unsubMot=null,unsubChat=null,contBusc=null,_seg=0;
@@ -1662,6 +1691,186 @@ function sair(){
   entregaAtiva=null;
   localStorage.removeItem("ej_user");user=null;mostrarTela("tela-login");
 }
+
+// ── TELEFONE ──
+function soDigitos(s){return(s||"").replace(/\D/g,"");}
+function mascaraTelefone(el){
+  let v=el.value.replace(/\D/g,"").slice(0,11);
+  if(v.length>10)v=v.replace(/(\d{2})(\d{5})(\d{0,4})/,"($1) $2-$3");
+  else if(v.length>5)v=v.replace(/(\d{2})(\d{4})(\d{0,4})/,"($1) $2-$3");
+  else if(v.length>2)v=v.replace(/(\d{2})(\d{0,5})/,"($1) $2");
+  else if(v.length>0)v=v.replace(/(\d{0,2})/,"($1");
+  el.value=v.trim().replace(/-$/,"").replace(/\)\s*$/,")");
+}
+function formatarTelefoneExibicao(v){
+  const d=soDigitos(v);
+  if(d.length===11)return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
+  if(d.length===10)return `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;
+  return v||"";
+}
+// ── CPF ──
+function mascaraCPF(el){
+  let v=el.value.replace(/\D/g,"").slice(0,11);
+  v=v.replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+  el.value=v;
+}
+function validarCPF(cpf){
+  cpf=(cpf||"").replace(/\D/g,"");
+  if(cpf.length!==11||/^(\d)\1{10}$/.test(cpf))return false;
+  let s=0;for(let i=0;i<9;i++)s+=parseInt(cpf[i])*(10-i);
+  let d1=(s*10)%11;if(d1===10)d1=0;if(d1!==parseInt(cpf[9]))return false;
+  s=0;for(let i=0;i<10;i++)s+=parseInt(cpf[i])*(11-i);
+  let d2=(s*10)%11;if(d2===10)d2=0;if(d2!==parseInt(cpf[10]))return false;
+  return true;
+}
+
+// ── LOGIN ──
+function altTab(t){["cad","ent"].forEach(x=>{document.getElementById("form-"+x).style.display="none";document.getElementById("tab-"+x).classList.remove("ativo");});document.getElementById("form-"+t).style.display="block";document.getElementById("tab-"+t).classList.add("ativo");}
+// ── RECUPERAR SENHA ──
+const ADMIN_WHATSAPP="5519982480386"; // configurável no painel admin futuramente
+let recUserDoc=null;
+function abrirSobre(){document.getElementById("modal-sobre").classList.add("show");}
+function abrirRecuperar(){
+  document.getElementById("modal-recuperar").classList.add("show");
+  document.getElementById("rec-passo1").style.display="block";
+  document.getElementById("rec-passo2").style.display="none";
+  document.getElementById("rec-fone").value=document.getElementById("ent-fone")?.value||"";
+  document.getElementById("rec-resposta").value="";
+  document.getElementById("rec-nova").value="";
+  recUserDoc=null;
+}
+async function recBuscar(){
+  const fone=soDigitos(document.getElementById("rec-fone").value);
+  if(!fone){toast("Informe seu WhatsApp");return;}
+  loading(true);
+  try{
+    const snap=await db.collection("ej_restaurantes").where("fone","==",fone).limit(1).get();
+    if(snap.empty){loading(false);toast("Número não encontrado.");return;}
+    recUserDoc={id:snap.docs[0].id,...snap.docs[0].data()};
+    loading(false);
+    if(!recUserDoc.pergunta){
+      toast("Sua conta não tem pergunta de segurança. Fale com o administrador.");
+      return;
+    }
+    document.getElementById("rec-pergunta").textContent=recUserDoc.pergunta;
+    document.getElementById("rec-passo1").style.display="none";
+    document.getElementById("rec-passo2").style.display="block";
+  }catch(e){loading(false);toast("Erro ao buscar.");}
+}
+async function recRedefinir(){
+  const resp=(document.getElementById("rec-resposta").value||"").trim().toLowerCase();
+  const nova=(document.getElementById("rec-nova").value||"").trim();
+  if(!resp){toast("Responda a pergunta");return;}
+  if(nova.length<4){toast("Nova senha: mínimo 4 dígitos");return;}
+  if(!recUserDoc){toast("Erro. Tente novamente.");return;}
+  if(recUserDoc.respostaHash!==hashSenha(resp)){toast("Resposta incorreta.");return;}
+  loading(true);
+  try{
+    await db.collection("ej_restaurantes").doc(recUserDoc.id).update({senhaHash:hashSenha(nova)});
+    loading(false);
+    document.getElementById("modal-recuperar").classList.remove("show");
+    toast("Senha redefinida! Faça login. ✓");
+    altTab("ent");
+  }catch(e){loading(false);toast("Erro ao redefinir.");}
+}
+function recFalarAdmin(){
+  const fone=soDigitos(document.getElementById("rec-fone").value);
+  const nome=recUserDoc?recUserDoc.nome:"--";
+  const msg=encodeURIComponent(`Olá! Preciso recuperar minha senha do Entrega Já.\nNome: ${nome}\nWhatsApp: ${fone}`);
+  window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`,"_blank");
+}
+
+// ── HASH SENHA ──
+function hashSenha(s){
+  let h=5381;const str=String(s);
+  for(let i=0;i<str.length;i++){h=((h<<5)+h+str.charCodeAt(i))>>>0;}
+  // segunda passada pra reforçar
+  let h2=52711;for(let i=str.length-1;i>=0;i--){h2=((h2<<5)+h2+str.charCodeAt(i))>>>0;}
+  return "h"+h.toString(36)+h2.toString(36);
+}
+
+async function cadastrar(){
+  const nome=document.getElementById("cad-nome").value.trim();
+  const endereco=(document.getElementById("cad-endereco")?.value||"").trim();
+  const fone=soDigitos(document.getElementById("cad-fone").value);
+  const cnpjVal=(document.getElementById("cad-cpf")?.value||"").trim();
+  const senha=(document.getElementById("cad-senha")?.value||"").trim();
+  const pergunta=(document.getElementById("cad-pergunta")?.value||"").trim();
+  const resposta=(document.getElementById("cad-resposta")?.value||"").trim();
+  if(!nome||!fone){toast("Preencha o nome do restaurante e WhatsApp");return;}
+  if(!endereco){toast("Informe o endereço do restaurante");return;}
+  if(senha.length<4){toast("Crie uma senha de pelo menos 4 dígitos");return;}
+  if(!pergunta){toast("Escolha uma pergunta de segurança");return;}
+  if(!resposta){toast("Responda a pergunta de segurança");return;}
+  if(!document.getElementById("cad-termos")?.checked){toast("Você precisa aceitar os Termos de Uso");return;}
+  loading(true);
+  try{
+    // verificar se telefone já existe
+    const ex=await db.collection("ej_restaurantes").where("fone","==",fone).limit(1).get();
+    if(!ex.empty){loading(false);toast("Este WhatsApp já está cadastrado. Use 'Entrar'.");return;}
+
+    // Geocodificar o endereço fixo do restaurante (necessário para validação por GPS do motoboy)
+    let enderecoLat=null,enderecoLng=null;
+    try{
+      const res=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(endereco+", SP, Brasil")}&format=json&limit=1`,{headers:{"User-Agent":"EntregaJa/1.0"}});
+      const data=await res.json();
+      if(data&&data[0]){enderecoLat=parseFloat(data[0].lat);enderecoLng=parseFloat(data[0].lon);}
+    }catch(e){}
+    if(!enderecoLat){
+      loading(false);
+      toast("Não localizamos esse endereço automaticamente. Arraste o pin até o local certo no mapa.");
+      const manual=await pedirLocalizacaoManualRest(cidadeAtual);
+      if(!manual){toast("Cadastro não concluído — posicione o pin para continuar.");return;}
+      enderecoLat=manual.lat;enderecoLng=manual.lng;
+      loading(true);
+    }
+
+    const id="rest_"+Date.now();
+    const dados={id,nome,fone,
+      endereco,enderecoLat,enderecoLng,
+      cnpj:cnpjVal||null,
+      senhaHash:hashSenha(senha),
+      pergunta:pergunta,
+      respostaHash:hashSenha(resposta.toLowerCase()),
+      termosAceitos:true,termosData:new Date().toISOString(),
+      foto:fotoFinalCad||null,tipo:"cadastrado",totalPedidos:0,criadoEm:new Date().toISOString()};
+    await db.collection("ej_restaurantes").doc(id).set(dados);
+    user=dados;localStorage.setItem("ej_user",JSON.stringify(user));
+    loading(false);irPara("home");pedirNotif();
+  }catch(e){loading(false);toast("Erro: "+e.message);}
+}
+function calcularIdadeCad(dataNasc){
+  if(!dataNasc)return null;
+  const hoje=new Date(),nasc=new Date(dataNasc+"T00:00:00");
+  let idade=hoje.getFullYear()-nasc.getFullYear();
+  const m=hoje.getMonth()-nasc.getMonth();
+  if(m<0||(m===0&&hoje.getDate()<nasc.getDate()))idade--;
+  return idade;
+}
+async function entrar(){
+  const fone=soDigitos(document.getElementById("ent-fone").value);
+  const senha=(document.getElementById("ent-senha")?.value||"").trim();
+  if(!fone){toast("Informe seu WhatsApp");return;}
+  if(!senha){toast("Informe sua senha");return;}
+  loading(true);
+  try{
+    const snap=await db.collection("ej_restaurantes").where("fone","==",fone).limit(1).get();
+    if(snap.empty){toast("Número não encontrado.");loading(false);return;}
+    const dados={id:snap.docs[0].id,...snap.docs[0].data()};
+    // Conta antiga sem senha: define a senha digitada agora (migração)
+    if(!dados.senhaHash){
+      await db.collection("ej_restaurantes").doc(dados.id).update({senhaHash:hashSenha(senha)});
+      dados.senhaHash=hashSenha(senha);
+      toast("Senha definida para sua conta! ✓");
+    }else if(dados.senhaHash!==hashSenha(senha)){
+      loading(false);toast("Senha incorreta.");return;
+    }
+    user=dados;localStorage.setItem("ej_user",JSON.stringify(user));
+    loading(false);irPara("home");pedirNotif();
+  }catch(e){loading(false);toast("Erro ao entrar.");}
+}
+
+
 
 // ── CARDS WIDGET (home customizável do restaurante) ──
 const CARDS_DISPONIVEIS=[
@@ -3077,7 +3286,7 @@ document.addEventListener("touchstart",e=>{if(!e.target.closest(".busca-row")&&!
 window.addEventListener("load",async()=>{
   await carregarModoCobranca();
   const s=localStorage.getItem("ej_user");
-  if(s){user=JSON.parse(s);irPara("home");restaurarEntregasAtivas();}
+  if(s){user=JSON.parse(s);irPara("home");restaurarEntregasAtivas();iniciarEscutaSaldoRest();}
   else{
     setTimeout(()=>mostrarTela("tela-login"),2000);
   }
