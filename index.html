@@ -444,6 +444,11 @@ input[type=file]{display:none;}
 .notinha-serrilha-baixo{transform:rotate(180deg);}
 .taxa-chip{padding:8px 13px;border-radius:10px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
 .taxa-chip.ativo{background:rgba(251,191,36,0.15);border-color:var(--dourado);color:var(--dourado);}
+.cat-btn-grande{display:flex;align-items:center;gap:12px;background:linear-gradient(150deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:16px;padding:16px;cursor:pointer;font-family:inherit;text-align:left;width:100%;transition:transform 0.15s ease;-webkit-tap-highlight-color:transparent;}
+.cat-btn-grande:active{transform:scale(0.97);background:var(--card2);}
+.cat-btn-nome{flex:1;font-size:15px;font-weight:800;color:#fff;}
+.cat-btn-qtd{font-size:11px;color:var(--muted);background:rgba(251,191,36,0.1);padding:4px 10px;border-radius:20px;flex-shrink:0;}
+.cat-btn-seta{font-size:16px;color:var(--dourado);flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -1363,6 +1368,21 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
       <button onclick="fecharNotinha()" style="flex:1;padding:14px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Voltar e ajustar</button>
       <button onclick="confirmarNotinhaEChamar()" class="btn-p" style="flex:2;margin-bottom:0;">✓ Confirmar e chamar</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL DETALHE DA CATEGORIA (lista de pratos dentro dela) -->
+<div id="modal-categoria-detalhe" class="modal-din" style="position:fixed;inset:0;z-index:9650;background:rgba(0,0,0,0.93);backdrop-filter:blur(6px);">
+  <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button onclick="fecharCategoriaDetalhe()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:34px;height:34px;border-radius:10px;font-size:15px;cursor:pointer;">←</button>
+        <div id="categoria-detalhe-titulo" style="font-size:16px;font-weight:800;color:#fff;">Categoria</div>
+      </div>
+      <button id="btn-excluir-categoria-detalhe" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-size:11px;font-weight:700;padding:6px 11px;border-radius:9px;cursor:pointer;font-family:inherit;">🗑️ Excluir</button>
+    </div>
+    <button onclick="abrirNovoPrato()" style="width:100%;padding:12px;border-radius:13px;background:rgba(251,191,36,0.1);border:1px dashed var(--dourado);color:var(--dourado);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:14px;">+ Adicionar prato nesta categoria</button>
+    <div id="lista-categoria-detalhe"></div>
   </div>
 </div>
 
@@ -2460,34 +2480,57 @@ async function carregarCardapioCompleto(){
 function renderCardapio(filtro){
   const el=document.getElementById("lista-categorias-pratos");
   const termo=(filtro||"").toLowerCase().trim();
-  const pratosFiltrados=termo?_pratosCache.filter(p=>(p.nome||"").toLowerCase().includes(termo)):_pratosCache;
 
   if(_categoriasCache.length===0&&_pratosCache.length===0){
     el.innerHTML="<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Nenhuma categoria ou prato cadastrado ainda.<br/>Crie uma categoria para começar.</div>";
     return;
   }
 
-  const semCategoria=pratosFiltrados.filter(p=>!p.categoriaId);
-  let html="";
-  _categoriasCache.forEach(cat=>{
-    const pratosCat=pratosFiltrados.filter(p=>p.categoriaId===cat.id);
-    if(termo&&pratosCat.length===0)return;
-    html+=`<div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px;">
-      <div style="font-size:12px;font-weight:800;color:var(--dourado);text-transform:uppercase;letter-spacing:0.4px;">${cat.nome}</div>
-      <button onclick="excluirCategoria('${cat.id}')" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:inherit;">🗑️</button>
-    </div>`;
-    if(pratosCat.length===0){
-      html+=`<div style="font-size:11px;color:var(--muted);padding:6px 0 10px;">Nenhum prato nesta categoria ainda</div>`;
-    }else{
-      html+=pratosCat.map(p=>renderItemPrato(p)).join("");
-    }
-  });
-  if(semCategoria.length>0){
-    html+=`<div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin:14px 0 8px;">Sem categoria</div>`;
-    html+=semCategoria.map(p=>renderItemPrato(p)).join("");
+  // Se houver busca ativa, mostra resultado direto (sem precisar abrir categoria)
+  if(termo){
+    const pratosFiltrados=_pratosCache.filter(p=>(p.nome||"").toLowerCase().includes(termo));
+    el.innerHTML=pratosFiltrados.length>0?pratosFiltrados.map(p=>renderItemPrato(p)).join(""):"<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Nenhum prato encontrado</div>";
+    return;
   }
-  el.innerHTML=html||"<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Nenhum prato encontrado</div>";
+
+  // Sem busca: mostra botões de categoria (mais rápido de navegar)
+  const semCategoriaQtd=_pratosCache.filter(p=>!p.categoriaId).length;
+  let html='<div style="display:flex;flex-direction:column;gap:9px;">';
+  _categoriasCache.forEach(cat=>{
+    const qtd=_pratosCache.filter(p=>p.categoriaId===cat.id).length;
+    html+=`<button onclick="abrirCategoriaDetalhe('${cat.id}')" class="cat-btn-grande">
+      <div class="cat-btn-nome">${cat.nome}</div>
+      <div class="cat-btn-qtd">${qtd} ${qtd===1?"item":"itens"}</div>
+      <div class="cat-btn-seta">→</div>
+    </button>`;
+  });
+  if(semCategoriaQtd>0){
+    html+=`<button onclick="abrirCategoriaDetalhe(null)" class="cat-btn-grande">
+      <div class="cat-btn-nome">Sem categoria</div>
+      <div class="cat-btn-qtd">${semCategoriaQtd} ${semCategoriaQtd===1?"item":"itens"}</div>
+      <div class="cat-btn-seta">→</div>
+    </button>`;
+  }
+  html+='</div>';
+  el.innerHTML=html;
 }
+
+function abrirCategoriaDetalhe(catId){
+  const cat=_categoriasCache.find(c=>c.id===catId);
+  const pratos=catId?_pratosCache.filter(p=>p.categoriaId===catId):_pratosCache.filter(p=>!p.categoriaId);
+  document.getElementById("categoria-detalhe-titulo").textContent=cat?cat.nome:"Sem categoria";
+  const listaEl=document.getElementById("lista-categoria-detalhe");
+  if(pratos.length===0){
+    listaEl.innerHTML="<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Nenhum prato nesta categoria ainda</div>";
+  }else{
+    listaEl.innerHTML=pratos.map(p=>renderItemPrato(p)).join("");
+  }
+  const btnExcluir=document.getElementById("btn-excluir-categoria-detalhe");
+  if(catId){btnExcluir.style.display="block";btnExcluir.onclick=()=>{excluirCategoria(catId);fecharCategoriaDetalhe();};}
+  else btnExcluir.style.display="none";
+  document.getElementById("modal-categoria-detalhe").classList.add("show");
+}
+function fecharCategoriaDetalhe(){document.getElementById("modal-categoria-detalhe").classList.remove("show");}
 
 function renderItemPrato(p){
   return`<div onclick="abrirEditarPrato('${p.id}')" style="display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:11px;margin-bottom:9px;cursor:pointer;">
@@ -2888,32 +2931,66 @@ function abrirSeletorPratos(){
 }
 function fecharSeletorPratos(){document.getElementById("modal-seletor-pratos").classList.remove("show");}
 
+let _catSeletorAberta=null;
 function renderSeletorPratos(filtro){
   const el=document.getElementById("lista-seletor-pratos");
   const termo=(filtro||"").toLowerCase().trim();
-  const pratos=termo?_pratosCache.filter(p=>(p.nome||"").toLowerCase().includes(termo)):_pratosCache;
 
-  if(pratos.length===0){
-    el.innerHTML="<div style='text-align:center;padding:30px;color:var(--muted);font-size:13px;'>Nenhum prato encontrado</div>";
+  if(termo){
+    const pratos=_pratosCache.filter(p=>(p.nome||"").toLowerCase().includes(termo));
+    el.innerHTML=pratos.length>0?pratos.map(p=>renderItemSeletor(p)).join(""):"<div style='text-align:center;padding:30px;color:var(--muted);font-size:13px;'>Nenhum prato encontrado</div>";
     return;
   }
 
-  el.innerHTML=pratos.map(p=>{
-    const sel=_itensPedidoSel[p.id];
-    const qtd=sel?sel.qtd:0;
-    return`<div style="display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid ${qtd>0?"var(--dourado)":"var(--border)"};border-radius:14px;padding:11px;margin-bottom:9px;">
-      <div style="width:50px;height:50px;border-radius:11px;background:var(--card2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;">${p.foto?`<img src="${p.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"🍽️"}</div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:13px;font-weight:700;color:#fff;">${p.nome}</div>
-        <div style="font-size:12px;color:var(--dourado);font-weight:700;">R$ ${parseFloat(p.preco||0).toFixed(2).replace(".",",")}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-        <button onclick="ajustarQtdPrato('${p.id}',-1)" style="width:30px;height:30px;border-radius:9px;background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:16px;font-weight:800;cursor:pointer;">−</button>
-        <div style="width:22px;text-align:center;font-size:14px;font-weight:800;color:#fff;">${qtd}</div>
-        <button onclick="ajustarQtdPrato('${p.id}',1)" style="width:30px;height:30px;border-radius:9px;background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:16px;font-weight:800;cursor:pointer;">+</button>
-      </div>
-    </div>`;
-  }).join("");
+  // Sem busca: mostra botões de categoria, expansíveis (clica pra abrir/fechar sem trocar de tela)
+  const semCategoriaQtd=_pratosCache.filter(p=>!p.categoriaId).length;
+  let html="";
+  _categoriasCache.forEach(cat=>{
+    const pratosCat=_pratosCache.filter(p=>p.categoriaId===cat.id);
+    const aberta=_catSeletorAberta===cat.id;
+    const selecionadosNaCat=pratosCat.filter(p=>_itensPedidoSel[p.id]).length;
+    html+=`<button onclick="toggleCategoriaSeletor('${cat.id}')" class="cat-btn-grande" style="margin-bottom:${aberta?'9px':'9px'};">
+      <div class="cat-btn-nome">${cat.nome}${selecionadosNaCat>0?` <span style="color:var(--dourado);font-size:12px;">(${selecionadosNaCat} selecionado${selecionadosNaCat>1?"s":""})</span>`:""}</div>
+      <div class="cat-btn-qtd">${pratosCat.length}</div>
+      <div class="cat-btn-seta">${aberta?"▲":"▼"}</div>
+    </button>`;
+    if(aberta){
+      html+='<div style="margin-bottom:9px;">'+(pratosCat.length>0?pratosCat.map(p=>renderItemSeletor(p)).join(""):"<div style='padding:10px;color:var(--muted);font-size:12px;text-align:center;'>Nenhum prato aqui</div>")+'</div>';
+    }
+  });
+  if(semCategoriaQtd>0){
+    const pratosSemCat=_pratosCache.filter(p=>!p.categoriaId);
+    const aberta=_catSeletorAberta==="_sem_categoria";
+    html+=`<button onclick="toggleCategoriaSeletor('_sem_categoria')" class="cat-btn-grande" style="margin-bottom:9px;">
+      <div class="cat-btn-nome">Sem categoria</div>
+      <div class="cat-btn-qtd">${semCategoriaQtd}</div>
+      <div class="cat-btn-seta">${aberta?"▲":"▼"}</div>
+    </button>`;
+    if(aberta){
+      html+='<div style="margin-bottom:9px;">'+pratosSemCat.map(p=>renderItemSeletor(p)).join("")+'</div>';
+    }
+  }
+  el.innerHTML=html;
+}
+function toggleCategoriaSeletor(catId){
+  _catSeletorAberta=_catSeletorAberta===catId?null:catId;
+  renderSeletorPratos();
+}
+function renderItemSeletor(p){
+  const sel=_itensPedidoSel[p.id];
+  const qtd=sel?sel.qtd:0;
+  return`<div style="display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid ${qtd>0?"var(--dourado)":"var(--border)"};border-radius:14px;padding:11px;margin-bottom:9px;">
+    <div style="width:50px;height:50px;border-radius:11px;background:var(--card2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;">${p.foto?`<img src="${p.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"🍽️"}</div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:13px;font-weight:700;color:#fff;">${p.nome}</div>
+      <div style="font-size:12px;color:var(--dourado);font-weight:700;">R$ ${parseFloat(p.preco||0).toFixed(2).replace(".",",")}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <button onclick="ajustarQtdPrato('${p.id}',-1)" style="width:30px;height:30px;border-radius:9px;background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:16px;font-weight:800;cursor:pointer;">−</button>
+      <div style="width:22px;text-align:center;font-size:14px;font-weight:800;color:#fff;">${qtd}</div>
+      <button onclick="ajustarQtdPrato('${p.id}',1)" style="width:30px;height:30px;border-radius:9px;background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:16px;font-weight:800;cursor:pointer;">+</button>
+    </div>
+  </div>`;
 }
 function filtrarSeletorPratos(termo){renderSeletorPratos(termo);}
 
