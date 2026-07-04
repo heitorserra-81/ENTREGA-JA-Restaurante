@@ -307,7 +307,7 @@ input[type=file]{display:none;}
 /* MAPA DESTINO */
 #modal-mapa-dest{display:none;position:fixed;inset:0;z-index:9970;flex-direction:column;}
 #modal-mapa-dest.show{display:flex;}
-#modal-mapa-rest{display:none;position:fixed;inset:0;z-index:9975;flex-direction:column;background:var(--bg);}
+#modal-mapa-rest{display:none;position:fixed;inset:0;z-index:9992;flex-direction:column;background:var(--bg);}
 #modal-mapa-rest.show{display:flex;}
 #mapa-dest-div{flex:1;position:relative;}
 .dest-hdr{background:var(--card);border-bottom:1px solid var(--border);padding:13px 18px;padding-top:max(13px,calc(var(--sat)+8px));display:flex;align-items:center;gap:11px;}
@@ -578,6 +578,10 @@ input[type=file]{display:none;}
       </div>
       <div class="sugestoes" id="sugestoes"></div>
     </div>
+    <div id="hist-rapido" style="display:none;margin-top:8px;">
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">🕐 Endereços recentes</div>
+      <div id="hist-rapido-lista" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
     <input class="campo-obs" id="campo-numero-endereco" type="text" inputmode="numeric" placeholder="Número (ex: 123, ap 4)" autocomplete="off" style="margin-top:8px;"/>
     <input class="campo-obs" id="campo-nome-cliente" type="text" placeholder="Nome do cliente" autocomplete="off" style="margin-top:8px;"/>
     <div class="origem-row">
@@ -840,8 +844,8 @@ input[type=file]{display:none;}
   </div>
 
   <div class="perf-stats-row">
-    <div class="perf-stat-wrap"><div class="perf-stat"><div class="perf-stat-num" id="ps-entregas">0</div><div class="perf-stat-lb">Entregas</div></div></div>
-    <div class="perf-stat-wrap"><div class="perf-stat"><div class="perf-stat-num" id="ps-aval">5.0</div><div class="perf-stat-lb">⭐ Avaliação</div></div></div>
+    <div class="perf-stat-wrap" onclick="irParaHistoricoPerfil()" style="cursor:pointer;"><div class="perf-stat"><div class="perf-stat-num" id="ps-entregas">0</div><div class="perf-stat-lb">Entregas</div></div></div>
+    <div class="perf-stat-wrap" onclick="abrirAvaliacoesRecebidas()" style="cursor:pointer;"><div class="perf-stat"><div class="perf-stat-num" id="ps-aval">5.0</div><div class="perf-stat-lb">⭐ Avaliação</div></div></div>
     <div class="perf-stat-wrap"><div class="perf-stat"><div class="perf-stat-num" id="ps-membro">--</div><div class="perf-stat-lb">Membro desde</div></div></div>
   </div>
 
@@ -1114,7 +1118,7 @@ input[type=file]{display:none;}
 </div>
 
 <!-- MODAL MAPA COMBINADO (todos os motoboys entregando para este restaurante agora) -->
-<div id="modal-mapa-combinado" class="modal-din" style="position:fixed;inset:0;z-index:9955;background:#000;flex-direction:column;">
+<div id="modal-mapa-combinado" class="modal-din" style="position:fixed;inset:0;z-index:9993;background:#000;flex-direction:column;">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;padding-top:calc(env(safe-area-inset-top,0px) + 16px);background:var(--card);border-bottom:1px solid var(--border);">
     <div style="font-size:15px;font-weight:800;color:#fff;">🗺️ Suas entregas no mapa</div>
     <button onclick="fecharMapaCombinado()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:34px;height:34px;border-radius:10px;font-size:16px;cursor:pointer;">✕</button>
@@ -2473,6 +2477,7 @@ function voltarHomeSemCancelar(){
 // ── MAPA COMBINADO (todos os motoboys entregando agora) ──
 let mapaCombinado=null,marcsCombinado={};
 function abrirMapaCombinado(){
+  document.getElementById("modal-minhas-entregas").classList.remove("show");
   const m=document.getElementById("modal-mapa-combinado");m.classList.add("show");
   if(!mapaCombinado){
     mapaCombinado=L.map("mapa-combinado-div",{zoomControl:true,attributionControl:false});
@@ -2643,16 +2648,25 @@ async function enviarAval(){
   loading(true);
   try{
     await db.collection("ej_pedidos").doc(_avalId).update({avaliacaoPassageiro:_avalNota,comentarioPassageiro:comentario||null});
-    // Atualiza o último comentário recebido pelo motoboy (se houver)
-    if(comentario){
-      try{
-        const cSnap=await db.collection("ej_pedidos").doc(_avalId).get();
-        const cData=cSnap.data();
-        if(cData?.motoboy?.id){
-          await db.collection("ej_motoboys").doc(cData.motoboy.id).update({ultimoComentarioRecebido:comentario});
+    // Atualiza a média de avaliação do motoboy (rolling average) e o último comentário, se houver
+    try{
+      const cSnap=await db.collection("ej_pedidos").doc(_avalId).get();
+      const cData=cSnap.data();
+      if(cData?.motoboy?.id){
+        const motRef=db.collection("ej_motoboys").doc(cData.motoboy.id);
+        const motSnap=await motRef.get();
+        if(motSnap.exists){
+          const md=motSnap.data();
+          const totalAtual=md.totalAvaliacoes||0;
+          const mediaAtual=md.avaliacao||5;
+          const novoTotal=totalAtual+1;
+          const novaMedia=((mediaAtual*totalAtual)+_avalNota)/novoTotal;
+          const upd={avaliacao:novaMedia,totalAvaliacoes:novoTotal};
+          if(comentario)upd.ultimoComentarioRecebido=comentario;
+          await motRef.update(upd);
         }
-      }catch(e){}
-    }
+      }
+    }catch(e){}
     loading(false);
     localStorage.removeItem("ej_aval_pendente");
     fecharAval();
@@ -2817,8 +2831,14 @@ async function salvarPerfil(){
       if(!achouAuto){
         loading(false);
         toast("Não localizamos esse endereço automaticamente. Arraste o pin até o local certo no mapa.");
+        document.getElementById("modal-editar").classList.remove("show");
         const manual=await pedirLocalizacaoManualRest(cidadeAtual);
-        if(!manual){toast("Endereço não atualizado — posicione o pin para continuar.");return;}
+        if(!manual){
+          document.getElementById("modal-editar").classList.add("show");
+          toast("Endereço não atualizado — posicione o pin para continuar.");
+          return;
+        }
+        document.getElementById("modal-editar").classList.add("show");
         upd.endereco=endereco;
         upd.enderecoLat=manual.lat;
         upd.enderecoLng=manual.lng;
@@ -2831,6 +2851,47 @@ async function salvarPerfil(){
     atualizarPerfil();atualizarHome();fecharEditarPerfil();loading(false);
     toast("Perfil atualizado! ✓");
   }catch(e){loading(false);toast("Erro ao salvar.");}
+}
+function irParaHistoricoPerfil(){
+  const el=document.getElementById("hist-lista");
+  if(el)el.scrollIntoView({behavior:"smooth"});
+}
+async function abrirAvaliacoesRecebidas(){
+  if(!document.getElementById("modal-avaliacoes-recebidas"))criarModalAvaliacoesRecebidas();
+  document.getElementById("modal-avaliacoes-recebidas").classList.add("show");
+  const el=document.getElementById("lista-avaliacoes-recebidas");
+  el.innerHTML="<div style='text-align:center;padding:20px;color:var(--muted);font-size:13px;'>Carregando...</div>";
+  if(!user||user.tipo==="anonimo"){el.innerHTML="<div style='text-align:center;padding:20px;color:var(--muted);font-size:13px;'>Faça login para ver suas avaliações.</div>";return;}
+  try{
+    const snap=await db.collection("ej_pedidos").where("clienteId","==",user.id).where("avaliacaoMotoboy",">",0).orderBy("avaliacaoMotoboy").limit(30).get();
+    if(snap.empty){el.innerHTML="<div style='text-align:center;padding:20px;color:var(--muted);font-size:13px;'>Nenhuma avaliação recebida ainda.</div>";return;}
+    const docs=snap.docs.map(d=>d.data()).sort((a,b)=>{
+      const ta=a.criadoEm?.toMillis?a.criadoEm.toMillis():0,tb=b.criadoEm?.toMillis?b.criadoEm.toMillis():0;
+      return tb-ta;
+    });
+    el.innerHTML=docs.map(c=>`
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:12px;margin-bottom:9px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:700;color:var(--dourado);">${"⭐".repeat(c.avaliacaoMotoboy)}</div>
+          <div style="font-size:11px;color:var(--muted);">${c.motoboy?.nome||"Motoboy"}</div>
+        </div>
+        ${c.comentarioMotoboy?`<div style="font-size:13px;color:var(--text);font-style:italic;">"${c.comentarioMotoboy}"</div>`:`<div style="font-size:12px;color:var(--muted);">Sem comentário</div>`}
+      </div>`).join("");
+  }catch(e){el.innerHTML=`<div style='text-align:center;padding:20px;color:var(--muted);font-size:12px;'>Erro ao carregar. (${e.message})</div>`;}
+}
+function fecharAvaliacoesRecebidas(){document.getElementById("modal-avaliacoes-recebidas").classList.remove("show");}
+function criarModalAvaliacoesRecebidas(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div class="modal-base" id="modal-avaliacoes-recebidas">
+    <div class="modal-sheet">
+      <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+      <div style="font-size:17px;font-weight:900;color:#fff;margin-bottom:4px;">⭐ Avaliações recebidas</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">O que os motoboys disseram sobre suas entregas.</div>
+      <div id="lista-avaliacoes-recebidas" style="margin-bottom:9px;"></div>
+      <button class="btn-cancel" onclick="fecharAvaliacoesRecebidas()">Fechar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
 }
 async function carregarHist(){
   if(!user||user.tipo==="anonimo")return;
