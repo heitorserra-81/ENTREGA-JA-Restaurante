@@ -540,7 +540,21 @@ input[type=file]{display:none;}
       <span style="font-size:15px;">🏪</span>
       <div class="origem-txt" id="origem-txt">Retirada: endereço do restaurante</div>
     </div>
-    <input class="campo-obs" id="campo-obs" type="text" placeholder="O que está sendo entregue? (ex: 2 pizzas, troco p/ R$50)" autocomplete="off"/>
+    <input class="campo-obs" id="campo-obs" type="text" placeholder="O que está sendo entregue?" autocomplete="off"/>
+
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;margin-top:8px;">Forma de pagamento do cliente</div>
+    <div class="chips" id="chips-pgto">
+      <div class="chip ativo" data-pgto="Dinheiro" onclick="selPgtoRest(this)">💵 Dinheiro</div>
+      <div class="chip" data-pgto="Pix" onclick="selPgtoRest(this)">📱 Pix</div>
+      <div class="chip" data-pgto="Débito" onclick="selPgtoRest(this)">💳 Débito</div>
+      <div class="chip" data-pgto="Crédito" onclick="selPgtoRest(this)">💳 Crédito</div>
+    </div>
+    <input class="campo-obs" id="campo-troco" type="text" placeholder="Troco para quanto?" autocomplete="off" style="margin-top:8px;"/>
+
+    <label style="display:flex;align-items:center;gap:9px;margin-top:10px;padding:11px 14px;background:rgba(251,191,36,0.06);border:1px solid var(--border);border-radius:13px;cursor:pointer;">
+      <input type="checkbox" id="chk-maquininha" style="width:18px;height:18px;flex-shrink:0;"/>
+      <div><div style="font-size:12px;font-weight:700;color:var(--text);">Motoboy vai levar a maquininha</div><div style="font-size:10px;color:var(--muted);">Ele precisará devolver depois da entrega</div></div>
+    </label>
 
     <div class="valor-card" id="valor-card" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -733,12 +747,12 @@ input[type=file]{display:none;}
       </div>
       <input type="file" id="inp-foto-perf" accept="image/*" onchange="atualizarFoto(this)"/>
       <div class="perf-nome-big" id="perf-nome">--</div>
-      <div class="perf-nivel" id="perf-nivel">🥉 Passageiro Bronze</div>
+      <div class="perf-nivel" id="perf-nivel">🥉 Restaurante Bronze</div>
     </div>
   </div>
 
   <div class="perf-stats-row">
-    <div class="perf-stat-wrap"><div class="perf-stat"><div class="perf-stat-num" id="ps-corridas">0</div><div class="perf-stat-lb">Entregas</div></div></div>
+    <div class="perf-stat-wrap"><div class="perf-stat"><div class="perf-stat-num" id="ps-entregas">0</div><div class="perf-stat-lb">Entregas</div></div></div>
     <div class="perf-stat-wrap"><div class="perf-stat"><div class="perf-stat-num" id="ps-aval">5.0</div><div class="perf-stat-lb">⭐ Avaliação</div></div></div>
     <div class="perf-stat-wrap"><div class="perf-stat"><div class="perf-stat-num" id="ps-membro">--</div><div class="perf-stat-lb">Membro desde</div></div></div>
   </div>
@@ -755,10 +769,10 @@ input[type=file]{display:none;}
   
   <div class="perf-sec-tit">Atalhos</div>
   <div class="perf-acoes">
-    <button class="perf-acao" onclick="toast('💳 Compra de créditos disponível em breve! Por enquanto, combine o valor direto com o motoboy.')"><span>💳</span> Comprar créditos</button>
+    <button class="perf-acao" onclick="abrirCardapio()"><span>🍽️</span> Meus pratos</button>
+    <button class="perf-acao" onclick="abrirFinanceiro()"><span>📊</span> Financeiro</button>
     <button class="perf-acao" onclick="abrirAgendada()"><span>📅</span> Agendar entrega</button>
     <button class="perf-acao" onclick="abrirIndicar()"><span>🎁</span> Indicar amigo</button>
-    <button class="perf-acao" onclick="abrirConfig()"><span>⚙️</span> Configurações</button>
   </div>
 
   <div id="hist-lista" style="display:none;"></div>
@@ -980,12 +994,13 @@ input[type=file]{display:none;}
   </div>
   <div class="menu-items">
     <div class="menu-item" onclick="fecharMenu();irPara('perfil')">👤 Meu perfil</div>
+    <div class="menu-item" onclick="fecharMenu();abrirCardapio()">🍽️ Meus pratos</div>
+    <div class="menu-item" onclick="fecharMenu();abrirFinanceiro()">📊 Financeiro</div>
     <div class="menu-item" onclick="abrirConfig()">⚙️ Configurações</div>
     <div class="menu-sep"></div>
     <div class="menu-item" id="notif-item" onclick="toggleNotifMenu()">🔔 Notificações ativadas</div>
     <div class="menu-item" onclick="fecharMenu();irPara('perfil');setTimeout(()=>document.getElementById('hist-lista').scrollIntoView({behavior:'smooth'}),400)">🕐 Histórico de entregas</div>
     <div class="menu-sep"></div>
-    <div class="menu-item" onclick="toast('💳 Compra de créditos disponível em breve! Por enquanto, combine o valor direto com o motoboy.');fecharMenu()">💳 Comprar créditos (Pix)</div>
     <div class="menu-item" onclick="abrirAgendada();fecharMenu()">📅 Agendar entrega</div>
     <div class="menu-sep"></div>
     <div class="menu-item" onclick="abrirIndicar();fecharMenu()">🎁 Indicar amigo</div>
@@ -1033,6 +1048,72 @@ input[type=file]{display:none;}
   <button onclick="fecharPWA()" style="width:100%;padding:10px;border-radius:16px;background:rgba(255,255,255,0.05);border:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Entendi</button>
 </div>
 
+<!-- MODAL CARDÁPIO -->
+<div id="modal-cardapio" class="modal-din" style="position:fixed;inset:0;z-index:9600;background:rgba(0,0,0,0.9);backdrop-filter:blur(6px);">
+  <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:17px;font-weight:800;color:#fff;">🍽️ Meus pratos</div>
+      <button onclick="fecharCardapio()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:36px;height:36px;border-radius:11px;font-size:16px;cursor:pointer;">✕</button>
+    </div>
+    <button onclick="abrirNovoPrato()" style="width:100%;padding:14px;border-radius:14px;background:rgba(251,191,36,0.1);border:1px dashed var(--dourado);color:var(--dourado);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:14px;">+ Adicionar prato</button>
+    <div id="lista-pratos"><div style="text-align:center;padding:24px;color:var(--muted);font-size:13px;">Carregando...</div></div>
+  </div>
+</div>
+
+<!-- MODAL NOVO/EDITAR PRATO -->
+<div id="modal-prato" class="modal-din" style="position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,0.85);align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);">
+  <div style="background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:22px;padding-bottom:max(30px,calc(env(safe-area-inset-bottom,0px)+22px));width:100%;max-height:85vh;overflow-y:auto;">
+    <div id="prato-titulo" style="font-size:17px;font-weight:800;color:#fff;margin-bottom:16px;">Novo prato</div>
+    <div style="text-align:center;margin-bottom:16px;">
+      <div id="prato-foto-prev" onclick="document.getElementById('inp-foto-prato').click()" style="width:110px;height:110px;border-radius:16px;background:var(--card2);border:2px dashed var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto;cursor:pointer;">📷</div>
+      <input type="file" id="inp-foto-prato" accept="image/*" style="display:none;" onchange="processarFotoPrato(this)"/>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;">Toque para adicionar foto</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:16px;">
+      <div><div class="campo-label">Nome do prato</div><input id="prato-nome" class="campo-input" type="text" placeholder="Ex: Pizza Margherita"/></div>
+      <div><div class="campo-label">Preço (R$)</div><input id="prato-preco" class="campo-input" type="number" step="0.5" min="0" placeholder="0,00"/></div>
+      <div><div class="campo-label">Descrição (opcional)</div><input id="prato-desc" class="campo-input" type="text" placeholder="Ex: Molho, mussarela e manjericão"/></div>
+    </div>
+    <button onclick="salvarPrato()" class="btn-p" style="width:100%;margin-bottom:9px;">Salvar prato</button>
+    <button id="btn-excluir-prato" onclick="excluirPrato()" style="display:none;width:100%;padding:13px;border-radius:14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:9px;">🗑️ Excluir prato</button>
+    <button onclick="fecharModalPrato()" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL FINANCEIRO -->
+<div id="modal-financeiro" class="modal-din" style="position:fixed;inset:0;z-index:9600;background:rgba(0,0,0,0.9);backdrop-filter:blur(6px);">
+  <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:17px;font-weight:800;color:#fff;">📊 Financeiro</div>
+      <button onclick="fecharFinanceiro()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:36px;height:36px;border-radius:11px;font-size:16px;cursor:pointer;">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:15px;text-align:center;">
+        <div style="font-size:24px;font-weight:900;color:var(--dourado);" id="fin-total-entregas">0</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Total de entregas</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:15px;text-align:center;">
+        <div style="font-size:24px;font-weight:900;color:var(--dourado);" id="fin-hoje">0</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Entregas hoje</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:15px;text-align:center;">
+        <div style="font-size:24px;font-weight:900;color:var(--dourado);" id="fin-semana">0</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Esta semana</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:15px;text-align:center;">
+        <div style="font-size:24px;font-weight:900;color:var(--dourado);" id="fin-mes">0</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Este mês</div>
+      </div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px;">
+      <div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:10px;">Formas de pagamento usadas</div>
+      <div id="fin-pgto-lista" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:10px;">Últimas entregas</div>
+    <div id="fin-lista-entregas"></div>
+  </div>
+</div>
+
 <div id="toast"></div>
 <div id="loading"><div class="ld-spin"></div></div>
 <script>
@@ -1048,6 +1129,13 @@ let posAtual=null,destSel=null,cidadeAtual="Holambra";
 // Modo de cobrança: "simples" (padrão, sem valor) ou "distancia" (calcula taxa por km, igual Entrega Já).
 // Configurável no Painel Admin do Entrega Já — hoje começa sempre em "simples".
 let MODO_COBRANCA="simples";
+let pgtoRestSel="Dinheiro";
+function selPgtoRest(el){
+  pgtoRestSel=el.dataset.pgto;
+  document.querySelectorAll("#chips-pgto .chip").forEach(c=>c.classList.remove("ativo"));
+  el.classList.add("ativo");
+  document.getElementById("campo-troco").style.display=pgtoRestSel==="Dinheiro"?"block":"none";
+}
 async function carregarModoCobranca(){
   try{
     const snap=await db.collection("ej_config").doc("geral").get();
@@ -1695,6 +1783,8 @@ async function confirmarPgtoEChamar(){
   try{
     const km=dKm(posAtual[0],posAtual[1],destSel.lat,destSel.lng);
     const id="ped_"+Date.now();
+    const trocoTxt=(document.getElementById("campo-troco")?.value||"").trim();
+    const precisaMaquininha=document.getElementById("chk-maquininha")?.checked||false;
     const pedido={
       id,status:"aguardando",
       clienteId:user.id,clienteNome:user.nome,clienteFone:user.fone||"",clienteFoto:user.foto||null,clienteTipo:user.tipo||"cadastrado",
@@ -1702,6 +1792,10 @@ async function confirmarPgtoEChamar(){
       origemLat:posAtual[0],origemLng:posAtual[1],
       destino:destSel.nome.split(",").slice(0,2).join(","),destinoLat:destSel.lat,destinoLng:destSel.lng,
       obs:document.getElementById("campo-obs").value.trim()||null,
+      formaPgto:pgtoRestSel,
+      trocoPara:(pgtoRestSel==="Dinheiro"&&trocoTxt)?trocoTxt:null,
+      precisaMaquininha,
+      maquininhaDevolvida:precisaMaquininha?false:null,
       distanciaKm:destSel.distKm||km.toFixed(1),
       criadoEm:firebase.firestore.FieldValue.serverTimestamp()
     };
@@ -2072,5 +2166,184 @@ window.addEventListener("load",async()=>{
   setTimeout(iniciarMapaMot,800);
 });
 </script>
+<script>
+// ── CARDÁPIO (pratos com foto) ──
+let _pratoFotoNova=null,_pratoEditandoId=null;
+
+function abrirCardapio(){
+  document.getElementById("modal-cardapio").classList.add("show");
+  carregarPratos();
+}
+function fecharCardapio(){document.getElementById("modal-cardapio").classList.remove("show");}
+
+async function carregarPratos(){
+  const el=document.getElementById("lista-pratos");
+  if(!user){el.innerHTML="";return;}
+  el.innerHTML="<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Carregando...</div>";
+  try{
+    const snap=await db.collection("ej_restaurantes").doc(user.id).collection("pratos").orderBy("criadoEm","desc").get();
+    if(snap.empty){el.innerHTML="<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Nenhum prato cadastrado ainda</div>";return;}
+    el.innerHTML=snap.docs.map(d=>{
+      const p=d.data();
+      return`<div onclick="abrirEditarPrato('${d.id}')" style="display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:11px;margin-bottom:9px;cursor:pointer;">
+        <div style="width:56px;height:56px;border-radius:11px;background:var(--card2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;">${p.foto?`<img src="${p.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"🍽️"}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:700;color:#fff;">${p.nome||"--"}</div>
+          <div style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.descricao||""}</div>
+        </div>
+        <div style="font-size:14px;font-weight:800;color:var(--dourado);flex-shrink:0;">R$ ${parseFloat(p.preco||0).toFixed(2).replace(".",",")}</div>
+      </div>`;
+    }).join("");
+  }catch(e){el.innerHTML="<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Erro ao carregar pratos</div>";}
+}
+
+function abrirNovoPrato(){
+  _pratoEditandoId=null;_pratoFotoNova=null;
+  document.getElementById("prato-titulo").textContent="Novo prato";
+  document.getElementById("prato-nome").value="";
+  document.getElementById("prato-preco").value="";
+  document.getElementById("prato-desc").value="";
+  document.getElementById("prato-foto-prev").innerHTML="📷";
+  document.getElementById("btn-excluir-prato").style.display="none";
+  document.getElementById("modal-prato").classList.add("show");
+}
+
+async function abrirEditarPrato(pratoId){
+  try{
+    const doc=await db.collection("ej_restaurantes").doc(user.id).collection("pratos").doc(pratoId).get();
+    if(!doc.exists)return;
+    const p=doc.data();
+    _pratoEditandoId=pratoId;_pratoFotoNova=null;
+    document.getElementById("prato-titulo").textContent="Editar prato";
+    document.getElementById("prato-nome").value=p.nome||"";
+    document.getElementById("prato-preco").value=p.preco||"";
+    document.getElementById("prato-desc").value=p.descricao||"";
+    document.getElementById("prato-foto-prev").innerHTML=p.foto?`<img src="${p.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"📷";
+    document.getElementById("btn-excluir-prato").style.display="block";
+    document.getElementById("modal-prato").classList.add("show");
+  }catch(e){toast("Erro ao carregar prato.");}
+}
+
+function fecharModalPrato(){document.getElementById("modal-prato").classList.remove("show");}
+
+function processarFotoPrato(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement("canvas");canvas.width=300;canvas.height=300;
+      const cx=canvas.getContext("2d");
+      const scale=Math.max(300/img.naturalWidth,300/img.naturalHeight);
+      const w=img.naturalWidth*scale,h=img.naturalHeight*scale;
+      cx.drawImage(img,(300-w)/2,(300-h)/2,w,h);
+      const url=canvas.toDataURL("image/jpeg",0.8);
+      _pratoFotoNova=url;
+      document.getElementById("prato-foto-prev").innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;"/>`;
+    };
+    img.src=e.target.result;
+  };
+  r.readAsDataURL(f);
+}
+
+async function salvarPrato(){
+  const nome=document.getElementById("prato-nome").value.trim();
+  const preco=parseFloat(document.getElementById("prato-preco").value);
+  const descricao=document.getElementById("prato-desc").value.trim();
+  if(!nome){toast("Informe o nome do prato");return;}
+  if(isNaN(preco)||preco<0){toast("Informe um preço válido");return;}
+  loading(true);
+  try{
+    const dados={nome,preco,descricao:descricao||null};
+    if(_pratoFotoNova)dados.foto=_pratoFotoNova;
+    const ref=db.collection("ej_restaurantes").doc(user.id).collection("pratos");
+    if(_pratoEditandoId){
+      await ref.doc(_pratoEditandoId).update(dados);
+    }else{
+      dados.criadoEm=firebase.firestore.FieldValue.serverTimestamp();
+      await ref.add(dados);
+    }
+    loading(false);
+    fecharModalPrato();
+    toast("Prato salvo! ✓");
+    carregarPratos();
+  }catch(e){loading(false);toast("Erro ao salvar: "+e.message);}
+}
+
+async function excluirPrato(){
+  if(!_pratoEditandoId)return;
+  loading(true);
+  try{
+    await db.collection("ej_restaurantes").doc(user.id).collection("pratos").doc(_pratoEditandoId).delete();
+    loading(false);
+    fecharModalPrato();
+    toast("Prato excluído.");
+    carregarPratos();
+  }catch(e){loading(false);toast("Erro ao excluir.");}
+}
+</script>
+<script>
+// ── FINANCEIRO ──
+function abrirFinanceiro(){
+  document.getElementById("modal-financeiro").classList.add("show");
+  carregarFinanceiro();
+}
+function fecharFinanceiro(){document.getElementById("modal-financeiro").classList.remove("show");}
+
+async function carregarFinanceiro(){
+  if(!user)return;
+  try{
+    const snap=await db.collection("ej_pedidos").where("clienteId","==",user.id).where("status","==","concluida").orderBy("criadoEm","desc").limit(50).get();
+    const hoje=new Date();hoje.setHours(0,0,0,0);
+    const semana=new Date(hoje);semana.setDate(semana.getDate()-7);
+    const mes=new Date(hoje.getFullYear(),hoje.getMonth(),1);
+
+    let cHoje=0,cSemana=0,cMes=0;
+    const pgtos={};
+    snap.docs.forEach(d=>{
+      const c=d.data();
+      const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
+      if(dt>=hoje)cHoje++;
+      if(dt>=semana)cSemana++;
+      if(dt>=mes)cMes++;
+      const fp=c.formaPgto||"Não informado";
+      pgtos[fp]=(pgtos[fp]||0)+1;
+    });
+
+    document.getElementById("fin-total-entregas").textContent=snap.size;
+    document.getElementById("fin-hoje").textContent=cHoje;
+    document.getElementById("fin-semana").textContent=cSemana;
+    document.getElementById("fin-mes").textContent=cMes;
+
+    const pgtoIcones={"Dinheiro":"💵","Pix":"📱","Débito":"💳","Crédito":"💳","Não informado":"❓"};
+    const pgtoEl=document.getElementById("fin-pgto-lista");
+    const entradasPgto=Object.entries(pgtos);
+    if(entradasPgto.length===0){
+      pgtoEl.innerHTML="<div style='font-size:12px;color:var(--muted);text-align:center;padding:10px;'>Nenhum dado ainda</div>";
+    }else{
+      pgtoEl.innerHTML=entradasPgto.map(([forma,qtd])=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:13px;color:var(--text);">${pgtoIcones[forma]||"💰"} ${forma}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--dourado);">${qtd}</div>
+        </div>`).join("");
+    }
+
+    const listaEl=document.getElementById("fin-lista-entregas");
+    if(snap.empty){
+      listaEl.innerHTML="<div style='text-align:center;padding:20px;color:var(--muted);font-size:13px;'>Nenhuma entrega concluída ainda</div>";
+    }else{
+      listaEl.innerHTML=snap.docs.slice(0,15).map(d=>{
+        const c=d.data();
+        return`<div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:11px 13px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><div style="font-size:12px;color:var(--muted);">${fmtData(c.criadoEm)}</div><div style="font-size:11px;color:var(--dourado);font-weight:700;">${c.formaPgto||"--"}</div></div>
+          <div style="font-size:13px;color:var(--text);">${c.destino||"--"}</div>
+        </div>`;
+      }).join("");
+    }
+  }catch(e){toast("Erro ao carregar financeiro.");}
+}
+</script>
+
+
 </body>
 </html>
