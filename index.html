@@ -307,6 +307,8 @@ input[type=file]{display:none;}
 /* MAPA DESTINO */
 #modal-mapa-dest{display:none;position:fixed;inset:0;z-index:9970;flex-direction:column;}
 #modal-mapa-dest.show{display:flex;}
+#modal-mapa-rest{display:none;position:fixed;inset:0;z-index:9975;flex-direction:column;background:var(--bg);}
+#modal-mapa-rest.show{display:flex;}
 #mapa-dest-div{flex:1;position:relative;}
 .dest-hdr{background:var(--card);border-bottom:1px solid var(--border);padding:13px 18px;padding-top:max(13px,calc(var(--sat)+8px));display:flex;align-items:center;gap:11px;}
 .dest-hdr-tit{flex:1;font-size:13px;font-weight:700;color:#fff;}
@@ -487,7 +489,7 @@ input[type=file]{display:none;}
         </div>
         <div><div class="campo-label">Nome do restaurante</div><input class="campo-input" id="cad-nome" type="text" placeholder="Ex: Pizzaria do João" autocomplete="organization"/></div>
         <div><div class="campo-label">Endereço do restaurante *</div><input class="campo-input" id="cad-endereco" type="text" placeholder="Rua, número, bairro"/></div>
-        <div><div class="campo-label">WhatsApp</div><input class="campo-input" id="cad-fone" type="tel" placeholder="(19) 99999-9999"/></div>
+        <div><div class="campo-label">WhatsApp</div><input class="campo-input" id="cad-fone" type="tel" placeholder="(19) 99999-9999" maxlength="15" oninput="mascaraTelefone(this)"/></div>
         <div><div class="campo-label">CNPJ (opcional)</div><input class="campo-input" id="cad-cpf" type="text" inputmode="numeric" placeholder="00.000.000/0000-00" maxlength="18"/></div>
         <div><div class="campo-label">Senha *</div><input class="campo-input" id="cad-senha" type="password" placeholder="Crie uma senha (mín. 4 dígitos)" autocomplete="new-password"/></div>
         <div class="seg-box">
@@ -514,7 +516,7 @@ input[type=file]{display:none;}
     </div>
     <div id="form-ent" style="display:none;">
       <div style="display:flex;flex-direction:column;gap:10px;">
-        <div><div class="campo-label">WhatsApp</div><input class="campo-input" id="ent-fone" type="tel" placeholder="(19) 99999-9999"/></div>
+        <div><div class="campo-label">WhatsApp</div><input class="campo-input" id="ent-fone" type="tel" placeholder="(19) 99999-9999" maxlength="15" oninput="mascaraTelefone(this)"/></div>
         <div><div class="campo-label">Senha</div><input class="campo-input" id="ent-senha" type="password" placeholder="Sua senha" autocomplete="current-password"/></div>
         <button class="btn-p" onclick="entrar()">Entrar</button>
         <button class="btn-link" onclick="abrirRecuperar()" style="background:none;border:none;color:var(--dourado);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:6px;">Esqueci minha senha</button>
@@ -647,6 +649,21 @@ input[type=file]{display:none;}
   <div class="dest-footer">
     <div class="dest-end-txt" id="dest-end-txt">Posicione o pin no local desejado</div>
     <button class="btn-confirmar" id="btn-confirmar-dest" onclick="confirmarDestMapa()" disabled>Confirmar este local</button>
+  </div>
+</div>
+
+<!-- MODAL MAPA ENDEREÇO DO RESTAURANTE (fallback quando a busca automática não reconhece o endereço digitado) -->
+<div id="modal-mapa-rest">
+  <div class="dest-hdr">
+    <div class="dest-hdr-tit" id="rest-mapa-titulo">📍 Não localizamos esse endereço — arraste o pin até o local certo</div>
+    <button class="btn-fechar-dest" onclick="cancelarMapaEnderecoRest()">Cancelar</button>
+  </div>
+  <div id="mapa-rest-div" style="flex:1;position:relative;">
+    <div class="pin-centro">🏪</div>
+  </div>
+  <div class="dest-footer">
+    <div class="dest-end-txt" id="rest-end-txt">Posicione o pin exatamente no seu restaurante</div>
+    <button class="btn-confirmar" id="btn-confirmar-rest" onclick="confirmarMapaEnderecoRest()" disabled>Confirmar esta localização</button>
   </div>
 </div>
 
@@ -853,7 +870,7 @@ input[type=file]{display:none;}
     <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:14px;">
       <div><div class="campo-label">Nome do restaurante</div><input id="ed-nome" class="campo-input" type="text" placeholder="Ex: Pizzaria do João"/></div>
       <div><div class="campo-label">Endereço do restaurante</div><input id="ed-endereco" class="campo-input" type="text" placeholder="Rua, número, bairro"/></div>
-      <div><div class="campo-label">WhatsApp</div><input id="ed-fone" class="campo-input" type="tel" placeholder="(19) 99999-9999"/></div>
+      <div><div class="campo-label">WhatsApp</div><input id="ed-fone" class="campo-input" type="tel" placeholder="(19) 99999-9999" maxlength="15" oninput="mascaraTelefone(this)"/></div>
       <div><div class="campo-label">CNPJ (opcional)</div><input id="ed-cpf" class="campo-input" type="text" inputmode="numeric" placeholder="00.000.000/0000-00" maxlength="18"/></div>
     </div>
     <button class="btn-salvar" onclick="salvarPerfil()" style="width:100%;padding:15px;border-radius:14px;background:linear-gradient(135deg,var(--dourado2),var(--dourado));border:none;color:#1a1a1a;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;margin-bottom:9px;">Salvar alterações</button>
@@ -1568,6 +1585,23 @@ function renderAtalhos(){
   cont.classList.remove("reordenando");
 }
 
+// ── TELEFONE ──
+function soDigitos(s){return(s||"").replace(/\D/g,"");}
+function formatarTelefoneExibicao(v){
+  const d=soDigitos(v);
+  if(d.length===11)return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
+  if(d.length===10)return `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;
+  return v||"";
+}
+function mascaraTelefone(el){
+  let v=el.value.replace(/\D/g,"").slice(0,11);
+  if(v.length>10)v=v.replace(/(\d{2})(\d{5})(\d{0,4})/,"($1) $2-$3");
+  else if(v.length>5)v=v.replace(/(\d{2})(\d{4})(\d{0,4})/,"($1) $2-$3");
+  else if(v.length>2)v=v.replace(/(\d{2})(\d{0,5})/,"($1) $2");
+  else if(v.length>0)v=v.replace(/(\d{0,2})/,"($1");
+  el.value=v.trim().replace(/-$/,"").replace(/\)\s*$/,")");
+}
+
 // ── CPF ──
 function mascaraCPF(el){
   let v=el.value.replace(/\D/g,"").slice(0,11);
@@ -1600,7 +1634,7 @@ function abrirRecuperar(){
   recUserDoc=null;
 }
 async function recBuscar(){
-  const fone=document.getElementById("rec-fone").value.trim();
+  const fone=soDigitos(document.getElementById("rec-fone").value);
   if(!fone){toast("Informe seu WhatsApp");return;}
   loading(true);
   try{
@@ -1652,7 +1686,7 @@ function hashSenha(s){
 async function cadastrar(){
   const nome=document.getElementById("cad-nome").value.trim();
   const endereco=(document.getElementById("cad-endereco")?.value||"").trim();
-  const fone=document.getElementById("cad-fone").value.trim();
+  const fone=soDigitos(document.getElementById("cad-fone").value);
   const cnpjVal=(document.getElementById("cad-cpf")?.value||"").trim();
   const senha=(document.getElementById("cad-senha")?.value||"").trim();
   const pergunta=(document.getElementById("cad-pergunta")?.value||"").trim();
@@ -1678,8 +1712,11 @@ async function cadastrar(){
     }catch(e){}
     if(!enderecoLat){
       loading(false);
-      toast("Não conseguimos localizar esse endereço no mapa. Tente ser mais específico (rua, número, bairro).");
-      return;
+      toast("Não localizamos esse endereço automaticamente. Arraste o pin até o local certo no mapa.");
+      const manual=await pedirLocalizacaoManualRest(cidadeAtual);
+      if(!manual){toast("Cadastro não concluído — posicione o pin para continuar.");return;}
+      enderecoLat=manual.lat;enderecoLng=manual.lng;
+      loading(true);
     }
 
     const id="rest_"+Date.now();
@@ -1705,7 +1742,7 @@ function calcularIdadeCad(dataNasc){
   return idade;
 }
 async function entrar(){
-  const fone=document.getElementById("ent-fone").value.trim();
+  const fone=soDigitos(document.getElementById("ent-fone").value);
   const senha=(document.getElementById("ent-senha")?.value||"").trim();
   if(!fone){toast("Informe seu WhatsApp");return;}
   if(!senha){toast("Informe sua senha");return;}
@@ -2037,6 +2074,61 @@ function confirmarDestMapa(){
   document.getElementById("campo-busca").value=_destEnd.split(",").slice(0,2).join(",").trim();
   document.getElementById("btn-chamar").disabled=false;
   fecharMapaDest();calcularValor();salvarHist(dest);
+}
+
+// ── FALLBACK: PIN MANUAL PARA ENDEREÇO DO RESTAURANTE ──
+// Usado quando a busca automática (Nominatim) não reconhece o endereço digitado no cadastro/edição de perfil.
+// Em vez de bloquear o restaurante, abre um mapa pra ele arrastar o pin até o local exato.
+let mapaRest=null,_restCoords=null,_restEndAuto=null,_pendingEnderecoResolve=null;
+function pedirLocalizacaoManualRest(cidadeSugerida){
+  return new Promise(resolve=>{
+    _pendingEnderecoResolve=resolve;
+    abrirMapaEnderecoRest(cidadeSugerida);
+  });
+}
+function abrirMapaEnderecoRest(cidadeSugerida){
+  const m=document.getElementById("modal-mapa-rest");m.style.display="flex";m.classList.add("show");
+  document.getElementById("btn-confirmar-rest").disabled=true;
+  document.getElementById("rest-end-txt").textContent="Posicione o pin exatamente no seu restaurante";
+  const centro=COORDS_CIDADES[cidadeSugerida]||COORDS_CIDADES[cidadeAtual]||[-22.655,-47.059];
+  if(!mapaRest){
+    mapaRest=L.map("mapa-rest-div",{zoomControl:true,attributionControl:false});
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mapaRest);
+    mapaRest.setView(centro,14);
+    mapaRest.on("moveend",()=>{const c=mapaRest.getCenter();_buscarRevRest(c.lat,c.lng);});
+    setTimeout(()=>mapaRest.invalidateSize(),150);
+  }else{
+    setTimeout(()=>{mapaRest.invalidateSize();mapaRest.setView(centro,14);},100);
+  }
+}
+async function _buscarRevRest(lat,lng){
+  _restCoords=[lat,lng];
+  document.getElementById("rest-end-txt").textContent="Buscando endereço...";
+  document.getElementById("btn-confirmar-rest").disabled=true;
+  try{
+    const res=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=pt-BR`,{headers:{"User-Agent":"EntregaJa/1.0"}});
+    const data=await res.json();
+    _restEndAuto=data.display_name||null;
+    document.getElementById("rest-end-txt").textContent="📍 "+(data.display_name?data.display_name.split(",").slice(0,3).join(","):"Local selecionado");
+  }catch(e){
+    _restEndAuto=null;
+    document.getElementById("rest-end-txt").textContent="📍 Local selecionado no mapa";
+  }
+  document.getElementById("btn-confirmar-rest").disabled=false;
+}
+function confirmarMapaEnderecoRest(){
+  if(!_restCoords)return;
+  const resultado={lat:_restCoords[0],lng:_restCoords[1]};
+  fecharMapaEnderecoRest();
+  if(_pendingEnderecoResolve){_pendingEnderecoResolve(resultado);_pendingEnderecoResolve=null;}
+}
+function cancelarMapaEnderecoRest(){
+  fecharMapaEnderecoRest();
+  if(_pendingEnderecoResolve){_pendingEnderecoResolve(null);_pendingEnderecoResolve=null;}
+}
+function fecharMapaEnderecoRest(){
+  const m=document.getElementById("modal-mapa-rest");m.style.display="none";m.classList.remove("show");
+  _restCoords=null;_restEndAuto=null;
 }
 
 // ── CHAMAR CORRIDA ──
@@ -2409,7 +2501,7 @@ function atualizarPerfil(){
   }
   // Dados do restaurante
   if(g("pi-nome"))g("pi-nome").textContent=user.nome||"--";
-  if(g("pi-fone"))g("pi-fone").textContent=user.fone||"--";
+  if(g("pi-fone"))g("pi-fone").textContent=user.fone?formatarTelefoneExibicao(user.fone):"--";
   if(g("pi-cpf"))g("pi-cpf").textContent=user.cnpj||"Não informado";
   if(g("pi-idade"))g("pi-idade").textContent=user.endereco||"Não informado";
   if(g("pi-codigo"))g("pi-codigo").textContent=(user.id||"").slice(-6).toUpperCase()||"--";
@@ -2418,7 +2510,7 @@ function abrirEditarPerfil(){
   if(!user)return;
   document.getElementById("modal-editar").classList.add("show");
   document.getElementById("ed-nome").value=user.nome||"";
-  document.getElementById("ed-fone").value=user.fone||"";
+  document.getElementById("ed-fone").value=user.fone?formatarTelefoneExibicao(user.fone):"";
   if(document.getElementById("ed-endereco"))document.getElementById("ed-endereco").value=user.endereco||"";
   if(document.getElementById("ed-cpf"))document.getElementById("ed-cpf").value=user.cnpj||"";
   const fEl=document.getElementById("med-foto");
@@ -2427,7 +2519,7 @@ function abrirEditarPerfil(){
 function fecharEditarPerfil(){document.getElementById("modal-editar").classList.remove("show");}
 async function salvarPerfil(){
   const nome=document.getElementById("ed-nome").value.trim();
-  const fone=document.getElementById("ed-fone").value.trim();
+  const fone=soDigitos(document.getElementById("ed-fone").value);
   const endereco=(document.getElementById("ed-endereco")?.value||"").trim();
   const cnpj=(document.getElementById("ed-cpf")?.value||"").trim();
   if(!nome){toast("Informe o nome do restaurante");return;}
@@ -2437,6 +2529,7 @@ async function salvarPerfil(){
     const upd={nome,fone,cnpj};
     // Só regeocodifica se o endereço realmente mudou (evita chamadas desnecessárias)
     if(endereco!==user.endereco){
+      let achouAuto=false;
       try{
         const res=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(endereco+", SP, Brasil")}&format=json&limit=1`,{headers:{"User-Agent":"EntregaJa/1.0"}});
         const data=await res.json();
@@ -2444,12 +2537,19 @@ async function salvarPerfil(){
           upd.endereco=endereco;
           upd.enderecoLat=parseFloat(data[0].lat);
           upd.enderecoLng=parseFloat(data[0].lon);
-        }else{
-          loading(false);
-          toast("Não conseguimos localizar esse endereço. Tente ser mais específico.");
-          return;
+          achouAuto=true;
         }
-      }catch(e){loading(false);toast("Erro ao verificar o endereço.");return;}
+      }catch(e){}
+      if(!achouAuto){
+        loading(false);
+        toast("Não localizamos esse endereço automaticamente. Arraste o pin até o local certo no mapa.");
+        const manual=await pedirLocalizacaoManualRest(cidadeAtual);
+        if(!manual){toast("Endereço não atualizado — posicione o pin para continuar.");return;}
+        upd.endereco=endereco;
+        upd.enderecoLat=manual.lat;
+        upd.enderecoLng=manual.lng;
+        loading(true);
+      }
     }
     if(user.tipo!=="anonimo")await db.collection("ej_restaurantes").doc(user.id).update(upd);
     Object.assign(user,upd);
