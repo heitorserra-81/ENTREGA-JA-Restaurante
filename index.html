@@ -439,6 +439,11 @@ input[type=file]{display:none;}
 .fin-grafico-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;}
 .fin-grafico-bar{width:100%;max-width:26px;background:linear-gradient(180deg,var(--dourado2),var(--dourado));border-radius:6px 6px 2px 2px;min-height:3px;transition:height 0.4s;}
 .fin-grafico-lb{font-size:9px;color:var(--muted);font-weight:600;}
+.notinha-papel{background:#fdfdfb;border-radius:4px;box-shadow:0 20px 50px rgba(0,0,0,0.5);position:relative;}
+.notinha-serrilha-topo,.notinha-serrilha-baixo{height:10px;background:repeating-linear-gradient(90deg,transparent,transparent 6px,var(--bg) 6px,var(--bg) 8px),radial-gradient(circle at 5px 0,transparent 5px,#fdfdfb 5px);background-size:16px 100%,16px 100%;}
+.notinha-serrilha-baixo{transform:rotate(180deg);}
+.taxa-chip{padding:8px 13px;border-radius:10px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.taxa-chip.ativo{background:rgba(251,191,36,0.15);border-color:var(--dourado);color:var(--dourado);}
 </style>
 </head>
 <body>
@@ -577,6 +582,25 @@ input[type=file]{display:none;}
     <input class="campo-obs" id="campo-troco" type="text" placeholder="Troco para quanto?" autocomplete="off" style="margin-top:8px;"/>
 
     <label style="display:flex;align-items:center;gap:9px;margin-top:10px;padding:11px 14px;background:rgba(251,191,36,0.06);border:1px solid var(--border);border-radius:13px;cursor:pointer;">
+      <input type="checkbox" id="chk-cobrar-taxa" onchange="toggleTaxaEntrega()" style="width:18px;height:18px;flex-shrink:0;"/>
+      <div><div style="font-size:12px;font-weight:700;color:var(--text);">Cobrar taxa de entrega do cliente</div><div style="font-size:10px;color:var(--muted);">Valor somado à conta final do cliente</div></div>
+    </label>
+    <div id="taxa-entrega-box" style="display:none;margin-top:8px;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;">
+      <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;" id="taxa-chips-rapidos">
+        <button onclick="setTaxaRapida(5)" class="taxa-chip">R$5</button>
+        <button onclick="setTaxaRapida(8)" class="taxa-chip">R$8</button>
+        <button onclick="setTaxaRapida(10)" class="taxa-chip">R$10</button>
+        <button onclick="setTaxaRapida(15)" class="taxa-chip">R$15</button>
+        <button onclick="setTaxaRapida(20)" class="taxa-chip">R$20</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;">
+        <button onclick="ajustarTaxa(-0.5)" style="width:38px;height:38px;border-radius:11px;background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:19px;font-weight:800;cursor:pointer;">−</button>
+        <div style="font-size:20px;font-weight:900;color:var(--dourado);min-width:90px;text-align:center;" id="taxa-valor-display">R$ 0,00</div>
+        <button onclick="ajustarTaxa(0.5)" style="width:38px;height:38px;border-radius:11px;background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:19px;font-weight:800;cursor:pointer;">+</button>
+      </div>
+    </div>
+
+    <label style="display:flex;align-items:center;gap:9px;margin-top:10px;padding:11px 14px;background:rgba(251,191,36,0.06);border:1px solid var(--border);border-radius:13px;cursor:pointer;">
       <input type="checkbox" id="chk-maquininha" style="width:18px;height:18px;flex-shrink:0;"/>
       <div><div style="font-size:12px;font-weight:700;color:var(--text);">Motoboy vai levar a maquininha</div><div style="font-size:10px;color:var(--muted);">Ele precisará devolver depois da entrega</div></div>
     </label>
@@ -588,7 +612,7 @@ input[type=file]{display:none;}
       </div>
     </div>
     <div class="btn-chamar-wrap">
-      <button class="btn-chamar" id="btn-chamar" onclick="chamarEntrega()" disabled>
+      <button class="btn-chamar" id="btn-chamar" onclick="chamarEntregaComNotinha()" disabled>
         <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" style="width:52px;height:52px;border-radius:13px;object-fit:cover;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,0.4);"/>
         <span>Chamar Entrega Já!</span>
       </button>
@@ -1306,6 +1330,42 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
   </div>
 </div>
 
+<!-- MODAL NOTINHA FISCAL (revisão antes de chamar) -->
+<div id="modal-notinha" class="modal-din" style="position:fixed;inset:0;z-index:9650;background:rgba(0,0,0,0.92);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="width:100%;max-width:400px;padding:0 18px;max-height:90vh;overflow-y:auto;">
+    <div class="notinha-papel">
+      <div class="notinha-serrilha-topo"></div>
+      <div style="text-align:center;padding:18px 20px 14px;border-bottom:1px dashed rgba(0,0,0,0.15);">
+        <div id="notinha-logo" style="width:44px;height:44px;border-radius:11px;margin:0 auto 8px;overflow:hidden;background:#f3f3f3;display:flex;align-items:center;justify-content:center;font-size:20px;">🏪</div>
+        <div id="notinha-nome-rest" style="font-size:15px;font-weight:800;color:#1a1a1a;">Restaurante</div>
+        <div style="font-size:10px;color:#888;margin-top:2px;">COMPROVANTE DE ENTREGA</div>
+      </div>
+      <div style="padding:16px 20px;">
+        <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:8px;">Itens</div>
+        <div id="notinha-itens" style="font-size:13px;color:#333;margin-bottom:14px;line-height:1.7;"></div>
+        <div style="border-top:1px dashed rgba(0,0,0,0.15);padding-top:10px;margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#666;margin-bottom:4px;"><span>Subtotal</span><span id="notinha-subtotal">R$ 0,00</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#666;margin-bottom:4px;" id="notinha-taxa-row"><span>Taxa de entrega</span><span id="notinha-taxa">R$ 0,00</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:900;color:#1a1a1a;margin-top:8px;"><span>Total</span><span id="notinha-total">R$ 0,00</span></div>
+        </div>
+        <div style="background:#f7f7f7;border-radius:10px;padding:10px 12px;margin-bottom:10px;">
+          <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Pagamento</div>
+          <div id="notinha-pgto" style="font-size:13px;color:#333;font-weight:700;">--</div>
+        </div>
+        <div style="background:#f7f7f7;border-radius:10px;padding:10px 12px;">
+          <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Entregar em</div>
+          <div id="notinha-endereco" style="font-size:12px;color:#333;">--</div>
+        </div>
+      </div>
+      <div class="notinha-serrilha-baixo"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button onclick="fecharNotinha()" style="flex:1;padding:14px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Voltar e ajustar</button>
+      <button onclick="confirmarNotinhaEChamar()" class="btn-p" style="flex:2;margin-bottom:0;">✓ Confirmar e chamar</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 <div id="loading"><div class="ld-spin"></div></div>
 <script>
@@ -1978,6 +2038,8 @@ async function confirmarPgtoEChamar(){
     const trocoTxt=(document.getElementById("campo-troco")?.value||"").trim();
     const precisaMaquininha=document.getElementById("chk-maquininha")?.checked||false;
     const dadosItens=obterDadosItensPedido();
+    const taxaEntrega=document.getElementById("chk-cobrar-taxa")?.checked?_taxaEntregaValor:0;
+    const valorComTaxa=(dadosItens.valorPedido||0)+taxaEntrega;
     const pedido={
       id,status:"aguardando",
       clienteId:user.id,clienteNome:user.nome,clienteFone:user.fone||"",clienteFoto:user.foto||null,clienteTipo:user.tipo||"cadastrado",
@@ -1986,6 +2048,8 @@ async function confirmarPgtoEChamar(){
       destino:destSel.nome.split(",").slice(0,2).join(","),destinoLat:destSel.lat,destinoLng:destSel.lng,
       obs:dadosItens.obs,
       valorPedido:dadosItens.valorPedido,
+      taxaEntrega:taxaEntrega>0?taxaEntrega:null,
+      valorTotal:valorComTaxa,
       itensDetalhados:dadosItens.itensDetalhados,
       formaPgto:pgtoRestSel,
       trocoPara:(pgtoRestSel==="Dinheiro"&&trocoTxt)?trocoTxt:null,
@@ -2006,6 +2070,10 @@ async function confirmarPgtoEChamar(){
     limparSelecaoPratos();
     document.getElementById("campo-obs").value="";
     document.getElementById("campo-valor-manual").value="";
+    document.getElementById("chk-cobrar-taxa").checked=false;
+    document.getElementById("taxa-entrega-box").style.display="none";
+    _taxaEntregaValor=0;
+    document.getElementById("chk-maquininha").checked=false;
     _seg=0;if(contBusc)clearInterval(contBusc);
     contBusc=setInterval(()=>{_seg++;document.getElementById("busc-num").textContent=_seg;},1000);
     escutarEntrega(id);
@@ -2925,6 +2993,85 @@ function obterDadosItensPedido(){
 }
 
 </script>
+<script>
+// ── TAXA DE ENTREGA ──
+let _taxaEntregaValor=0;
+function toggleTaxaEntrega(){
+  const ativo=document.getElementById("chk-cobrar-taxa").checked;
+  document.getElementById("taxa-entrega-box").style.display=ativo?"block":"none";
+  if(!ativo){_taxaEntregaValor=0;}
+  else if(_taxaEntregaValor===0){setTaxaRapida(8);}
+}
+function setTaxaRapida(valor){
+  _taxaEntregaValor=valor;
+  document.getElementById("taxa-valor-display").textContent="R$ "+valor.toFixed(2).replace(".",",");
+  document.querySelectorAll(".taxa-chip").forEach(c=>c.classList.remove("ativo"));
+  const btns=[...document.querySelectorAll(".taxa-chip")];
+  const idx=[5,8,10,15,20].indexOf(valor);
+  if(idx>=0&&btns[idx])btns[idx].classList.add("ativo");
+}
+function ajustarTaxa(delta){
+  _taxaEntregaValor=Math.max(0,_taxaEntregaValor+delta);
+  document.getElementById("taxa-valor-display").textContent="R$ "+_taxaEntregaValor.toFixed(2).replace(".",",");
+  document.querySelectorAll(".taxa-chip").forEach(c=>c.classList.remove("ativo"));
+}
+
+// ── NOTINHA FISCAL (revisão antes de chamar) ──
+function chamarEntregaComNotinha(){
+  if(!destSel){toast("Informe o endereço de entrega");return;}
+  if(!posAtual){toast("Endereço do restaurante não configurado. Verifique seu cadastro.");return;}
+  abrirNotinha();
+}
+
+function abrirNotinha(){
+  const dadosItens=obterDadosItensPedido();
+  const taxa=document.getElementById("chk-cobrar-taxa").checked?_taxaEntregaValor:0;
+  const subtotal=dadosItens.valorPedido||0;
+  const total=subtotal+taxa;
+
+  document.getElementById("notinha-nome-rest").textContent=user.nome||"Restaurante";
+  const logoEl=document.getElementById("notinha-logo");
+  logoEl.innerHTML=user.foto?`<img src="${user.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"🏪";
+
+  const itensEl=document.getElementById("notinha-itens");
+  if(dadosItens.itensDetalhados){
+    itensEl.innerHTML=dadosItens.itensDetalhados.map(i=>`<div style="display:flex;justify-content:space-between;"><span>${i.qtd}x ${i.nome}</span><span>R$ ${((i.preco||0)*i.qtd).toFixed(2).replace(".",",")}</span></div>`).join("");
+  }else{
+    itensEl.innerHTML=`<div>${dadosItens.obs||"Não especificado"}</div>`;
+  }
+
+  document.getElementById("notinha-subtotal").textContent="R$ "+subtotal.toFixed(2).replace(".",",");
+  document.getElementById("notinha-taxa-row").style.display=taxa>0?"flex":"none";
+  document.getElementById("notinha-taxa").textContent="R$ "+taxa.toFixed(2).replace(".",",");
+  document.getElementById("notinha-total").textContent="R$ "+total.toFixed(2).replace(".",",");
+
+  const trocoTxt=(document.getElementById("campo-troco")?.value||"").trim();
+  let pgtoTxt=pgtoRestSel;
+  if(pgtoRestSel==="Dinheiro"&&trocoTxt)pgtoTxt+=" — troco para "+trocoTxt;
+  document.getElementById("notinha-pgto").textContent=pgtoTxt;
+
+  document.getElementById("notinha-endereco").textContent=destSel.nome||"--";
+
+  document.getElementById("modal-notinha").classList.add("show");
+}
+function fecharNotinha(){document.getElementById("modal-notinha").classList.remove("show");}
+
+function confirmarNotinhaEChamar(){
+  fecharNotinha();
+  // segue o fluxo normal já existente (forma de pagamento simples ou modal se modo distância)
+  mostrarTela("tela-buscando");
+  document.getElementById("busc-dest").textContent="→ "+destSel.nome.split(",")[0];
+  document.getElementById("busc-num").textContent="0";
+  if(contBusc){clearInterval(contBusc);contBusc=null;}
+  if(MODO_COBRANCA==="distancia"){
+    document.getElementById("modal-pgto").classList.add("show");
+  }else{
+    confirmarPgtoEChamar();
+  }
+}
+
+</script>
+
 
 
 
