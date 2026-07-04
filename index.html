@@ -382,8 +382,8 @@ input[type=file]{display:none;}
 
 /* CONFIG */
 #tela-config{display:none;position:fixed;inset:0;z-index:8002;overflow-y:auto;background:var(--bg);}
-.config-hdr{padding:max(18px,calc(var(--sat)+14px)) 16px 12px;background:linear-gradient(180deg,rgba(26,42,74,0.95),transparent);display:flex;align-items:center;gap:11px;}
-.config-tit{font-size:17px;font-weight:800;color:#fff;}
+.config-hdr{padding:max(18px,calc(var(--sat)+14px)) 16px 14px;background:linear-gradient(180deg,rgba(26,42,74,0.95),transparent);display:flex;align-items:center;gap:12px;}
+.config-tit{font-size:21px;font-weight:900;color:#fff;}
 .config-sec{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:12px 16px 6px;}
 .config-item{display:flex;align-items:center;gap:11px;padding:12px 16px;border-bottom:1px solid rgba(251,191,36,0.04);}
 .config-ic{font-size:22px;width:38px;text-align:center;}
@@ -476,9 +476,16 @@ input[type=file]{display:none;}
 
 <!-- SPLASH -->
 <div class="screen ativo" id="tela-splash">
-  <div class="splash-logo"><img id="logo-splash" src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" alt="Entrega Já" style="width:100%;height:100%;object-fit:cover;border-radius:32px;"/></div>
-  <div class="splash-title">Entrega <span>Já</span></div>
-  <div class="splash-sub">Seu transporte rápido e seguro</div>
+  <div class="splash-logo" style="width:170px;height:170px;"><img id="logo-splash" src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" alt="Entrega Já" style="width:100%;height:100%;object-fit:cover;border-radius:38px;"/></div>
+  <div class="splash-title" style="font-size:38px;">Entrega <span>Já</span></div>
+  <div class="splash-sub">Entregas rápidas para seu restaurante</div>
+  <div class="dev-retangulo" style="margin-top:6px;">
+    <div class="dev-luz"></div>
+    <div class="dev-inner" style="padding:9px 24px;">
+      <div class="dev-por" style="font-size:11px;">Desenvolvido por</div>
+      <div class="dev-nome" style="font-size:15px;">Heitor Serra Neto</div>
+    </div>
+  </div>
   <div class="splash-bar"></div>
 </div>
 
@@ -554,9 +561,16 @@ input[type=file]{display:none;}
           <div style="font-size:16px;font-weight:800;color:#fff;line-height:1.2;word-break:normal;overflow-wrap:normal;" id="home-nome">...</div>
         </div>
       </div>
-      <!-- CENTRO: logo absolutamente centralizado -->
-      <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);display:flex;justify-content:center;align-items:center;pointer-events:none;z-index:0;">
-        <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" style="width:66px;height:66px;border-radius:18px;object-fit:cover;box-shadow:0 6px 20px rgba(251,191,36,0.45);"/>
+      <!-- CENTRO: logo absolutamente centralizado + crédito do desenvolvedor -->
+      <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;pointer-events:none;z-index:0;">
+        <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" style="width:56px;height:56px;border-radius:15px;object-fit:cover;box-shadow:0 6px 20px rgba(251,191,36,0.45);"/>
+        <div class="dev-retangulo" style="transform:scale(0.72);transform-origin:top center;margin-bottom:-10px;">
+          <div class="dev-luz"></div>
+          <div class="dev-inner" style="padding:4px 12px;">
+            <div class="dev-por" style="font-size:8px;">Desenvolvido por</div>
+            <div class="dev-nome" style="font-size:10px;">Heitor Serra Neto</div>
+          </div>
+        </div>
       </div>
       <!-- DIREITA: hamburger -->
       <div style="flex:1;"></div>
@@ -1021,7 +1035,7 @@ input[type=file]{display:none;}
 <!-- CONFIG -->
 <div id="tela-config">
   <div class="config-hdr">
-    <button onclick="fecharConfig()" style="background:none;border:none;color:var(--dourado);font-size:20px;cursor:pointer;padding:3px;">←</button>
+    <button onclick="fecharConfig()" style="background:rgba(251,191,36,0.1);border:1px solid var(--border);border-radius:13px;color:var(--dourado);font-size:22px;cursor:pointer;padding:8px 15px;font-weight:700;">←</button>
     <div class="config-tit">⚙️ Configurações</div>
   </div>
   <div class="config-sec">Cards da tela inicial</div>
@@ -1651,24 +1665,24 @@ function sair(){
 
 // ── CARDS WIDGET (home customizável do restaurante) ──
 const CARDS_DISPONIVEIS=[
-  {id:"entregas_andamento",nome:"Entregas em andamento",desc:"Quantas estão rolando agora",icon:"🚴"},
-  {id:"entregas_hoje",nome:"Entregas hoje",desc:"Total de pedidos hoje",icon:"📦"},
-  {id:"entregas_semana",nome:"Entregas da semana",desc:"Total de pedidos na semana",icon:"📦"},
-  {id:"entregas_mes",nome:"Entregas do mês",desc:"Total de pedidos no mês",icon:"📦"},
-  {id:"entregas_total",nome:"Total de entregas",desc:"Desde o início",icon:"📦"},
-  {id:"faturamento_hoje",nome:"Faturamento hoje",desc:"Total vendido hoje",icon:"💰"},
-  {id:"faturamento_semana",nome:"Faturamento da semana",desc:"Total vendido na semana",icon:"💰"},
-  {id:"comparativo_ontem",nome:"Comparado a ontem",desc:"Faturamento vs. ontem",icon:"📈"},
-  {id:"ticket_medio",nome:"Ticket médio",desc:"Valor médio por pedido",icon:"🧾"},
-  {id:"avaliacao_media",nome:"Sua avaliação",desc:"Nota média dos motoboys",icon:"⭐"},
-  {id:"motoboys_online",nome:"Motoboys online",desc:"Disponíveis agora na região",icon:"🟢"},
-  {id:"ultimo_pedido",nome:"Último pedido",desc:"Status mais recente",icon:"🕐"},
-  {id:"prato_mais_vendido",nome:"Prato mais vendido",desc:"O campeão de vendas",icon:"🏆"},
-  {id:"horario_pico",nome:"Horário de pico",desc:"Quando você mais vende",icon:"⏰"},
-  {id:"credito_saldo",nome:"Saldo de créditos",desc:"Créditos disponíveis",icon:"💳"},
-  {id:"cancelamentos_hoje",nome:"Cancelamentos hoje",desc:"Pedidos cancelados hoje",icon:"❌"},
-  {id:"total_clientes",nome:"Clientes atendidos",desc:"Clientes únicos no total",icon:"👥"},
-  {id:"motoboy_frequente",nome:"Motoboy mais frequente",desc:"Quem mais entrega pra você",icon:"🏍️"},
+  {id:"entregas_andamento",nome:"Entregas em andamento",desc:"Quantas estão rolando agora",icon:"🚴",cat:"📦 Entregas"},
+  {id:"entregas_hoje",nome:"Entregas hoje",desc:"Total de pedidos hoje",icon:"📦",cat:"📦 Entregas"},
+  {id:"entregas_semana",nome:"Entregas da semana",desc:"Total de pedidos na semana",icon:"📦",cat:"📦 Entregas"},
+  {id:"entregas_mes",nome:"Entregas do mês",desc:"Total de pedidos no mês",icon:"📦",cat:"📦 Entregas"},
+  {id:"entregas_total",nome:"Total de entregas",desc:"Desde o início",icon:"📦",cat:"📦 Entregas"},
+  {id:"ultimo_pedido",nome:"Último pedido",desc:"Status mais recente",icon:"🕐",cat:"📦 Entregas"},
+  {id:"cancelamentos_hoje",nome:"Cancelamentos hoje",desc:"Pedidos cancelados hoje",icon:"❌",cat:"📦 Entregas"},
+  {id:"faturamento_hoje",nome:"Faturamento hoje",desc:"Total vendido hoje",icon:"💰",cat:"💰 Financeiro"},
+  {id:"faturamento_semana",nome:"Faturamento da semana",desc:"Total vendido na semana",icon:"💰",cat:"💰 Financeiro"},
+  {id:"comparativo_ontem",nome:"Comparado a ontem",desc:"Faturamento vs. ontem",icon:"📈",cat:"💰 Financeiro"},
+  {id:"ticket_medio",nome:"Ticket médio",desc:"Valor médio por pedido",icon:"🧾",cat:"💰 Financeiro"},
+  {id:"credito_saldo",nome:"Saldo de créditos",desc:"Créditos disponíveis",icon:"💳",cat:"💰 Financeiro"},
+  {id:"prato_mais_vendido",nome:"Prato mais vendido",desc:"O campeão de vendas",icon:"🏆",cat:"🍽️ Cardápio"},
+  {id:"horario_pico",nome:"Horário de pico",desc:"Quando você mais vende",icon:"⏰",cat:"🍽️ Cardápio"},
+  {id:"avaliacao_media",nome:"Sua avaliação",desc:"Nota média dos motoboys",icon:"⭐",cat:"🏍️ Motoboys e clientes"},
+  {id:"motoboys_online",nome:"Motoboys online",desc:"Disponíveis agora na região",icon:"🟢",cat:"🏍️ Motoboys e clientes"},
+  {id:"motoboy_frequente",nome:"Motoboy mais frequente",desc:"Quem mais entrega pra você",icon:"🏍️",cat:"🏍️ Motoboys e clientes"},
+  {id:"total_clientes",nome:"Clientes atendidos",desc:"Clientes únicos no total",icon:"👥",cat:"🏍️ Motoboys e clientes"},
 ];
 
 function getConfigCards(){
@@ -1697,7 +1711,7 @@ async function renderCardsHome(){
     if(!info)return"";
     const d=dados[c.id]||{val:"--",sub:""};
     const tam=c.tam||1;
-    return `<div class="card-widget tam-${tam}" data-idx="${i}" data-id="${c.id}" ontouchstart="iniciaDragCard(event,${i})" ontouchmove="moveDragCard(event)" ontouchend="fimDragCard(event)">
+    return `<div class="card-widget tam-${tam}" data-idx="${i}" data-id="${c.id}" onclick="abrirDetalheCard('${c.id}')" ontouchstart="iniciaDragCard(event,${i})" ontouchmove="moveDragCard(event)" ontouchend="fimDragCard(event)">
       <div class="card-widget-header"><div class="card-widget-titulo">${info.nome}</div><div class="card-widget-icon">${info.icon}</div></div>
       <div class="card-widget-val">${d.val}</div>
       <div class="card-widget-sub">${d.sub}</div>
@@ -1789,8 +1803,229 @@ async function calcularDadosCardsRest(){
   return dados;
 }
 
+// ── DRILL-DOWN DOS CARDS: clica no card e abre o detalhe completo; clica no item e abre mais fundo ──
+let _drillPedidosCache=null,_drillCacheTs=0;
+async function _getPedidosDrill(){
+  if(_drillPedidosCache&&Date.now()-_drillCacheTs<60000)return _drillPedidosCache;
+  const snap=await db.collection("ej_pedidos").where("clienteId","==",user.id).orderBy("criadoEm","desc").limit(300).get();
+  _drillPedidosCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+  _drillCacheTs=Date.now();
+  return _drillPedidosCache;
+}
+function abrirDetalheCard(cardId){
+  if(_cardFoiDrag){_cardFoiDrag=false;return;}
+  if(!user)return;
+  if(!document.getElementById("modal-drill"))criarModalDrill();
+  const info=CARDS_DISPONIVEIS.find(x=>x.id===cardId);
+  document.getElementById("drill-titulo").textContent=(info?.icon||"")+" "+(info?.nome||"Detalhes");
+  document.getElementById("drill-corpo").innerHTML="<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Carregando...</div>";
+  document.getElementById("modal-drill").classList.add("show");
+  renderDrillNivel1(cardId);
+}
+function fecharDrill(){document.getElementById("modal-drill").classList.remove("show");}
+function criarModalDrill(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div id="modal-drill" class="modal-din" style="position:fixed;inset:0;z-index:9989;background:rgba(0,0,0,0.93);backdrop-filter:blur(6px);">
+    <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(var(--sat) + 18px) 16px calc(var(--sab) + 28px);">
+      <div style="display:flex;align-items:center;gap:11px;margin-bottom:16px;">
+        <button onclick="fecharDrill()" style="background:rgba(251,191,36,0.1);border:1px solid var(--border);border-radius:13px;color:var(--dourado);font-size:20px;cursor:pointer;padding:8px 15px;font-weight:700;flex-shrink:0;">←</button>
+        <div id="drill-titulo" style="font-size:18px;font-weight:900;color:#fff;"></div>
+      </div>
+      <div id="drill-corpo"></div>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+const _fmtBR=v=>"R$ "+parseFloat(v||0).toFixed(2).replace(".",",");
+const _fmtData=dt=>dt.toLocaleDateString("pt-BR")+" "+dt.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+function _linhaPedidoDrill(c){
+  const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
+  const statusIc={concluida:"✅",aguardando:"🔎",aceita:"🚗",motoboy_chegou:"📍"};
+  const ic=(c.status||"").startsWith("cancelada")?"❌":(statusIc[c.status]||"📦");
+  return`<div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;margin-bottom:8px;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+      <div style="font-size:12px;font-weight:700;color:#fff;">${ic} ${c.nomeClienteFinal||(c.destino||"Pedido").split(",")[0]}</div>
+      <div style="font-size:12px;font-weight:800;color:var(--dourado);">${_fmtBR(c.valorPedido||c.valorTotal)}</div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);">${_fmtData(dt)} · ${c.motoboy?.nome||"sem motoboy"} · ${c.formaPgto||""}</div>
+    ${c.itensDetalhados&&c.itensDetalhados.length?`<div style="font-size:10px;color:var(--muted);margin-top:3px;">📦 ${c.itensDetalhados.map(i=>i.qtd+"x "+i.nome).join(", ")}</div>`:""}
+  </div>`;
+}
+function _listaOuVazio(linhas,msgVazio){
+  const arr=Array.isArray(linhas)?linhas.filter(Boolean):[];
+  return arr.length?arr.join(""):`<div style='text-align:center;padding:28px 16px;color:var(--muted);font-size:13px;'>${msgVazio}</div>`;
+}
+async function renderDrillNivel1(cardId){
+  const el=document.getElementById("drill-corpo");
+  try{
+    const pedidos=await _getPedidosDrill();
+    const hoje=new Date();hoje.setHours(0,0,0,0);
+    const inicioSemana=new Date(hoje);inicioSemana.setDate(inicioSemana.getDate()-inicioSemana.getDay());
+    const inicioMes=new Date(hoje.getFullYear(),hoje.getMonth(),1);
+    const concluidos=pedidos.filter(c=>c.status==="concluida");
+    const dtDe=c=>c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
+
+    switch(cardId){
+      case"entregas_hoje":el.innerHTML=_listaOuVazio(concluidos.filter(c=>dtDe(c)>=hoje).map(_linhaPedidoDrill),"Nenhuma entrega concluída hoje ainda.");break;
+      case"entregas_semana":el.innerHTML=_listaOuVazio(concluidos.filter(c=>dtDe(c)>=inicioSemana).map(_linhaPedidoDrill),"Nenhuma entrega esta semana ainda.");break;
+      case"entregas_mes":el.innerHTML=_listaOuVazio(concluidos.filter(c=>dtDe(c)>=inicioMes).map(_linhaPedidoDrill),"Nenhuma entrega este mês ainda.");break;
+      case"entregas_total":el.innerHTML=_listaOuVazio(concluidos.map(_linhaPedidoDrill),"Nenhuma entrega concluída ainda.");break;
+      case"entregas_andamento":{
+        const ativas=Object.values(entregasAtivas);
+        el.innerHTML=_listaOuVazio(ativas.map(_linhaPedidoDrill),"Nenhuma entrega em andamento agora.");
+        break;
+      }
+      case"cancelamentos_hoje":el.innerHTML=_listaOuVazio(pedidos.filter(c=>(c.status||"").startsWith("cancelada")&&dtDe(c)>=hoje).map(_linhaPedidoDrill),"Nenhum cancelamento hoje. 🎉");break;
+      case"ultimo_pedido":el.innerHTML=_listaOuVazio(pedidos.slice(0,10).map(_linhaPedidoDrill),"Nenhum pedido ainda.");break;
+      case"faturamento_hoje":case"faturamento_semana":case"ticket_medio":case"comparativo_ontem":{
+        const dias={};
+        concluidos.forEach(c=>{
+          const dt=dtDe(c);
+          if((hoje-dt)/86400000>7&&dt<hoje)return;
+          const chave=dt.toLocaleDateString("pt-BR");
+          if(!dias[chave])dias[chave]={total:0,qtd:0};
+          dias[chave].total+=(c.valorPedido||c.valorTotal||0);
+          dias[chave].qtd++;
+        });
+        const linhas=Object.entries(dias).map(([dia,d])=>`
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+            <div><div style="font-size:13px;font-weight:700;color:#fff;">${dia}</div><div style="font-size:11px;color:var(--muted);">${d.qtd} pedido${d.qtd!==1?"s":""} · ticket ${_fmtBR(d.total/d.qtd)}</div></div>
+            <div style="font-size:15px;font-weight:900;color:var(--dourado);">${_fmtBR(d.total)}</div>
+          </div>`);
+        el.innerHTML=_listaOuVazio(linhas,"Nenhuma venda nos últimos 7 dias.");
+        break;
+      }
+      case"credito_saldo":{
+        el.innerHTML=`<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;">
+          <div style="font-size:32px;font-weight:900;color:var(--dourado);margin-bottom:6px;">${_fmtBR(user.creditos||0)}</div>
+          <div style="font-size:12px;color:var(--muted);">Seu saldo de créditos. O sistema de recarga está chegando em breve — por enquanto, as entregas são por nossa conta. 🍕</div>
+        </div>`;
+        break;
+      }
+      case"prato_mais_vendido":{
+        const pratos={};
+        concluidos.forEach(c=>{(c.itensDetalhados||[]).forEach(item=>{
+          if(!pratos[item.nome])pratos[item.nome]={qtd:0,valor:0};
+          pratos[item.nome].qtd+=item.qtd;
+          pratos[item.nome].valor+=(item.preco||0)*item.qtd;
+        });});
+        const ranking=Object.entries(pratos).sort((a,b)=>b[1].qtd-a[1].qtd);
+        const medalhas=["🥇","🥈","🥉"];
+        const linhas=ranking.map(([nome,d],i)=>`
+          <div onclick="renderDrillPrato('${encodeURIComponent(nome).replace(/'/g,"%27")}')" style="background:var(--card);border:1px solid ${i===0?"var(--dourado)":"var(--border)"};border-radius:13px;padding:13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;cursor:pointer;">
+            <div style="font-size:20px;flex-shrink:0;">${medalhas[i]||(i+1)+"º"}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:#fff;">${nome}</div>
+              <div style="font-size:11px;color:var(--muted);">${d.qtd}x vendido · ${_fmtBR(d.valor)} no total</div>
+            </div>
+            <div style="font-size:13px;color:var(--muted);">›</div>
+          </div>`);
+        el.innerHTML=_listaOuVazio(linhas,"Nenhum prato vendido ainda. Cadastre seu cardápio e use a notinha ao chamar entregas.");
+        break;
+      }
+      case"horario_pico":{
+        const porHora=new Array(24).fill(0);
+        concluidos.forEach(c=>{porHora[dtDe(c).getHours()]++;});
+        const max=Math.max(...porHora);
+        if(max===0){el.innerHTML=_listaOuVazio([],"Sem dados de horário ainda.");break;}
+        el.innerHTML=porHora.map((qtd,h)=>{
+          if(qtd===0)return"";
+          const pct=Math.round(qtd/max*100);
+          return`<div style="display:flex;align-items:center;gap:9px;margin-bottom:7px;">
+            <div style="width:48px;font-size:11px;font-weight:700;color:var(--muted);text-align:right;flex-shrink:0;">${h}h-${h+1}h</div>
+            <div style="flex:1;height:22px;background:var(--card);border-radius:7px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--dourado2),var(--dourado));border-radius:7px;"></div></div>
+            <div style="width:26px;font-size:11px;font-weight:800;color:var(--dourado);flex-shrink:0;">${qtd}</div>
+          </div>`;
+        }).join("");
+        break;
+      }
+      case"motoboy_frequente":{
+        const mots={};
+        concluidos.forEach(c=>{if(c.motoboy&&c.motoboy.nome){if(!mots[c.motoboy.nome])mots[c.motoboy.nome]={qtd:0,valor:0};mots[c.motoboy.nome].qtd++;mots[c.motoboy.nome].valor+=(c.valorPedido||c.valorTotal||0);}});
+        const ranking=Object.entries(mots).sort((a,b)=>b[1].qtd-a[1].qtd);
+        const linhas=ranking.map(([nome,d])=>`
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;">
+            <div style="font-size:18px;">🏍️</div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#fff;">${nome}</div><div style="font-size:11px;color:var(--muted);">${d.qtd} entrega${d.qtd!==1?"s":""} · ${_fmtBR(d.valor)} transportado</div></div>
+          </div>`);
+        el.innerHTML=_listaOuVazio(linhas,"Nenhum motoboy atendeu você ainda.");
+        break;
+      }
+      case"total_clientes":{
+        const clientes={};
+        concluidos.forEach(c=>{
+          const nome=(c.nomeClienteFinal||"").trim();
+          if(!nome)return;
+          const k=nome.toLowerCase();
+          if(!clientes[k])clientes[k]={nome,qtd:0,valor:0};
+          clientes[k].qtd++;clientes[k].valor+=(c.valorPedido||c.valorTotal||0);
+        });
+        const ranking=Object.values(clientes).sort((a,b)=>b.qtd-a.qtd);
+        const linhas=ranking.map((cl,i)=>`
+          <div style="background:var(--card);border:1px solid ${i===0?"var(--dourado)":"var(--border)"};border-radius:13px;padding:13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;">
+            <div style="font-size:18px;">${i===0?"👑":"👤"}</div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#fff;">${cl.nome}</div><div style="font-size:11px;color:var(--muted);">${cl.qtd} pedido${cl.qtd!==1?"s":""} · ${_fmtBR(cl.valor)} gasto</div></div>
+          </div>`);
+        el.innerHTML=_listaOuVazio(linhas,"Nenhum cliente identificado ainda. Preencha o nome do cliente na notinha ao chamar entregas.");
+        break;
+      }
+      case"avaliacao_media":{
+        fecharDrill();
+        abrirAvaliacoesRecebidas();
+        break;
+      }
+      case"motoboys_online":{
+        const snap=await db.collection("ej_motoboys").where("online","==",true).get();
+        const linhas=snap.docs.map(d=>{const m=d.data();return`
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;">
+            <div style="width:38px;height:38px;border-radius:50%;background:var(--card2);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${m.foto?`<img src="${m.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"🏍️"}</div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#fff;">${m.nome||"Motoboy"}</div><div style="font-size:11px;color:var(--muted);">⭐ ${(m.avaliacao||5).toFixed(1)} · ${m.totalEntregas||m.totalCorridas||0} entregas</div></div>
+            <div style="font-size:10px;font-weight:700;color:#22c55e;">🟢 ONLINE</div>
+          </div>`;});
+        el.innerHTML=_listaOuVazio(linhas,"Nenhum motoboy online agora.");
+        break;
+      }
+      default:el.innerHTML=_listaOuVazio([],"Detalhes em breve para este card.");
+    }
+  }catch(e){el.innerHTML=`<div style='text-align:center;padding:24px;color:var(--muted);font-size:12px;'>Erro ao carregar. (${e.message})</div>`;}
+}
+async function renderDrillPrato(nomeEnc){
+  const nome=decodeURIComponent(nomeEnc);
+  document.getElementById("drill-titulo").textContent="🍽️ "+nome;
+  const el=document.getElementById("drill-corpo");
+  el.innerHTML="<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Carregando...</div>";
+  try{
+    const pedidos=await _getPedidosDrill();
+    const vendas=[];
+    pedidos.filter(c=>c.status==="concluida").forEach(c=>{
+      (c.itensDetalhados||[]).forEach(item=>{
+        if(item.nome===nome){
+          const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
+          vendas.push({dt,qtd:item.qtd,valor:(item.preco||0)*item.qtd,cliente:c.nomeClienteFinal||"-",destino:c.destino});
+        }
+      });
+    });
+    const totalQtd=vendas.reduce((s,v)=>s+v.qtd,0);
+    const totalValor=vendas.reduce((s,v)=>s+v.valor,0);
+    const header=`<div style="display:flex;gap:9px;margin-bottom:14px;">
+      <div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px;text-align:center;"><div style="font-size:19px;font-weight:900;color:var(--dourado);">${totalQtd}x</div><div style="font-size:10px;color:var(--muted);">vendido</div></div>
+      <div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px;text-align:center;"><div style="font-size:19px;font-weight:900;color:var(--dourado);">${_fmtBR(totalValor)}</div><div style="font-size:10px;color:var(--muted);">faturado</div></div>
+    </div>
+    <button onclick="renderDrillNivel1('prato_mais_vendido');document.getElementById('drill-titulo').textContent='🏆 Prato mais vendido';" style="width:100%;padding:10px;border-radius:11px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:13px;">← Voltar ao ranking</button>`;
+    const linhas=vendas.map(v=>`
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+          <div style="font-size:12px;font-weight:700;color:#fff;">${v.qtd}x · ${v.cliente}</div>
+          <div style="font-size:12px;font-weight:800;color:var(--dourado);">${_fmtBR(v.valor)}</div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);">${_fmtData(v.dt)}${v.destino?" · 📍 "+v.destino.split(",")[0]:""}</div>
+      </div>`);
+    el.innerHTML=header+_listaOuVazio(linhas,"Nenhuma venda registrada deste prato.");
+  }catch(e){el.innerHTML=`<div style='text-align:center;padding:24px;color:var(--muted);font-size:12px;'>Erro ao carregar. (${e.message})</div>`;}
+}
+
 // ── DRAG DOS CARDS (segue o dedo de verdade, position:fixed) ──
-let _cardDragTO=null,_cardDragging=false,_cardDragIdx=null,_cardDragEl=null,_cardDragMoved=false;
+let _cardDragTO=null,_cardDragging=false,_cardDragIdx=null,_cardDragEl=null,_cardDragMoved=false,_cardFoiDrag=false;
 let _cardDragStartX=0,_cardDragStartY=0,_cardOffsetX=0,_cardOffsetY=0,_cardW=0,_cardH=0,_cardPlaceholder=null;
 
 function iniciaDragCard(e,idx){
@@ -1852,6 +2087,7 @@ function fimDragCard(e){
   if(cont)cont.classList.remove("reordenando");
   if(_cardDragging&&_cardDragEl&&_cardPlaceholder){
     _cardDragging=false;
+    _cardFoiDrag=true;
     _cardPlaceholder.replaceWith(_cardDragEl);
     _cardDragEl.classList.remove("drag-ativo");
     _cardDragEl.style.position="";_cardDragEl.style.left="";_cardDragEl.style.top="";_cardDragEl.style.width="";_cardDragEl.style.height="";
@@ -1875,22 +2111,27 @@ function renderConfigCards(){
   const el=document.getElementById("config-lista");
   if(!el)return;
   const cards=getConfigCards();
-  el.innerHTML=CARDS_DISPONIVEIS.map(info=>{
-    const c=cards.find(x=>x.id===info.id)||{ativo:false,tam:1};
-    const tam=c.tam||1;
-    return `<div class="config-card-item">
-      <div class="config-card-icon">${info.icon}</div>
-      <div class="config-card-info">
-        <div class="config-card-nome">${info.nome}</div>
-        <div class="config-card-desc">${info.desc}</div>
-        ${c.ativo?`<div class="config-tam-sel">
-          <button class="config-tam-btn ${tam===1?'ativo':''}" onclick="setTamCard('${info.id}',1)">Linha inteira</button>
-          <button class="config-tam-btn ${tam===2?'ativo':''}" onclick="setTamCard('${info.id}',2)">Metade</button>
-          <button class="config-tam-btn ${tam===3?'ativo':''}" onclick="setTamCard('${info.id}',3)">Terço</button>
-        </div>`:""}
-      </div>
-      <div class="config-toggle ${c.ativo?'on':''}" onclick="toggleCard('${info.id}')"></div>
-    </div>`;
+  const categorias=[...new Set(CARDS_DISPONIVEIS.map(c=>c.cat))];
+  el.innerHTML=categorias.map(cat=>{
+    const doGrupo=CARDS_DISPONIVEIS.filter(info=>info.cat===cat);
+    return`<div style="font-size:11px;font-weight:800;color:var(--dourado);text-transform:uppercase;letter-spacing:0.5px;margin:16px 16px 8px;">${cat}</div>`+
+    doGrupo.map(info=>{
+      const c=cards.find(x=>x.id===info.id)||{ativo:false,tam:1};
+      const tam=c.tam||1;
+      return `<div class="config-card-item">
+        <div class="config-card-icon">${info.icon}</div>
+        <div class="config-card-info">
+          <div class="config-card-nome">${info.nome}</div>
+          <div class="config-card-desc">${info.desc}</div>
+          ${c.ativo?`<div class="config-tam-sel">
+            <button class="config-tam-btn ${tam===1?'ativo':''}" onclick="setTamCard('${info.id}',1)">Linha inteira</button>
+            <button class="config-tam-btn ${tam===2?'ativo':''}" onclick="setTamCard('${info.id}',2)">Metade</button>
+            <button class="config-tam-btn ${tam===3?'ativo':''}" onclick="setTamCard('${info.id}',3)">Terço</button>
+          </div>`:""}
+        </div>
+        <div class="config-toggle ${c.ativo?'on':''}" onclick="toggleCard('${info.id}')"></div>
+      </div>`;
+    }).join("");
   }).join("");
 }
 function toggleCard(id){
@@ -2844,6 +3085,7 @@ window.addEventListener("load",async()=>{
   renderHistRapido();
   iniciarGPS();
   setTimeout(iniciarMapaMot,800);
+  setTimeout(()=>{if(mapaMot){mapaMot.invalidateSize();if(posAtual)mapaMot.setView(posAtual,13);}},3000);
 });
 async function restaurarEntregasAtivas(){
   if(!user||user.tipo==="anonimo")return;
