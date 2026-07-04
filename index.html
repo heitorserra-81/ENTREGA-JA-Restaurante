@@ -429,7 +429,7 @@ input[type=file]{display:none;}
 
 <!-- SPLASH -->
 <div class="screen ativo" id="tela-splash">
-  <div class="splash-logo"><img id="logo-splash" src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" alt="Entrega Já" style="width:100%;height:100%;object-fit:cover;border-radius:32px;"/></div>
+  <div class="splash-logo"><img id="logo-splash" src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" alt="Entrega Já" style="width:100%;height:100%;object-fit:cover;border-radius:32px;"/></div>
   <div class="splash-title">Entrega <span>Já</span></div>
   <div class="splash-sub">Seu transporte rápido e seguro</div>
   <div class="splash-bar"></div>
@@ -438,7 +438,7 @@ input[type=file]{display:none;}
 <!-- LOGIN -->
 <div class="screen" id="tela-login">
   <div class="login-header">
-    <div class="login-logo"><img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" alt=""/></div>
+    <div class="login-logo"><img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" alt=""/></div>
     <h1>Entrega Já</h1>
     <p>Área do restaurante</p>
   </div>
@@ -449,11 +449,18 @@ input[type=file]{display:none;}
     </div>
     <div id="form-cad">
       <div style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <div class="campo-label">Logo / foto do restaurante</div>
+          <div class="foto-btn" onclick="document.getElementById('inp-foto-cad').click()">
+            <div class="foto-prev" id="foto-prev-cad">🏪</div>
+            <div><strong id="foto-txt-cad" style="display:block;font-size:13px;color:var(--text);margin-bottom:2px;">Adicionar logo</strong><span style="font-size:11px;color:var(--muted);">Ajuda o motoboy a te reconhecer</span></div>
+          </div>
+          <input type="file" id="inp-foto-cad" accept="image/*" onchange="processarFoto(this,'foto-prev-cad','foto-txt-cad')"/>
+        </div>
         <div><div class="campo-label">Nome do restaurante</div><input class="campo-input" id="cad-nome" type="text" placeholder="Ex: Pizzaria do João" autocomplete="organization"/></div>
         <div><div class="campo-label">Endereço do restaurante *</div><input class="campo-input" id="cad-endereco" type="text" placeholder="Rua, número, bairro"/></div>
         <div><div class="campo-label">WhatsApp</div><input class="campo-input" id="cad-fone" type="tel" placeholder="(19) 99999-9999"/></div>
-        <div><div class="campo-label">CPF *</div><input class="campo-input" id="cad-cpf" type="text" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)"/></div>
-        <div><div class="campo-label">Data de nascimento *</div><input class="campo-input" id="cad-nasc" type="date" placeholder="dd/mm/aaaa"/></div>
+        <div><div class="campo-label">CNPJ (opcional)</div><input class="campo-input" id="cad-cpf" type="text" inputmode="numeric" placeholder="00.000.000/0000-00" maxlength="18"/></div>
         <div><div class="campo-label">Senha *</div><input class="campo-input" id="cad-senha" type="password" placeholder="Crie uma senha (mín. 4 dígitos)" autocomplete="new-password"/></div>
         <div class="seg-box">
           <div class="seg-titulo">🔐 Recuperação de senha</div>
@@ -461,37 +468,20 @@ input[type=file]{display:none;}
           <div style="display:flex;flex-direction:column;gap:7px;">
             <select class="campo-input" id="cad-pergunta">
               <option value="">Escolha uma pergunta de segurança</option>
-              <option value="Qual o nome do seu primeiro animal de estimação?">Nome do seu primeiro animal de estimação?</option>
-              <option value="Qual a cidade onde você nasceu?">Cidade onde você nasceu?</option>
-              <option value="Qual o nome de solteira da sua mãe?">Nome de solteira da sua mãe?</option>
-              <option value="Qual o nome da sua primeira escola?">Nome da sua primeira escola?</option>
-              <option value="Qual o seu prato favorito?">Seu prato favorito?</option>
+              <option value="Qual o nome do fundador do restaurante?">Nome do fundador do restaurante?</option>
+              <option value="Em que ano o restaurante foi fundado?">Em que ano o restaurante foi fundado?</option>
+              <option value="Qual o prato mais vendido do cardápio?">Prato mais vendido do cardápio?</option>
+              <option value="Qual o nome do primeiro funcionário contratado?">Nome do primeiro funcionário contratado?</option>
+              <option value="Qual o nome da rua do primeiro endereço do restaurante?">Nome da rua do primeiro endereço?</option>
             </select>
             <input class="campo-input" id="cad-resposta" type="text" placeholder="Sua resposta"/>
           </div>
-        </div>
-        <div class="emerg-box">
-          <div class="emerg-titulo">🛡️ Para sua segurança</div>
-          <div class="emerg-desc">Deixe um contato de emergência. Em caso de necessidade, poderemos acioná-lo.</div>
-          <div style="display:flex;flex-direction:column;gap:7px;">
-            <input class="campo-input" id="cad-emerg-nome" type="text" placeholder="Nome do contato de emergência"/>
-            <input class="campo-input" id="cad-emerg-fone" type="tel" placeholder="WhatsApp do contato"/>
-          </div>
-        </div>
-        <div>
-          <div class="campo-label">Foto (opcional)</div>
-          <div class="foto-btn" onclick="document.getElementById('inp-foto-cad').click()">
-            <div class="foto-prev" id="foto-prev-cad">📷</div>
-            <div><strong id="foto-txt-cad" style="display:block;font-size:13px;color:var(--text);margin-bottom:2px;">Adicionar foto</strong><span style="font-size:11px;color:var(--muted);">Toque para escolher</span></div>
-          </div>
-          <input type="file" id="inp-foto-cad" accept="image/*" onchange="processarFoto(this,'foto-prev-cad','foto-txt-cad')"/>
         </div>
         <label class="termos-check">
           <input type="checkbox" id="cad-termos"/>
           <span>Li e aceito os <a onclick="event.preventDefault();document.getElementById('modal-termos').classList.add('show')">Termos de Uso e Política de Responsabilidade</a></span>
         </label>
         <button class="btn-p" onclick="cadastrar()">Criar minha conta</button>
-        <button class="btn-sec" onclick="entrarSemConta()">Continuar sem cadastro</button>
       </div>
     </div>
     <div id="form-ent" style="display:none;">
@@ -500,7 +490,6 @@ input[type=file]{display:none;}
         <div><div class="campo-label">Senha</div><input class="campo-input" id="ent-senha" type="password" placeholder="Sua senha" autocomplete="current-password"/></div>
         <button class="btn-p" onclick="entrar()">Entrar</button>
         <button class="btn-link" onclick="abrirRecuperar()" style="background:none;border:none;color:var(--dourado);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:6px;">Esqueci minha senha</button>
-        <button class="btn-sec" onclick="entrarSemConta()">Continuar sem cadastro</button>
       </div>
     </div>
   </div>
@@ -520,7 +509,7 @@ input[type=file]{display:none;}
       </div>
       <!-- CENTRO: logo absolutamente centralizado -->
       <div style="position:absolute;left:0;right:0;display:flex;justify-content:center;align-items:center;pointer-events:none;z-index:0;">
-        <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" style="width:66px;height:66px;border-radius:18px;object-fit:cover;box-shadow:0 6px 20px rgba(251,191,36,0.45);margin-top:6px;"/>
+        <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" style="width:66px;height:66px;border-radius:18px;object-fit:cover;box-shadow:0 6px 20px rgba(251,191,36,0.45);margin-top:6px;"/>
       </div>
       <!-- DIREITA: hamburger -->
       <div style="flex:1;"></div>
@@ -561,7 +550,7 @@ input[type=file]{display:none;}
     </div>
     <div class="btn-chamar-wrap">
       <button class="btn-chamar" id="btn-chamar" onclick="chamarEntrega()" disabled>
-        <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" style="width:52px;height:52px;border-radius:13px;object-fit:cover;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,0.4);"/>
+        <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" style="width:52px;height:52px;border-radius:13px;object-fit:cover;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,0.4);"/>
         <span>Chamar Entrega Já!</span>
       </button>
     </div>
@@ -592,7 +581,7 @@ input[type=file]{display:none;}
 
 <!-- BUSCANDO -->
 <div class="screen" id="tela-buscando">
-  <div class="busc-logo"><img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" alt=""/></div>
+  <div class="busc-logo"><img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" alt=""/></div>
   <div class="busc-titulo">Buscando motoboy...</div>
   <div class="busc-sub" id="busc-dest">Aguarde um momento</div>
   <div class="busc-spinner"></div>
@@ -727,7 +716,7 @@ input[type=file]{display:none;}
   </div>
 
   <div class="perf-marca">
-    <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" class="perf-marca-logo"/>
+    <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" class="perf-marca-logo"/>
     <div class="perf-marca-txt">Desenvolvido por <b>Heitor Serra Neto</b></div>
   </div>
 
@@ -758,20 +747,12 @@ input[type=file]{display:none;}
   <div class="perf-info-card">
     <div class="perf-info-row"><span class="perf-info-ic">👤</span><div class="perf-info-txt"><div class="perf-info-lb">Nome completo</div><div class="perf-info-vl" id="pi-nome">--</div></div></div>
     <div class="perf-info-row"><span class="perf-info-ic">📱</span><div class="perf-info-txt"><div class="perf-info-lb">WhatsApp</div><div class="perf-info-vl" id="pi-fone">--</div></div></div>
-    <div class="perf-info-row"><span class="perf-info-ic">🪪</span><div class="perf-info-txt"><div class="perf-info-lb">CPF</div><div class="perf-info-vl" id="pi-cpf">--</div></div></div>
-    <div class="perf-info-row"><span class="perf-info-ic">🎂</span><div class="perf-info-txt"><div class="perf-info-lb">Idade</div><div class="perf-info-vl" id="pi-idade">--</div></div></div>
+    <div class="perf-info-row"><span class="perf-info-ic">🪪</span><div class="perf-info-txt"><div class="perf-info-lb">CNPJ</div><div class="perf-info-vl" id="pi-cpf">--</div></div></div>
+    <div class="perf-info-row"><span class="perf-info-ic">📍</span><div class="perf-info-txt"><div class="perf-info-lb">Endereço</div><div class="perf-info-vl" id="pi-idade">--</div></div></div>
     <div class="perf-info-row"><span class="perf-info-ic">🎫</span><div class="perf-info-txt"><div class="perf-info-lb">Código de indicação</div><div class="perf-info-vl" id="pi-codigo">--</div></div></div>
   </div>
 
-  <div class="perf-sec-tit">🛡️ Contato de emergência</div>
-  <div class="perf-info-card perf-emerg" id="perf-emerg-card">
-    <div class="perf-info-row"><span class="perf-info-ic">🆘</span><div class="perf-info-txt"><div class="perf-info-lb">Nome</div><div class="perf-info-vl" id="pi-emerg-nome">Não cadastrado</div></div></div>
-    <div class="perf-info-row"><span class="perf-info-ic">☎️</span><div class="perf-info-txt"><div class="perf-info-lb">WhatsApp</div><div class="perf-info-vl" id="pi-emerg-fone">Não cadastrado</div></div></div>
-  </div>
-  <div id="perf-emerg-aviso" style="display:none;margin:8px 16px 0;">
-    <button onclick="abrirEditarPerfil()" style="width:100%;padding:13px;border-radius:13px;background:rgba(239,68,68,0.1);border:1px dashed rgba(239,68,68,0.4);color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">⚠️ Cadastrar contato de emergência</button>
-  </div>
-
+  
   <div class="perf-sec-tit">Atalhos</div>
   <div class="perf-acoes">
     <button class="perf-acao" onclick="toast('💳 Compra de créditos disponível em breve! Por enquanto, combine o valor direto com o motoboy.')"><span>💳</span> Comprar créditos</button>
@@ -799,17 +780,10 @@ input[type=file]{display:none;}
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:14px;">
-      <div><div class="campo-label">Nome completo</div><input id="ed-nome" class="campo-input" type="text" placeholder="Seu nome"/></div>
+      <div><div class="campo-label">Nome do restaurante</div><input id="ed-nome" class="campo-input" type="text" placeholder="Ex: Pizzaria do João"/></div>
+      <div><div class="campo-label">Endereço do restaurante</div><input id="ed-endereco" class="campo-input" type="text" placeholder="Rua, número, bairro"/></div>
       <div><div class="campo-label">WhatsApp</div><input id="ed-fone" class="campo-input" type="tel" placeholder="(19) 99999-9999"/></div>
-      <div><div class="campo-label">CPF</div><input id="ed-cpf" class="campo-input" type="text" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)"/></div>
-      <div class="emerg-box" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);border-radius:14px;padding:13px;">
-        <div style="font-size:13px;font-weight:800;color:#ef4444;margin-bottom:3px;">🛡️ Contato de emergência</div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Será acionado no botão SOS e ao compartilhar sua entrega</div>
-        <div style="display:flex;flex-direction:column;gap:9px;">
-          <div><div class="campo-label">Nome do contato</div><input id="ed-emerg-nome" class="campo-input" type="text" placeholder="Ex: Maria (esposa)"/></div>
-          <div><div class="campo-label">WhatsApp do contato</div><input id="ed-emerg-fone" class="campo-input" type="tel" placeholder="(19) 99999-9999"/></div>
-        </div>
-      </div>
+      <div><div class="campo-label">CNPJ (opcional)</div><input id="ed-cpf" class="campo-input" type="text" inputmode="numeric" placeholder="00.000.000/0000-00" maxlength="18"/></div>
     </div>
     <button class="btn-salvar" onclick="salvarPerfil()" style="width:100%;padding:15px;border-radius:14px;background:linear-gradient(135deg,var(--dourado2),var(--dourado));border:none;color:#1a1a1a;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;margin-bottom:9px;">Salvar alterações</button>
     <button class="btn-cancel" onclick="fecharEditarPerfil()" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Cancelar</button>
@@ -848,31 +822,31 @@ input[type=file]{display:none;}
     <div style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:16px;">Entrega Já · Política de Responsabilidade</div>
     <div class="termos-texto">
       <h4>1. Sobre a plataforma</h4>
-      <p>O Entrega Já é uma plataforma tecnológica que conecta passageiros a motoboys particulares independentes. Não somos uma empresa de transporte, não possuímos frota, não empregamos motoboys e não prestamos diretamente o serviço de transporte. A relação de transporte é estabelecida exclusivamente entre passageiro e motoboy.</p>
+      <p>O Entrega Já é uma plataforma tecnológica que conecta restaurantes e estabelecimentos a motoboys particulares independentes para a realização de entregas. Não somos uma empresa de logística, não possuímos frota, não empregamos motoboys e não prestamos diretamente o serviço de entrega. A relação de entrega é estabelecida exclusivamente entre o restaurante e o motoboy.</p>
       <h4>2. Cadastro e acesso</h4>
-      <p>O usuário deve fornecer dados verdadeiros (nome, CPF, telefone). O acesso é protegido por senha pessoal e intransferível, sendo o titular responsável por toda atividade na conta. O cadastro é individual. Passageiros menores de idade devem usar o serviço acompanhados de responsável legal.</p>
-      <h4>3. Forma de pagamento</h4>
-      <p>O valor da entrega é combinado diretamente entre passageiro e motoboy. O passageiro deve informar corretamente a forma de pagamento escolhida (dinheiro, Pix, débito ou crédito) para que o motoboy decida se aceita a entrega. A disponibilidade de maquininha de cartão é de responsabilidade exclusiva do motoboy. A plataforma não recebe, não intermedeia e não se responsabiliza pelos pagamentos entre as partes.</p>
-      <h4>4. Responsabilidades do motoboy</h4>
-      <p>O motoboy declara possuir CNH válida com EAR quando exigido, veículo regularizado e em boas condições, e seguro vigente. É responsável por conduzir com segurança, pela integridade dos passageiros, e por multas, acidentes ou danos durante a entrega. Atua como profissional autônomo, sem vínculo empregatício com a plataforma. O motoboy pode recusar entregas a seu critério.</p>
-      <h4>5. Responsabilidades do passageiro</h4>
-      <p>O passageiro deve fornecer informações corretas, tratar o motoboy com respeito, não transportar materiais ilícitos, zelar pelo veículo e efetuar o pagamento combinado. É responsável por seus pertences durante a entrega.</p>
-      <h4>6. Animais e bagagem</h4>
-      <p>O transporte de animais de estimação e de bagagem volumosa deve ser combinado previamente com o motoboy pelo chat, antes do início da entrega. O motoboy tem o direito de recusar a entrega caso não concorde com o transporte de animais, bagagem ou outras condições.</p>
+      <p>O restaurante deve fornecer dados verdadeiros (nome, endereço, telefone). O acesso é protegido por senha e intransferível, sendo o titular responsável por toda atividade na conta. Recomenda-se que o cadastro seja usado apenas por pessoas autorizadas pelo estabelecimento.</p>
+      <h4>3. Retirada e entrega</h4>
+      <p>O motoboy retira a encomenda no endereço cadastrado do restaurante e realiza a entrega no endereço informado pelo restaurante a cada pedido. É responsabilidade do restaurante informar corretamente o endereço de entrega e detalhes relevantes (ex: troco necessário, itens frágeis, observações do cliente).</p>
+      <h4>4. Forma de pagamento</h4>
+      <p>O valor da encomenda e a forma de pagamento (dinheiro, Pix, cartão) são combinados diretamente entre o restaurante e o cliente final. A plataforma não recebe, não intermedeia e não se responsabiliza pelos pagamentos entre restaurante, motoboy e cliente. Quando aplicável, eventuais taxas de entrega cobradas são definidas e informadas dentro do próprio aplicativo.</p>
+      <h4>5. Responsabilidades do motoboy</h4>
+      <p>O motoboy declara possuir CNH válida com EAR quando exigido, veículo regularizado e em boas condições, e seguro vigente quando aplicável. É responsável por conduzir com segurança, pela integridade da encomenda transportada, e por multas, acidentes ou danos durante a entrega. Atua como profissional autônomo, sem vínculo empregatício com a plataforma. O motoboy pode recusar entregas a seu critério.</p>
+      <h4>6. Responsabilidades do restaurante</h4>
+      <p>O restaurante deve fornecer informações corretas sobre o pedido e o endereço de entrega, embalar adequadamente os produtos, tratar o motoboy com respeito e disponibilizar a encomenda pronta no momento em que o motoboy chegar para retirada.</p>
       <h4>7. Créditos (motoboy)</h4>
-      <p>Os créditos são utilizados pelo motoboy para receber pedidos de entrega. Ao aceitar uma entrega, os créditos são descontados conforme a distância (valores consultáveis no aplicativo do motoboy e sujeitos a alteração). Se a entrega for cancelada, os créditos são devolvidos automaticamente ao motoboy. Caso o crédito se esgote, o motoboy deixa de receber pedidos até nova recarga. Os créditos não são reembolsáveis: créditos adquiridos e não utilizados não geram direito a devolução.</p>
-      <h4>8. Relação entre as partes</h4>
-      <p>A entrega é um acordo direto entre passageiro e motoboy. Conflitos, danos ou prejuízos devem ser resolvidos diretamente entre eles, podendo recorrer aos meios legais. A plataforma não tem obrigação de intervir ou arbitrar conflitos.</p>
-      <h4>9. Isenção de responsabilidade</h4>
-      <p>Na máxima extensão permitida por lei, o Entrega Já não se responsabiliza por: acidentes de trânsito, danos materiais ou pessoais; furtos, roubos ou atos ilícitos; atrasos, cancelamentos ou condutas das partes; condições do veículo; veracidade das informações dos usuários; ou prejuízos indiretos. A plataforma é fornecida "no estado em que se encontra", podendo apresentar instabilidades.</p>
-      <h4>10. Segurança e botão SOS</h4>
-      <p>O botão SOS e o compartilhamento de localização são ferramentas auxiliares e não substituem os serviços oficiais de emergência. Em situação de risco, acione imediatamente a Polícia (190), o SAMU (192) ou os Bombeiros (193).</p>
+      <p>Os créditos são utilizados pelo motoboy para receber pedidos de entrega. Ao aceitar uma entrega, os créditos são descontados conforme a política vigente no aplicativo do motoboy. Se a entrega for cancelada antes da retirada, os créditos são devolvidos automaticamente ao motoboy. Caso o crédito se esgote, o motoboy deixa de receber novos pedidos até nova recarga. Os créditos não são reembolsáveis.</p>
+      <h4>8. Avaliações</h4>
+      <p>Ao final de cada entrega, restaurante e motoboy avaliam-se mutuamente com estrelas (obrigatório) e comentário (opcional). A média de avaliações pode afetar o nível e a visibilidade do motoboy na plataforma. Avaliações consideradas injustas podem ser contestadas junto à administração.</p>
+      <h4>9. Relação entre as partes</h4>
+      <p>A entrega é um acordo direto entre o restaurante e o motoboy. Conflitos, danos ou prejuízos devem ser resolvidos diretamente entre eles, podendo recorrer aos meios legais quando necessário. A plataforma não tem obrigação de intervir ou arbitrar conflitos, mas pode auxiliar na mediação quando solicitada.</p>
+      <h4>10. Isenção de responsabilidade</h4>
+      <p>Na máxima extensão permitida por lei, o Entrega Já não se responsabiliza por: acidentes de trânsito, danos materiais durante o transporte, extravio ou avaria de encomendas, atrasos, cancelamentos ou condutas das partes, condições do veículo, veracidade das informações dos usuários, ou prejuízos indiretos decorrentes do uso da plataforma.</p>
       <h4>11. Proteção de dados (LGPD)</h4>
-      <p>Em conformidade com a Lei nº 13.709/2018, coletamos dados pessoais (nome, CPF, telefone, localização, foto, contato de emergência) para viabilizar o serviço de intermediação, comunicação entre as partes e segurança. O usuário pode solicitar a exclusão de seus dados, ressalvado o que deva ser mantido por obrigação legal.</p>
+      <p>Em conformidade com a Lei nº 13.709/2018, coletamos dados (nome do restaurante, endereço, telefone, localização) para viabilizar o serviço de intermediação e a comunicação entre as partes. O restaurante pode solicitar a exclusão de seus dados, ressalvado o que deva ser mantido por obrigação legal.</p>
       <h4>12. Conduta proibida</h4>
-      <p>É vedado usar o aplicativo para fins ilícitos, assediar ou agredir usuários, fornecer informações falsas ou tentar fraudar o sistema. O descumprimento pode resultar em suspensão ou exclusão da conta.</p>
+      <p>É vedado usar o aplicativo para fins ilícitos, assediar ou agredir usuários, fornecer informações falsas, solicitar transporte de itens proibidos por lei, ou tentar fraudar o sistema (incluindo confirmar etapas de entrega sem realizá-las de fato). O descumprimento pode resultar em suspensão ou exclusão da conta.</p>
       <h4>13. Disposições gerais</h4>
-      <p>Estes termos podem ser atualizados a qualquer momento. O uso continuado implica aceitação. Fica eleito o foro da comarca de Holambra/SP para dirimir conflitos. Ao concluir o cadastro, o usuário declara ter lido e aceito integralmente estes termos.</p>
+      <p>Estes termos podem ser atualizados a qualquer momento. O uso continuado implica aceitação. Fica eleito o foro da comarca de Holambra/SP para dirimir conflitos. Ao concluir o cadastro, o restaurante declara ter lido e aceito integralmente estes termos.</p>
     </div>
     <button class="btn-p" onclick="document.getElementById('cad-termos').checked=true;document.getElementById('modal-termos').classList.remove('show')" style="width:100%;margin-top:14px;">Li e aceito</button>
     <button class="btn-cancel" onclick="document.getElementById('modal-termos').classList.remove('show')" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:9px;">Fechar</button>
@@ -884,7 +858,7 @@ input[type=file]{display:none;}
   <div class="modal-sheet">
     <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:6px;">
-      <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" style="width:64px;height:64px;border-radius:16px;object-fit:cover;box-shadow:0 4px 16px rgba(251,191,36,0.3);"/>
+      <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" style="width:64px;height:64px;border-radius:16px;object-fit:cover;box-shadow:0 4px 16px rgba(251,191,36,0.3);"/>
       <div style="font-size:20px;font-weight:900;color:#fff;margin-top:8px;letter-spacing:0.5px;">Entrega Já</div>
     </div>
     <div style="font-size:14px;color:var(--text);text-align:center;margin-bottom:18px;font-weight:600;">Escolha a forma de pagamento desta entrega</div>
@@ -905,7 +879,7 @@ input[type=file]{display:none;}
   <div class="modal-sheet">
     <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:16px;">
-      <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" style="width:78px;height:78px;border-radius:18px;object-fit:cover;box-shadow:0 6px 20px rgba(251,191,36,0.3);"/>
+      <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" style="width:78px;height:78px;border-radius:18px;object-fit:cover;box-shadow:0 6px 20px rgba(251,191,36,0.3);"/>
       <div style="font-size:22px;font-weight:900;color:#fff;margin-top:10px;letter-spacing:0.5px;">Entrega Já</div>
       <div style="font-size:12px;color:var(--muted);margin-top:3px;">Versão 1.0</div>
       <div style="font-size:12px;color:var(--muted);margin-top:2px;">Desenvolvido por <b style="color:var(--dourado);">Heitor Serra Neto</b></div>
@@ -996,7 +970,7 @@ input[type=file]{display:none;}
 <div id="menu-overlay" onclick="fecharMenu()"></div>
 <div id="menu-lateral">
   <div class="menu-hdr">
-    <div class="menu-logo" style="width:80px;height:80px;border-radius:22px;"><img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:22px;"/></div>
+    <div class="menu-logo" style="width:80px;height:80px;border-radius:22px;"><img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:22px;"/></div>
     <div class="menu-app">Entrega Já</div>
     <div class="menu-dev-por">Desenvolvido por</div>
     <div class="menu-ret">
@@ -1044,7 +1018,7 @@ input[type=file]{display:none;}
 <!-- PWA -->
 <div id="pwa-banner">
   <div class="pwa-inner">
-    <div class="pwa-logo"><img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/logo-entrega-ja.png" alt=""/></div>
+    <div class="pwa-logo"><img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" alt=""/></div>
     <div class="pwa-txt"><strong>Instalar Entrega Já</strong><span>Adicione à tela inicial</span></div>
     <div class="pwa-btns"><button class="btn-inst" id="btn-inst">Instalar</button><button class="btn-x" onclick="fecharPWA()">✕</button></div>
   </div>
@@ -1198,6 +1172,35 @@ function irPara(dest){
   }
 }
 
+function sair(){if(unsubCorrida){unsubCorrida();unsubCorrida=null;}localStorage.removeItem("ej_user");user=null;mostrarTela("tela-login");}
+
+// ── ATALHOS ──
+const ATALHOS_PADRAO=[{icon:"🗺️",label:"No mapa",tipo:"mapa",ativo:true,cor:"#22c55e"}];
+
+function getAtalhos(){try{return JSON.parse(localStorage.getItem("ej_atalhos_v3")||"null")||ATALHOS_PADRAO;}catch(e){return ATALHOS_PADRAO;}}
+function saveAtalhos(a){localStorage.setItem("ej_atalhos_v3",JSON.stringify(a));}
+
+function renderAtalhos(){
+  const cont=document.getElementById("atalhos-container");
+  if(!cont)return;
+  const atalhos=getAtalhos().filter(a=>a.ativo!==false);
+  cont.innerHTML=atalhos.map((a,i)=>{
+    let end="Tocar";
+    if(a.destino)end=a.destino.nome.split(",")[0];
+    const cor=a.cor||"#fbbf24";
+    return`<div class="atalho-item" data-idx="${i}" ontouchstart="iniciaDrag(event,${i})" ontouchmove="moveDrag(event)" ontouchend="fimDrag(event)" onclick="usarAtalho(${i})">
+      <div class="atalho-luz" style="background:conic-gradient(${cor},#fff2,${cor});"></div>
+      <div class="atalho-conteudo">
+        <div class="atalho-ic">${a.icon}</div>
+        <div class="atalho-lb">${a.label}</div>
+        <div class="atalho-end" id="atalho-end-${i}">${end}</div>
+      </div>
+    </div>`;
+  }).join("");
+  cont.querySelectorAll(".atalho-item.drag-ativo").forEach(el=>el.classList.remove("drag-ativo"));
+  cont.classList.remove("reordenando");
+}
+
 // ── CPF ──
 function mascaraCPF(el){
   let v=el.value.replace(/\D/g,"").slice(0,11);
@@ -1283,14 +1286,12 @@ async function cadastrar(){
   const nome=document.getElementById("cad-nome").value.trim();
   const endereco=(document.getElementById("cad-endereco")?.value||"").trim();
   const fone=document.getElementById("cad-fone").value.trim();
-  const cpfVal=(document.getElementById("cad-cpf")?.value||"").trim();
-  const nascVal=(document.getElementById("cad-nasc")?.value||"").trim();
+  const cnpjVal=(document.getElementById("cad-cpf")?.value||"").trim();
   const senha=(document.getElementById("cad-senha")?.value||"").trim();
   const pergunta=(document.getElementById("cad-pergunta")?.value||"").trim();
   const resposta=(document.getElementById("cad-resposta")?.value||"").trim();
   if(!nome||!fone){toast("Preencha o nome do restaurante e WhatsApp");return;}
   if(!endereco){toast("Informe o endereço do restaurante");return;}
-  if(cpfVal&&!validarCPF(cpfVal)){toast("CPF/CNPJ inválido. Deixe em branco se não quiser informar agora.");return;}
   if(senha.length<4){toast("Crie uma senha de pelo menos 4 dígitos");return;}
   if(!pergunta){toast("Escolha uma pergunta de segurança");return;}
   if(!resposta){toast("Responda a pergunta de segurança");return;}
@@ -1317,15 +1318,12 @@ async function cadastrar(){
     const id="rest_"+Date.now();
     const dados={id,nome,fone,
       endereco,enderecoLat,enderecoLng,
-      cpf:cpfVal,
-      dataNascimento:nascVal||null,
+      cnpj:cnpjVal||null,
       senhaHash:hashSenha(senha),
       pergunta:pergunta,
       respostaHash:hashSenha(resposta.toLowerCase()),
       termosAceitos:true,termosData:new Date().toISOString(),
-      emergNome:(document.getElementById("cad-emerg-nome")?.value||"").trim(),
-      emergFone:(document.getElementById("cad-emerg-fone")?.value||"").trim(),
-      foto:fotoFinalCad||null,tipo:"cadastrado",totalCorridas:0,criadoEm:new Date().toISOString()};
+      foto:fotoFinalCad||null,tipo:"cadastrado",totalPedidos:0,criadoEm:new Date().toISOString()};
     await db.collection("ej_restaurantes").doc(id).set(dados);
     user=dados;localStorage.setItem("ej_user",JSON.stringify(user));
     loading(false);irPara("home");pedirNotif();
@@ -1361,43 +1359,7 @@ async function entrar(){
     loading(false);irPara("home");pedirNotif();
   }catch(e){loading(false);toast("Erro ao entrar.");}
 }
-function entrarSemConta(){user={id:"anon_"+Date.now(),nome:"Passageiro",fone:"",foto:null,tipo:"anonimo"};irPara("home");}
-function sair(){if(unsubCorrida){unsubCorrida();unsubCorrida=null;}localStorage.removeItem("ej_user");user=null;mostrarTela("tela-login");}
 
-// ── ATALHOS ──
-const ATALHOS_PADRAO=[{icon:"🏠",label:"Casa",tipo:"casa",ativo:true,cor:"#fbbf24"},{icon:"💼",label:"Trabalho",tipo:"trabalho",ativo:true,cor:"#3b82f6"},{icon:"🗺️",label:"No mapa",tipo:"mapa",ativo:true,cor:"#22c55e"}];
-const ICONES_LIST=["🏠","💼","🏥","🏪","🎓","⛽","🏦","🍕","🏋️","🛒","🏖️","🌳","🎯","🎪","🚉","⛪","🏨","🎭","❤️","👩","👨","🎵","🍦","🧘","🏊","🚴","🎮","📚","☕","🍺","🎂","🌸","🐕","🐈","🏡","🌅","⭐","💎","🎁","🏟️","🌊","🏔️","🎪","🚗","✈️","🎸","🎬","🏀","⚽","🎾"];
-const CORES_LIST=["#fbbf24","#ef4444","#3b82f6","#22c55e","#a855f7","#ec4899","#f97316","#06b6d4","#84cc16","#ffffff"];
-
-function getAtalhos(){try{return JSON.parse(localStorage.getItem("ej_atalhos_v3")||"null")||ATALHOS_PADRAO;}catch(e){return ATALHOS_PADRAO;}}
-function saveAtalhos(a){localStorage.setItem("ej_atalhos_v3",JSON.stringify(a));}
-
-function renderAtalhos(){
-  const cont=document.getElementById("atalhos-container");
-  if(!cont)return;
-  const atalhos=getAtalhos().filter(a=>a.ativo!==false);
-  const casa=JSON.parse(localStorage.getItem("ej_atalho_casa")||"null");
-  const trab=JSON.parse(localStorage.getItem("ej_atalho_trabalho")||"null");
-  cont.innerHTML=atalhos.map((a,i)=>{
-    let end="Definir";
-    if(a.tipo==="casa"&&casa)end=casa.nome.split(",")[0];
-    else if(a.tipo==="trabalho"&&trab)end=trab.nome.split(",")[0];
-    else if(a.tipo==="mapa")end="Tocar";
-    else if(a.destino)end=a.destino.nome.split(",")[0];
-    const cor=a.cor||"#fbbf24";
-    return`<div class="atalho-item" data-idx="${i}" ontouchstart="iniciaDrag(event,${i})" ontouchmove="moveDrag(event)" ontouchend="fimDrag(event)" onclick="usarAtalho(${i})">
-      <div class="atalho-luz" style="background:conic-gradient(${cor},#fff2,${cor});"></div>
-      <div class="atalho-conteudo">
-        <div class="atalho-ic">${a.icon}</div>
-        <div class="atalho-lb">${a.label}</div>
-        <div class="atalho-end" id="atalho-end-${i}">${end}</div>
-      </div>
-    </div>`;
-  }).join("");
-  // garantir que nenhum item fique com drag preso e brilho vazando
-  cont.querySelectorAll(".atalho-item.drag-ativo").forEach(el=>el.classList.remove("drag-ativo"));
-  cont.classList.remove("reordenando");
-}
 
 function usarAtalho(idx){
   if(_dragging||_acabouDrag)return;
@@ -1770,8 +1732,8 @@ function escutarEntrega(id){
       somAceito();notif("🚗 Entrega Já! Motoboy encontrado!",d.motoboy.nome+" está a caminho!");
       mostrarTelaCorrente(d);
     }
-    if(d.status==="motoboy_chegou"){somChegou();notif("📍 Motoboy chegou!","Dirija-se ao veículo.");document.getElementById("entrega-status").textContent="📍 Seu motoboy chegou!";}
-    if(d.statusEtapa==="no_carro")document.getElementById("entrega-status").textContent="🚗 A caminho do destino!";
+    if(d.status==="motoboy_chegou"){somChegou();notif("📍 Motoboy chegou!","Dirija-se ao veículo.");document.getElementById("corrida-status").textContent="📍 Seu motoboy chegou!";}
+    if(d.statusEtapa==="no_carro")document.getElementById("corrida-status").textContent="🚗 A caminho do destino!";
     if(d.status==="concluida"){pararBusc();if(unsubEntrega){unsubEntrega();unsubEntrega=null;}const cId=entregaAtiva?.id||id,mNome=d.motoboy?.nome||"motoboy";toast("Entrega concluída! Obrigado! 🎉");setTimeout(()=>mostrarAval(cId,mNome),1000);setTimeout(()=>{entregaAtiva=null;irPara("home");},8000);}
     if(d.status==="cancelada_motoboy"){pararBusc();if(unsubEntrega){unsubEntrega();unsubEntrega=null;}entregaAtiva=null;mostrarTela("tela-home");toast("Motoboy cancelou. Tente novamente.");}
     if(d.motoboy&&d.motoboy.lat&&mapaEntrega){
@@ -1792,7 +1754,7 @@ function mostrarTelaCorrente(d){
   const v={moto:"🏍️ Moto",carro:"🚗 Carro",van:"🚐 Van"};
   document.getElementById("mot-veic").textContent=v[m.veiculo]||m.veiculo||"--";
   document.getElementById("mot-placa").textContent=m.placa||"--";
-  document.getElementById("entrega-valor").textContent=d.valorEstimado||"--";
+  document.getElementById("corrida-valor").textContent=d.valorEstimado||"--";
   const fone=(m.fone||"").replace(/\D/g,"");
   const btnZapEl=document.getElementById("btn-zap");if(btnZapEl)btnZapEl.onclick=()=>window.open("https://wa.me/55"+fone,"_blank");
   mostrarTela("tela-entrega");
@@ -1829,7 +1791,7 @@ async function verPerfilMot(){
   }catch(e){}
 
   const tc=dadosMot?.totalEntregas||0;
-  document.getElementById("mm-entregas").textContent=tc;
+  document.getElementById("mm-corridas").textContent=tc;
   let nivel="🥉 Bronze",grad="conic-gradient(#cd7f32,#f0b97d,#8b5a2b,#cd7f32)";
   if(tc>=50){nivel="💎 Diamante";grad="conic-gradient(#b9f2ff,#7fd4e8,#5fa8d3,#a0e9ff,#b9f2ff)";}
   else if(tc>=20){nivel="🥇 Ouro";grad="conic-gradient(#ffd700,#fff3a0,#daa520,#ffd700)";}
@@ -2016,14 +1978,14 @@ function atualizarPerfil(){
   g("perf-nome").textContent=user.nome||"--";
   const av=g("perf-av");
   if(user.foto)av.innerHTML=`<img src="${user.foto}"/>`;
-  else g("perf-initial").textContent=(user.nome||"P")[0].toUpperCase();
-  // Nivel por nº de entregas + cor do anel girando
-  const tc=user.totalEntregas||0;
-  let nivel="🥉 Passageiro Bronze";
+  else g("perf-initial").textContent=(user.nome||"R")[0].toUpperCase();
+  // Nivel por nº de pedidos + cor do anel girando
+  const tc=user.totalPedidos||0;
+  let nivel="🥉 Restaurante Bronze";
   let grad="conic-gradient(#cd7f32,#f0b97d,#8b5a2b,#cd7f32)"; // bronze
-  if(tc>=50){nivel="💎 Passageiro Diamante";grad="conic-gradient(#b9f2ff,#7fd4e8,#5fa8d3,#a0e9ff,#b9f2ff)";}
-  else if(tc>=20){nivel="🥇 Passageiro Ouro";grad="conic-gradient(#ffd700,#fff3a0,#daa520,#ffd700)";}
-  else if(tc>=5){nivel="🥈 Passageiro Prata";grad="conic-gradient(#c0c0c0,#f5f5f5,#a8a8a8,#e8e8e8,#c0c0c0)";}
+  if(tc>=50){nivel="💎 Restaurante Diamante";grad="conic-gradient(#b9f2ff,#7fd4e8,#5fa8d3,#a0e9ff,#b9f2ff)";}
+  else if(tc>=20){nivel="🥇 Restaurante Ouro";grad="conic-gradient(#ffd700,#fff3a0,#daa520,#ffd700)";}
+  else if(tc>=5){nivel="🥈 Restaurante Prata";grad="conic-gradient(#c0c0c0,#f5f5f5,#a8a8a8,#e8e8e8,#c0c0c0)";}
   if(g("perf-nivel"))g("perf-nivel").textContent=nivel;
   const ring=g("perf-av-ring");
   if(ring)ring.style.setProperty("--nivel-grad",grad);
@@ -2035,45 +1997,50 @@ function atualizarPerfil(){
     if(user.criadoEm){const d=new Date(user.criadoEm);m=d.toLocaleDateString("pt-BR",{month:"short",year:"2-digit"});}
     g("ps-membro").textContent=m;
   }
-  // Dados pessoais
+  // Dados do restaurante
   if(g("pi-nome"))g("pi-nome").textContent=user.nome||"--";
   if(g("pi-fone"))g("pi-fone").textContent=user.fone||"--";
-  if(g("pi-cpf"))g("pi-cpf").textContent=user.cpf||"Não informado";
-  if(g("pi-idade")){
-    const idd=calcularIdadeCad(user.dataNascimento);
-    g("pi-idade").textContent=idd!==null?idd+" anos":"Não informada";
-  }
+  if(g("pi-cpf"))g("pi-cpf").textContent=user.cnpj||"Não informado";
+  if(g("pi-idade"))g("pi-idade").textContent=user.endereco||"Não informado";
   if(g("pi-codigo"))g("pi-codigo").textContent=(user.id||"").slice(-6).toUpperCase()||"--";
-  // Emergencia
-  const temEmerg=user.emergNome&&user.emergFone;
-  if(g("pi-emerg-nome"))g("pi-emerg-nome").textContent=user.emergNome||"Não cadastrado";
-  if(g("pi-emerg-fone"))g("pi-emerg-fone").textContent=user.emergFone||"Não cadastrado";
-  if(g("perf-emerg-card"))g("perf-emerg-card").style.display=temEmerg?"block":"none";
-  if(g("perf-emerg-aviso"))g("perf-emerg-aviso").style.display=temEmerg?"none":"block";
 }
 function abrirEditarPerfil(){
   if(!user)return;
   document.getElementById("modal-editar").classList.add("show");
   document.getElementById("ed-nome").value=user.nome||"";
   document.getElementById("ed-fone").value=user.fone||"";
-  if(document.getElementById("ed-cpf"))document.getElementById("ed-cpf").value=user.cpf||"";
-  if(document.getElementById("ed-emerg-nome"))document.getElementById("ed-emerg-nome").value=user.emergNome||"";
-  if(document.getElementById("ed-emerg-fone"))document.getElementById("ed-emerg-fone").value=user.emergFone||"";
+  if(document.getElementById("ed-endereco"))document.getElementById("ed-endereco").value=user.endereco||"";
+  if(document.getElementById("ed-cpf"))document.getElementById("ed-cpf").value=user.cnpj||"";
   const fEl=document.getElementById("med-foto");
-  if(user.foto)fEl.innerHTML=`<img src="${user.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;else fEl.textContent=(user.nome||"P")[0].toUpperCase();
+  if(user.foto)fEl.innerHTML=`<img src="${user.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;else fEl.textContent=(user.nome||"R")[0].toUpperCase();
 }
 function fecharEditarPerfil(){document.getElementById("modal-editar").classList.remove("show");}
 async function salvarPerfil(){
   const nome=document.getElementById("ed-nome").value.trim();
   const fone=document.getElementById("ed-fone").value.trim();
-  const cpf=(document.getElementById("ed-cpf")?.value||"").trim();
-  const emergNome=(document.getElementById("ed-emerg-nome")?.value||"").trim();
-  const emergFone=(document.getElementById("ed-emerg-fone")?.value||"").trim();
-  if(!nome){toast("Informe seu nome");return;}
-  if(cpf&&!validarCPF(cpf)){toast("CPF inválido");return;}
+  const endereco=(document.getElementById("ed-endereco")?.value||"").trim();
+  const cnpj=(document.getElementById("ed-cpf")?.value||"").trim();
+  if(!nome){toast("Informe o nome do restaurante");return;}
+  if(!endereco){toast("Informe o endereço do restaurante");return;}
   loading(true);
   try{
-    const upd={nome,fone,cpf,emergNome,emergFone};
+    const upd={nome,fone,cnpj};
+    // Só regeocodifica se o endereço realmente mudou (evita chamadas desnecessárias)
+    if(endereco!==user.endereco){
+      try{
+        const res=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(endereco+", SP, Brasil")}&format=json&limit=1`,{headers:{"User-Agent":"EntregaJa/1.0"}});
+        const data=await res.json();
+        if(data&&data[0]){
+          upd.endereco=endereco;
+          upd.enderecoLat=parseFloat(data[0].lat);
+          upd.enderecoLng=parseFloat(data[0].lon);
+        }else{
+          loading(false);
+          toast("Não conseguimos localizar esse endereço. Tente ser mais específico.");
+          return;
+        }
+      }catch(e){loading(false);toast("Erro ao verificar o endereço.");return;}
+    }
     if(user.tipo!=="anonimo")await db.collection("ej_restaurantes").doc(user.id).update(upd);
     Object.assign(user,upd);
     localStorage.setItem("ej_user",JSON.stringify(user));
