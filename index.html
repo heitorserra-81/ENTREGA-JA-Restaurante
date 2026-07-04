@@ -184,7 +184,7 @@ input[type=file]{display:none;}
 .btn-chamar:disabled{opacity:0.92;cursor:default;}
 
 /* MAPA MOTOBOYS */
-.mapa-mot-wrap{margin:0 14px 12px;border-radius:18px;overflow:hidden;border:1px solid rgba(34,197,94,0.2);height:200px;position:relative;background:#060d18;}
+.mapa-mot-wrap{margin:10px 14px 12px;border-radius:18px;overflow:hidden;border:1px solid rgba(34,197,94,0.2);height:150px;position:relative;background:#060d18;}
 #mapa-motoboys{position:absolute;top:0;left:0;bottom:0;right:0;width:100%;height:100%;}
 .mot-badge{position:absolute;z-index:999;pointer-events:none;border-radius:9px;padding:4px 10px;font-size:10px;font-weight:600;}
 
@@ -544,8 +544,15 @@ input[type=file]{display:none;}
       <button class="btn-ham" onclick="abrirMenu()" style="flex-shrink:0;position:relative;z-index:1;">☰</button>
     </div>
   </div>
+  <div class="mapa-mot-wrap">
+    <div id="mapa-motoboys"></div>
+    <div style="position:absolute;bottom:8px;right:8px;z-index:999;background:rgba(8,15,30,0.85);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:10px;font-weight:600;color:var(--dourado);cursor:pointer;" onclick="abrirMapaFull()">⛶ Ampliar</div>
+    <div class="mot-badge" style="top:8px;left:8px;background:rgba(4,13,4,0.88);border:1px solid rgba(34,197,94,0.3);color:#22c55e;">🟢 Motoboys online</div>
+    <div class="mot-badge" style="top:8px;right:8px;background:rgba(8,15,30,0.88);border:1px solid var(--border);color:var(--dourado);" id="count-mot">0 disponíveis</div>
+  </div>
   <div class="dest-card">
     <div class="dest-titulo">Nova entrega 🏍️</div>
+    
     <div class="atalhos-scroll" id="atalhos-container" style="margin-bottom:10px;"></div>
     <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">Cidade de entrega</div>
     <div class="chips" id="chips-cidade">
@@ -564,6 +571,8 @@ input[type=file]{display:none;}
       </div>
       <div class="sugestoes" id="sugestoes"></div>
     </div>
+    <input class="campo-obs" id="campo-numero-endereco" type="text" inputmode="numeric" placeholder="Número (ex: 123, ap 4)" autocomplete="off" style="margin-top:8px;"/>
+    <input class="campo-obs" id="campo-nome-cliente" type="text" placeholder="Nome do cliente" autocomplete="off" style="margin-top:8px;"/>
     <div class="origem-row">
       <span style="font-size:15px;">🏪</span>
       <div class="origem-txt" id="origem-txt">Retirada: endereço do restaurante</div>
@@ -623,13 +632,7 @@ input[type=file]{display:none;}
       </button>
     </div>
   </div>
-  <div class="mapa-mot-wrap">
-    <div id="mapa-motoboys"></div>
-    <div style="position:absolute;bottom:8px;right:8px;z-index:999;background:rgba(8,15,30,0.85);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:10px;font-weight:600;color:var(--dourado);cursor:pointer;" onclick="abrirMapaFull()">⛶ Ampliar</div>
-    <div class="mot-badge" style="top:8px;left:8px;background:rgba(4,13,4,0.88);border:1px solid rgba(34,197,94,0.3);color:#22c55e;">🟢 Motoboys online</div>
-    <div class="mot-badge" style="top:8px;right:8px;background:rgba(8,15,30,0.88);border:1px solid var(--border);color:var(--dourado);" id="count-mot">0 disponíveis</div>
-  </div>
-  
+    
 </div>
 
 <!-- MODAL MAPA DESTINO -->
@@ -1357,6 +1360,10 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
           <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Pagamento</div>
           <div id="notinha-pgto" style="font-size:13px;color:#333;font-weight:700;">--</div>
         </div>
+        <div style="background:#f7f7f7;border-radius:10px;padding:10px 12px;margin-bottom:10px;" id="notinha-cliente-row">
+          <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Cliente</div>
+          <div id="notinha-cliente" style="font-size:13px;color:#333;font-weight:700;">--</div>
+        </div>
         <div style="background:#f7f7f7;border-radius:10px;padding:10px 12px;">
           <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Entregar em</div>
           <div id="notinha-endereco" style="font-size:12px;color:#333;">--</div>
@@ -1854,7 +1861,20 @@ function definirAtalho(tipo){fecharMenu();_tipoAtalho=tipo;_definindoAtalho=true
 function copiarPix(){navigator.clipboard.writeText("19982480386").then(()=>toast("Chave Pix copiada!")).catch(()=>toast("Chave: 19982480386"));}
 
 // ── CIDADE ──
-function selCidade(el){document.querySelectorAll(".chip").forEach(c=>c.classList.remove("ativo"));el.classList.add("ativo");cidadeAtual=el.dataset.c;document.getElementById("campo-busca").value="";document.getElementById("sugestoes").style.display="none";destSel=null;document.getElementById("btn-chamar").disabled=true;document.getElementById("valor-card").style.display="none";}
+const COORDS_CIDADES={"Holambra":[-22.655,-47.059],"Jaguariúna":[-22.703,-47.020],"Arthur Nogueira":[-22.574,-47.167],"Mogi Mirim":[-22.431,-46.957],"Mogi Guaçu":[-22.372,-46.942],"Campinas":[-22.906,-47.063]};
+function selCidade(el){
+  document.querySelectorAll(".chip").forEach(c=>c.classList.remove("ativo"));
+  el.classList.add("ativo");
+  cidadeAtual=el.dataset.c;
+  document.getElementById("campo-busca").value="";
+  document.getElementById("sugestoes").style.display="none";
+  destSel=null;
+  document.getElementById("btn-chamar").disabled=true;
+  document.getElementById("valor-card").style.display="none";
+  // Recentralizar o mapa de busca de destino (se estiver aberto) na cidade escolhida
+  const coords=COORDS_CIDADES[cidadeAtual];
+  if(coords&&mapaDest)mapaDest.setView(coords,13);
+}
 function detectarCidade(lat,lng){const cs=[{n:"Holambra",lat:-22.655,lng:-47.059,r:.08},{n:"Jaguariúna",lat:-22.703,lng:-47.020,r:.1},{n:"Arthur Nogueira",lat:-22.574,lng:-47.167,r:.08},{n:"Mogi Mirim",lat:-22.431,lng:-46.957,r:.1},{n:"Mogi Guaçu",lat:-22.372,lng:-46.942,r:.1},{n:"Campinas",lat:-22.906,lng:-47.063,r:.15}];for(const c of cs)if(Math.sqrt((lat-c.lat)**2+(lng-c.lng)**2)<=c.r)return c.n;return null;}
 
 // ── AUTOCOMPLETE ──
@@ -1982,12 +2002,16 @@ function compartilharIndicacao(){
 // ── MAPA DESTINO ──
 function abrirMapaDest(){
   const m=document.getElementById("modal-mapa-dest");m.style.display="flex";m.classList.add("show");
+  // Centraliza na cidade selecionada nos chips (se houver), senão na posição do restaurante
+  const centro=COORDS_CIDADES[cidadeAtual]||posAtual||[-22.655,-47.059];
   if(!mapaDest){
     mapaDest=L.map("mapa-dest-div",{zoomControl:true,attributionControl:false});
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mapaDest);
-    mapaDest.setView(posAtual||[-22.655,-47.059],15);
+    mapaDest.setView(centro,13);
     mapaDest.on("moveend",()=>{const c=mapaDest.getCenter();_buscarRev(c.lat,c.lng);});
-  }else setTimeout(()=>mapaDest.invalidateSize(),100);
+  }else{
+    setTimeout(()=>{mapaDest.invalidateSize();mapaDest.setView(centro,13);},100);
+  }
 }
 function fecharMapaDest(){const m=document.getElementById("modal-mapa-dest");m.style.display="none";m.classList.remove("show");_definindoAtalho=false;_tipoAtalho=null;}
 async function _buscarRev(lat,lng){
@@ -2060,12 +2084,16 @@ async function confirmarPgtoEChamar(){
     const dadosItens=obterDadosItensPedido();
     const taxaEntrega=document.getElementById("chk-cobrar-taxa")?.checked?_taxaEntregaValor:0;
     const valorComTaxa=(dadosItens.valorPedido||0)+taxaEntrega;
+    const numeroEndereco=(document.getElementById("campo-numero-endereco")?.value||"").trim();
+    const nomeClienteFinal=(document.getElementById("campo-nome-cliente")?.value||"").trim();
+    const destinoCompleto=destSel.nome.split(",").slice(0,2).join(",")+(numeroEndereco?", "+numeroEndereco:"");
     const pedido={
       id,status:"aguardando",
       clienteId:user.id,clienteNome:user.nome,clienteFone:user.fone||"",clienteFoto:user.foto||null,clienteTipo:user.tipo||"cadastrado",
+      nomeClienteFinal:nomeClienteFinal||null,
       restauranteEndereco:user.endereco||null,
       origemLat:posAtual[0],origemLng:posAtual[1],
-      destino:destSel.nome.split(",").slice(0,2).join(","),destinoLat:destSel.lat,destinoLng:destSel.lng,
+      destino:destinoCompleto,destinoLat:destSel.lat,destinoLng:destSel.lng,
       obs:dadosItens.obs,
       valorPedido:dadosItens.valorPedido,
       taxaEntrega:taxaEntrega>0?taxaEntrega:null,
@@ -2094,6 +2122,8 @@ async function confirmarPgtoEChamar(){
     document.getElementById("taxa-entrega-box").style.display="none";
     _taxaEntregaValor=0;
     document.getElementById("chk-maquininha").checked=false;
+    document.getElementById("campo-numero-endereco").value="";
+    document.getElementById("campo-nome-cliente").value="";
     _seg=0;if(contBusc)clearInterval(contBusc);
     contBusc=setInterval(()=>{_seg++;document.getElementById("busc-num").textContent=_seg;},1000);
     escutarEntrega(id);
@@ -2294,7 +2324,7 @@ function iniciarMapaMot(){
     setTimeout(()=>{mapaMot.invalidateSize();if(posAtual)mapaMot.setView(posAtual,13);},1400);
     if(unsubMot){unsubMot();unsubMot=null;}
     unsubMot=db.collection("ej_motoboys").where("online","==",true).onSnapshot(snap=>{
-      const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="30" height="30"><rect x="2" y="9" width="26" height="13" rx="5" fill="#f59e0b"/><rect x="5" y="4" width="17" height="9" rx="4" fill="#fcd34d"/><circle cx="7" cy="23" r="4" fill="#080f1e"/><circle cx="7" cy="23" r="2" fill="#fbbf24"/><circle cx="23" cy="23" r="4" fill="#080f1e"/><circle cx="23" cy="23" r="2" fill="#fbbf24"/></svg>`;
+      const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 30" width="32" height="30"><circle cx="6" cy="23" r="5" fill="#080f1e" stroke="#fbbf24" stroke-width="1.5"/><circle cx="26" cy="23" r="5" fill="#080f1e" stroke="#fbbf24" stroke-width="1.5"/><path d="M6 23 L13 13 L20 13 L26 23" stroke="#fbbf24" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 13 L16 6 L20 6" stroke="#fbbf24" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="20" cy="6" r="2.2" fill="#fbbf24"/><rect x="9" y="16" width="7" height="4" rx="1.5" fill="#f59e0b"/></svg>`;
       const ic=L.divIcon({html:`<div style="filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));">${svg}</div>`,className:"",iconSize:[30,30],iconAnchor:[15,25]});
       const ativos=new Set();
       snap.docs.forEach(d=>{const m=d.data();if(!m.lat||!m.lng)return;ativos.add(d.id);if(marcsMot[d.id])marcsMot[d.id].setLatLng([m.lat,m.lng]);else marcsMot[d.id]=L.marker([m.lat,m.lng],{icon:ic}).addTo(mapaMot);});
@@ -3127,7 +3157,13 @@ function abrirNotinha(){
   if(pgtoRestSel==="Dinheiro"&&trocoTxt)pgtoTxt+=" — troco para "+trocoTxt;
   document.getElementById("notinha-pgto").textContent=pgtoTxt;
 
-  document.getElementById("notinha-endereco").textContent=destSel.nome||"--";
+  const numeroEnd=(document.getElementById("campo-numero-endereco")?.value||"").trim();
+  document.getElementById("notinha-endereco").textContent=(destSel.nome||"--")+(numeroEnd?", "+numeroEnd:"");
+
+  const nomeCliente=(document.getElementById("campo-nome-cliente")?.value||"").trim();
+  const clienteRow=document.getElementById("notinha-cliente-row");
+  if(nomeCliente){clienteRow.style.display="block";document.getElementById("notinha-cliente").textContent=nomeCliente;}
+  else clienteRow.style.display="none";
 
   document.getElementById("modal-notinha").classList.add("show");
 }
