@@ -1106,6 +1106,7 @@ input[type=file]{display:none;}
     <div class="menu-item" onclick="fecharMenu();abrirMeusClientes()">👥 Meus clientes</div>
     <div class="menu-item" onclick="fecharMenu();abrirSimuladorFrete()">🧮 Simular frete</div>
     <div class="menu-item" onclick="fecharMenu();abrirEditarPerfil()">✏️ Editar cadastro</div>
+    <div class="menu-item" onclick="fecharMenu();gerarResumoDia()">📤 Resumo do dia</div>
     <div class="menu-item" onclick="abrirConfig()">⚙️ Configurações</div>
     <div class="menu-sep"></div>
     <div class="menu-item" id="notif-item" onclick="toggleNotifMenu()">🔔 Notificações ativadas</div>
@@ -2304,6 +2305,7 @@ function _linhaPedidoDrill(c){
   const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
   const statusIc={concluida:"✅",aguardando:"🔎",aceita:"🚗",motoboy_chegou:"📍"};
   const ic=(c.status||"").startsWith("cancelada")?"❌":(statusIc[c.status]||"📦");
+  const podeRepetir=c.destinoLat&&c.destinoLng&&c.status==="concluida";
   return`<div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;margin-bottom:8px;">
     <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
       <div style="font-size:12px;font-weight:700;color:#fff;">${ic} ${c.nomeClienteFinal||(c.destino||"Pedido").split(",")[0]}</div>
@@ -2311,7 +2313,62 @@ function _linhaPedidoDrill(c){
     </div>
     <div style="font-size:10px;color:var(--muted);">${_fmtData(dt)} · ${c.motoboy?.nome||"sem motoboy"} · ${c.formaPgto||""}</div>
     ${c.itensDetalhados&&c.itensDetalhados.length?`<div style="font-size:10px;color:var(--muted);margin-top:3px;">📦 ${c.itensDetalhados.map(i=>i.qtd+"x "+i.nome).join(", ")}</div>`:""}
+    ${podeRepetir?`<button onclick="repetirPedido('${c.id}')" style="margin-top:8px;width:100%;padding:8px;border-radius:10px;background:rgba(251,191,36,0.08);border:1px solid var(--border);color:var(--dourado);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">🔁 Repetir este pedido</button>`:""}
   </div>`;
+}
+// ── REPETIR PEDIDO: remonta um pedido antigo (endereço + cliente + itens + valor) em um toque ──
+async function repetirPedido(pedidoId){
+  const pedidos=await _getPedidosDrill();
+  const c=pedidos.find(p=>p.id===pedidoId);
+  if(!c)return;
+  destSel={nome:c.destino,lat:c.destinoLat,lng:c.destinoLng};
+  document.getElementById("campo-busca").value=(c.destino||"").split(",").slice(0,2).join(",");
+  if(c.nomeClienteFinal)document.getElementById("campo-nome-cliente").value=c.nomeClienteFinal;
+  // Itens: reaproveita como pedido manual (texto + valor), sem depender do cardápio atual
+  limparSelecaoPratos();
+  if(c.obs||c.valorPedido){
+    _obsManualAtiva=true;
+    document.getElementById("campo-obs").style.display="block";
+    document.getElementById("campo-valor-manual").style.display="block";
+    document.getElementById("campo-obs").value=c.obs||"";
+    document.getElementById("campo-valor-manual").value=c.valorPedido?c.valorPedido.toFixed(2):"";
+  }
+  document.getElementById("btn-chamar").disabled=false;
+  fecharDrill();
+  irPara("home");
+  calcularValor();
+  toast("🔁 Pedido remontado — confira e chame a entrega!");
+}
+// ── RESUMO DO DIA: gera o texto pronto pra compartilhar no WhatsApp ──
+async function gerarResumoDia(){
+  if(!user)return;
+  loading(true);
+  try{
+    _drillCacheTs=0;
+    const pedidos=await _getPedidosDrill();
+    const hoje=new Date();hoje.setHours(0,0,0,0);
+    const dtDe=c=>c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
+    const doDia=pedidos.filter(c=>dtDe(c)>=hoje);
+    const concluidas=doDia.filter(c=>c.status==="concluida");
+    const canceladas=doDia.filter(c=>(c.status||"").startsWith("cancelada"));
+    const fat=concluidas.reduce((s,c)=>s+(c.valorPedido||c.valorTotal||0),0);
+    const pratos={};
+    concluidas.forEach(c=>(c.itensDetalhados||[]).forEach(i=>{pratos[i.nome]=(pratos[i.nome]||0)+i.qtd;}));
+    const topPrato=Object.entries(pratos).sort((a,b)=>b[1]-a[1])[0];
+    const dataStr=new Date().toLocaleDateString("pt-BR");
+    let txt=`📊 *Resumo do dia — ${user.nome}*\n🗓 ${dataStr}\n\n`;
+    txt+=`✅ Entregas concluídas: *${concluidas.length}*\n`;
+    txt+=`💰 Faturamento: *R$ ${fat.toFixed(2).replace(".",",")}*\n`;
+    if(concluidas.length>0)txt+=`🧾 Ticket médio: R$ ${(fat/concluidas.length).toFixed(2).replace(".",",")}\n`;
+    if(topPrato)txt+=`🏆 Prato campeão: ${topPrato[0]} (${topPrato[1]}x)\n`;
+    if(canceladas.length>0)txt+=`❌ Cancelamentos: ${canceladas.length}\n`;
+    txt+=`\n_Gerado pelo Entrega Já_ 🛵`;
+    loading(false);
+    if(navigator.share){
+      try{await navigator.share({text:txt});return;}catch(e){if(e.name==="AbortError")return;}
+    }
+    window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank");
+  }catch(e){loading(false);toast("Erro ao gerar o resumo: "+e.message);}
 }
 function _listaOuVazio(linhas,msgVazio){
   const arr=Array.isArray(linhas)?linhas.filter(Boolean):[];
