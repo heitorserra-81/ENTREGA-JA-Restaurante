@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -2029,7 +2030,7 @@ async function cadastrar(){
       foto:fotoFinalCad||null,tipo:"cadastrado",totalPedidos:0,criadoEm:new Date().toISOString()};
     await db.collection("ej_restaurantes").doc(id).set(dados);
     user=dados;salvarSessaoLocal();
-    loading(false);irPara("home");pedirNotif();
+    loading(false);irPara("home");pedirNotif();vincularOneSignal();
   }catch(e){loading(false);toast("Erro: "+e.message);}
 }
 function calcularIdadeCad(dataNasc){
@@ -2059,7 +2060,7 @@ async function entrar(){
       loading(false);toast("Senha incorreta.");return;
     }
     user=dados;salvarSessaoLocal();
-    loading(false);irPara("home");pedirNotif();
+    loading(false);irPara("home");pedirNotif();vincularOneSignal();
   }catch(e){loading(false);toast("Erro ao entrar.");}
 }
 
@@ -4276,6 +4277,21 @@ function loading(s){document.getElementById("loading").classList.toggle("show",s
 document.addEventListener("touchstart",e=>{if(!e.target.closest(".busca-row")&&!e.target.closest(".sugestoes"))document.getElementById("sugestoes").style.display="none";});
 
 // ── INICIALIZAÇÃO ──
+// ── ONESIGNAL (notificacoes push mesmo com app fechado) ──
+const ONESIGNAL_APP_ID="b912066a-e08a-42a3-9239-58ebd3e55949";
+window.OneSignalDeferred=window.OneSignalDeferred||[];
+OneSignalDeferred.push(async function(OS){
+  await OS.init({appId:ONESIGNAL_APP_ID});
+  window._oneSignalPronto=true;
+  if(user&&user.id&&!modoFantasma)vincularOneSignal();
+});
+async function vincularOneSignal(){
+  if(!window.OneSignal||!user||!user.id||modoFantasma)return;
+  try{
+    await OneSignal.login(user.id);
+    await OneSignal.Notifications.requestPermission();
+  }catch(e){}
+}
 const ADMIN_GHOST_SECRET="ejghost2026serra";
 let modoFantasma=false;
 window.addEventListener("load",async()=>{
@@ -4296,7 +4312,7 @@ window.addEventListener("load",async()=>{
     }catch(e){mostrarTela("tela-login");renderGradeRamoCad();}
   }else{
     const s=localStorage.getItem("ej_user");
-    if(s){user=JSON.parse(s);irPara("home");restaurarEntregasAtivas();iniciarEscutaSaldoRest();}
+    if(s){user=JSON.parse(s);irPara("home");restaurarEntregasAtivas();iniciarEscutaSaldoRest();vincularOneSignal();}
     else{
       setTimeout(()=>{mostrarTela("tela-login");renderGradeRamoCad();},2000);
     }
