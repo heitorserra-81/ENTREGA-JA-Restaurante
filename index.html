@@ -669,6 +669,10 @@ input[type=file]{display:none;}
     <input class="campo-obs" id="campo-obs" type="text" placeholder="Ex: 2 pizzas, 1 refrigerante" autocomplete="off" style="display:none;margin-top:8px;"/>
     <input class="campo-obs" id="campo-valor-manual" type="number" step="0.5" min="0" placeholder="Valor total a cobrar do cliente (R$)" autocomplete="off" style="display:none;margin-top:8px;"/>
 
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;margin-top:8px;">📝 Observações rápidas</div>
+    <div class="chips" id="chips-obs-rapidas" style="margin-bottom:8px;"></div>
+    <input class="campo-obs" id="campo-obs-extra" type="text" placeholder="Toque nos chips acima ou digite aqui" autocomplete="off"/>
+
     <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;margin-top:8px;">Forma de pagamento do cliente</div>
     <div class="chips" id="chips-pgto">
       <div class="chip ativo" data-pgto="Dinheiro" onclick="selPgtoRest(this)">💵 Dinheiro</div>
@@ -1159,6 +1163,8 @@ input[type=file]{display:none;}
     <div class="menu-item" data-priv="1" onclick="fecharMenu();abrirEditarPerfil()">✏️ Editar cadastro</div>
     <div class="menu-item" data-priv="1" onclick="fecharMenu();gerarResumoDia()">📤 Resumo do dia</div>
     <div class="menu-item" onclick="fecharMenu();abrirHorarioFuncionamento()">🕐 Horário de funcionamento</div>
+    <div class="menu-item" onclick="fecharMenu();abrirConfigObsRapidas()">📝 Observações rápidas</div>
+    <div class="menu-item" onclick="fecharMenu();abrirMotoboyFavorito()">⭐ Motoboy favorito</div>
     <div class="menu-item" onclick="abrirConfig()">⚙️ Configurações</div>
     <div class="menu-item" id="menu-modo-func-on" onclick="fecharMenu();ativarModoFuncionario()">👔 Ativar modo funcionário</div>
     <div class="menu-item" id="menu-modo-func-off" style="display:none;color:var(--dourado);" onclick="fecharMenu();desativarModoFuncionario()">🔓 Sair do modo funcionário (dono)</div>
@@ -1530,6 +1536,10 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
           <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Cliente</div>
           <div id="notinha-cliente" style="font-size:13px;color:#333;font-weight:700;">--</div>
         </div>
+        <div style="background:#fff8e1;border-radius:10px;padding:10px 12px;margin-bottom:10px;border:1px dashed #e8c766;" id="notinha-obsextra-row">
+          <div style="font-size:10px;color:#9a7b0f;font-weight:700;text-transform:uppercase;margin-bottom:3px;">📝 Observações</div>
+          <div id="notinha-obsextra" style="font-size:13px;color:#333;font-weight:600;">--</div>
+        </div>
         <div style="background:#f7f7f7;border-radius:10px;padding:10px 12px;">
           <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Entregar em</div>
           <div id="notinha-endereco" style="font-size:12px;color:#333;">--</div>
@@ -1824,7 +1834,7 @@ function irPara(dest){
     case"home":
       mostrarTela("tela-home");
       iniciarMapaMot();
-      setTimeout(()=>{atualizarHome();renderCardsHome();renderHistRapido();atualizarBadgePausado();atualizarBadgeAgendamentos();},50);
+      setTimeout(()=>{atualizarHome();renderCardsHome();renderHistRapido();atualizarBadgePausado();atualizarBadgeAgendamentos();renderChipsObsRapidas();},50);
       setTimeout(()=>{if(mapaMot)mapaMot.invalidateSize();},400);
       break;
     case"perfil":mostrarTela("tela-perfil");atualizarPerfil();carregarHist();break;
@@ -2491,6 +2501,8 @@ function _linhaPedidoDrill(c){
     </div>
     <div style="font-size:10px;color:var(--muted);">${_fmtData(dt)} · ${c.motoboy?.nome||"sem motoboy"} · ${c.formaPgto||""}${c.trocoPara?" · 💵 Troco p/ R$ "+c.trocoPara:""}</div>
     ${c.itensDetalhados&&c.itensDetalhados.length?`<div style="font-size:10px;color:var(--muted);margin-top:3px;">📦 ${c.itensDetalhados.map(i=>i.qtd+"x "+i.nome).join(", ")}</div>`:""}
+    ${c.obsExtra?`<div style="font-size:10px;color:var(--dourado);margin-top:3px;">📝 ${c.obsExtra}</div>`:""}
+    ${c.fotoComprovante?`<div style="margin-top:8px;"><img src="${c.fotoComprovante}" onclick="event.stopPropagation();window.open('${c.fotoComprovante}','_blank')" style="width:100%;max-height:140px;object-fit:cover;border-radius:10px;cursor:pointer;"/></div>`:""}
     ${podeRepetir?`<div style="display:flex;gap:7px;margin-top:8px;">
       <button onclick="repetirPedido('${c.id}')" style="flex:1;padding:8px;border-radius:10px;background:rgba(251,191,36,0.08);border:1px solid var(--border);color:var(--dourado);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">🔁 Repetir</button>
       <button onclick="compartilharComprovante('${c.id}')" style="flex:1;padding:8px;border-radius:10px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);color:#60a5fa;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">🧾 Comprovante</button>
@@ -2535,6 +2547,159 @@ function desativarModoFuncionario(){
 
 // ── HORÁRIO DE FUNCIONAMENTO / PAUSA ──
 const DIAS_SEMANA=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+// ── OBSERVAÇÕES RÁPIDAS (chips configuráveis pela pessoa dono do negócio) ──
+const OBS_RAPIDAS_PADRAO=["Sem cebola","Bem passado","Sem gelo","Capricha no molho","Trocar guardanapo","Embalagem reforçada"];
+function getObsRapidasChips(){
+  if(user&&Array.isArray(user.obsRapidasChips)&&user.obsRapidasChips.length>0)return user.obsRapidasChips;
+  return OBS_RAPIDAS_PADRAO;
+}
+function renderChipsObsRapidas(){
+  const el=document.getElementById("chips-obs-rapidas");
+  if(!el)return;
+  el.innerHTML=getObsRapidasChips().map(txt=>`<div class="chip" onclick="usarChipObsRapida('${txt.replace(/'/g,"\\'")}')">${txt}</div>`).join("");
+}
+function usarChipObsRapida(txt){
+  const el=document.getElementById("campo-obs-extra");
+  const atual=el.value.trim();
+  el.value=atual?atual+", "+txt:txt;
+  if(navigator.vibrate)navigator.vibrate(10);
+}
+function abrirConfigObsRapidas(){
+  if(!document.getElementById("modal-obs-rapidas"))criarModalConfigObsRapidas();
+  renderListaConfigObsRapidas();
+  document.getElementById("modal-obs-rapidas").classList.add("show");
+}
+function fecharConfigObsRapidas(){document.getElementById("modal-obs-rapidas").classList.remove("show");}
+function criarModalConfigObsRapidas(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div class="modal-base" id="modal-obs-rapidas">
+    <div class="modal-sheet">
+      <div style="font-size:17px;font-weight:900;color:#fff;margin-bottom:4px;">📝 Observações rápidas</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Crie os atalhos que vão aparecer como botões na hora de montar o pedido.</div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <input class="campo-input" id="nova-obs-rapida" type="text" placeholder="Ex: Sem cebola" style="margin-bottom:0;flex:1;"/>
+        <button onclick="adicionarObsRapida()" style="padding:0 18px;border-radius:13px;background:var(--dourado);border:none;color:#1a1a1a;font-weight:900;font-size:18px;cursor:pointer;">+</button>
+      </div>
+      <div id="lista-config-obs-rapidas" style="margin-bottom:9px;"></div>
+      <button class="btn-cancel" onclick="fecharConfigObsRapidas()">Fechar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+function renderListaConfigObsRapidas(){
+  const el=document.getElementById("lista-config-obs-rapidas");
+  const chips=getObsRapidasChips();
+  el.innerHTML=chips.map((txt,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin-bottom:8px;">
+      <div style="flex:1;font-size:13px;color:var(--text);">${txt}</div>
+      <button onclick="removerObsRapida(${i})" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;width:28px;height:28px;border-radius:9px;font-size:14px;cursor:pointer;">🗑</button>
+    </div>`).join("");
+}
+async function adicionarObsRapida(){
+  const inp=document.getElementById("nova-obs-rapida");
+  const txt=inp.value.trim();
+  if(!txt){toast("Digite um texto pro atalho");return;}
+  const chips=[...getObsRapidasChips(),txt];
+  await salvarObsRapidasChips(chips);
+  inp.value="";
+  renderListaConfigObsRapidas();
+}
+async function removerObsRapida(idx){
+  const chips=getObsRapidasChips().filter((_,i)=>i!==idx);
+  await salvarObsRapidasChips(chips);
+  renderListaConfigObsRapidas();
+}
+async function salvarObsRapidasChips(chips){
+  user.obsRapidasChips=chips;
+  localStorage.setItem("ej_user",JSON.stringify(user));
+  renderChipsObsRapidas();
+  if(user.tipo==="anonimo")return;
+  try{await db.collection("ej_restaurantes").doc(user.id).update({obsRapidasChips:chips});}catch(e){}
+}
+
+// ── MOTOBOY FAVORITO (chama só ele primeiro por 30s antes de abrir pra todos) ──
+async function abrirMotoboyFavorito(){
+  if(!document.getElementById("modal-motoboy-favorito"))criarModalMotoboyFavorito();
+  document.getElementById("modal-motoboy-favorito").classList.add("show");
+  renderMotoboyFavoritoAtual();
+  await renderListaMotoboysParaFavoritar();
+}
+function fecharMotoboyFavorito(){document.getElementById("modal-motoboy-favorito").classList.remove("show");}
+function renderMotoboyFavoritoAtual(){
+  const el=document.getElementById("mf-atual");
+  if(user.motoboyFavoritoId){
+    el.innerHTML=`<div style="background:rgba(251,191,36,0.08);border:1px solid var(--dourado);border-radius:14px;padding:13px;margin-bottom:14px;display:flex;align-items:center;gap:11px;">
+      <div style="font-size:20px;">⭐</div>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:800;color:#fff;">${user.motoboyFavoritoNome}</div><div style="font-size:11px;color:var(--muted);">Chamado primeiro, com 30s de exclusividade</div></div>
+      <button onclick="removerMotoboyFavorito()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-size:11px;font-weight:700;padding:7px 12px;border-radius:10px;cursor:pointer;font-family:inherit;">Remover</button>
+    </div>`;
+  }else{
+    el.innerHTML=`<div style="text-align:center;padding:14px;color:var(--muted);font-size:12px;margin-bottom:14px;">Nenhum motoboy favorito ainda. Escolha um da lista abaixo.</div>`;
+  }
+}
+async function renderListaMotoboysParaFavoritar(){
+  const el=document.getElementById("mf-lista");
+  el.innerHTML="<div style='text-align:center;padding:16px;color:var(--muted);font-size:12px;'>Carregando...</div>";
+  try{
+    const pedidos=await _getPedidosDrill();
+    const mots={};
+    pedidos.filter(c=>c.status==="concluida"&&c.motoboy?.id).forEach(c=>{
+      if(!mots[c.motoboy.id])mots[c.motoboy.id]={id:c.motoboy.id,nome:c.motoboy.nome,foto:c.motoboy.foto,qtd:0};
+      mots[c.motoboy.id].qtd++;
+    });
+    const ranking=Object.values(mots).sort((a,b)=>b.qtd-a.qtd);
+    if(ranking.length===0){
+      el.innerHTML="<div style='text-align:center;padding:16px;color:var(--muted);font-size:12px;'>Nenhum motoboy te atendeu ainda. Assim que alguém entregar pra você, ele aparece aqui pra favoritar.</div>";
+      return;
+    }
+    el.innerHTML=ranking.map(m=>`
+      <div style="display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid ${user.motoboyFavoritoId===m.id?"var(--dourado)":"var(--border)"};border-radius:13px;padding:11px;margin-bottom:8px;">
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--card2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${m.foto?`<img src="${m.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"🏍️"}</div>
+        <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;color:#fff;">${m.nome}</div><div style="font-size:11px;color:var(--muted);">${m.qtd} entrega${m.qtd!==1?"s":""} pra você</div></div>
+        ${user.motoboyFavoritoId===m.id?`<div style="font-size:19px;">⭐</div>`:`<button onclick="favoritarMotoboy('${m.id}','${m.nome.replace(/'/g,"")}')" style="background:rgba(251,191,36,0.1);border:1px solid var(--border);color:var(--dourado);font-size:11px;font-weight:700;padding:8px 12px;border-radius:10px;cursor:pointer;font-family:inherit;">Favoritar</button>`}
+      </div>`).join("");
+  }catch(e){el.innerHTML="<div style='text-align:center;padding:16px;color:var(--muted);font-size:12px;'>Erro ao carregar.</div>";}
+}
+async function favoritarMotoboy(id,nome){
+  loading(true);
+  try{
+    if(user.tipo!=="anonimo")await db.collection("ej_restaurantes").doc(user.id).update({motoboyFavoritoId:id,motoboyFavoritoNome:nome});
+    user.motoboyFavoritoId=id;user.motoboyFavoritoNome=nome;
+    localStorage.setItem("ej_user",JSON.stringify(user));
+    loading(false);
+    renderMotoboyFavoritoAtual();
+    renderListaMotoboysParaFavoritar();
+    toast("⭐ "+nome+" agora é seu motoboy favorito!");
+  }catch(e){loading(false);toast("Erro: "+e.message);}
+}
+async function removerMotoboyFavorito(){
+  loading(true);
+  try{
+    if(user.tipo!=="anonimo")await db.collection("ej_restaurantes").doc(user.id).update({motoboyFavoritoId:null,motoboyFavoritoNome:null});
+    user.motoboyFavoritoId=null;user.motoboyFavoritoNome=null;
+    localStorage.setItem("ej_user",JSON.stringify(user));
+    loading(false);
+    renderMotoboyFavoritoAtual();
+    renderListaMotoboysParaFavoritar();
+    toast("Motoboy favorito removido.");
+  }catch(e){loading(false);toast("Erro: "+e.message);}
+}
+function criarModalMotoboyFavorito(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div class="modal-base" id="modal-motoboy-favorito">
+    <div class="modal-sheet">
+      <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+      <div style="font-size:17px;font-weight:900;color:#fff;margin-bottom:3px;">⭐ Motoboy favorito</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Ao chamar uma entrega, seu favorito é avisado primeiro e tem 30 segundos de exclusividade antes de abrir pros outros online.</div>
+      <div id="mf-atual"></div>
+      <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px;">Motoboys que já te atenderam</div>
+      <div id="mf-lista" style="margin-bottom:9px;"></div>
+      <button class="btn-cancel" onclick="fecharMotoboyFavorito()">Fechar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+
 function abrirHorarioFuncionamento(){
   if(!user||user.tipo==="anonimo"){toast("Faça login para configurar horários.");return;}
   if(!document.getElementById("modal-horario"))criarModalHorario();
@@ -3395,6 +3560,9 @@ async function confirmarPgtoEChamar(){
       origemLat:posAtual[0],origemLng:posAtual[1],
       destino:destinoCompleto,destinoLat:destSel.lat,destinoLng:destSel.lng,
       obs:dadosItens.obs,
+      obsExtra:(document.getElementById("campo-obs-extra")?.value||"").trim()||null,
+      motoboyFavoritoId:user.motoboyFavoritoId||null,
+      favoritoExpiraEm:user.motoboyFavoritoId?firebase.firestore.Timestamp.fromMillis(Date.now()+30000):null,
       valorPedido:dadosItens.valorPedido,
       taxaEntrega:taxaEntrega>0?taxaEntrega:null,
       valorTotal:valorComTaxa,
@@ -3439,6 +3607,7 @@ async function confirmarPgtoEChamar(){
     document.getElementById("chk-maquininha").checked=false;
     document.getElementById("campo-numero-endereco").value="";
     document.getElementById("campo-nome-cliente").value="";
+    document.getElementById("campo-obs-extra").value="";
     _seg=0;if(contBusc)clearInterval(contBusc);
     document.getElementById("busc-demora-aviso").style.display="none";
     verificarMotoboysOnlineBusca();
@@ -4943,6 +5112,11 @@ function abrirNotinha(){
   const clienteRow=document.getElementById("notinha-cliente-row");
   if(nomeCliente){clienteRow.style.display="block";document.getElementById("notinha-cliente").textContent=nomeCliente;}
   else clienteRow.style.display="none";
+
+  const obsExtraTxt=(document.getElementById("campo-obs-extra")?.value||"").trim();
+  const obsExtraRow=document.getElementById("notinha-obsextra-row");
+  if(obsExtraTxt){obsExtraRow.style.display="block";document.getElementById("notinha-obsextra").textContent=obsExtraTxt;}
+  else obsExtraRow.style.display="none";
 
   document.getElementById("modal-notinha").classList.add("show");
 }
