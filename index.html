@@ -587,6 +587,15 @@ input[type=file]{display:none;}
     <div style="font-size:13px;font-weight:800;color:#60a5fa;" id="minhas-entregas-badge-txt">📦 1 entrega em andamento</div>
     <div style="font-size:12px;color:#60a5fa;">Ver todas ›</div>
   </div>
+  <div id="badge-pausado" style="display:none;margin:0 14px 12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:14px;padding:11px 15px;align-items:center;gap:9px;cursor:pointer;" onclick="abrirHorarioFuncionamento()">
+    <span style="font-size:15px;">⏸️</span>
+    <div style="flex:1;font-size:12px;font-weight:700;color:#ef4444;">Restaurante pausado — toque para reabrir</div>
+  </div>
+  <div id="badge-agendamentos" style="display:none;margin:0 14px 12px;background:rgba(251,191,36,0.08);border:1px solid var(--border);border-radius:14px;padding:11px 15px;align-items:center;gap:9px;cursor:pointer;" onclick="abrirAgendamentos()">
+    <span style="font-size:15px;">📅</span>
+    <div id="badge-agendamentos-txt" style="flex:1;font-size:12px;font-weight:700;color:var(--dourado);"></div>
+    <div style="font-size:12px;color:var(--dourado);">›</div>
+  </div>
   <div id="cards-container"></div>
   <div class="dest-card">
     <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -761,6 +770,7 @@ input[type=file]{display:none;}
       <button class="btn-acao" style="background:rgba(239,68,68,0.1);color:#ef4444;" onclick="sosEntrega()">🆘 SOS</button>
       <button class="btn-acao" style="background:rgba(34,197,94,0.1);color:#22c55e;" onclick="compartilhar()">📤</button>
     </div>
+    <button onclick="enviarRastreioWhatsApp()" style="width:100%;margin-top:10px;padding:13px;border-radius:14px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);color:#22c55e;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">🛵 Enviar rastreio pro cliente pelo WhatsApp</button>
     <button class="btn-cancelar-cor" onclick="cancelarEntrega()">Cancelar entrega</button>
   </div>
 </div>
@@ -1058,11 +1068,15 @@ input[type=file]{display:none;}
 <div class="modal-base" id="modal-agendada">
   <div class="modal-sheet">
     <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:5px;">📅 Agendar Entrega</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Escolha quando você vai precisar da entrega</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">O app avisa você 15 minutos antes da hora de chamar o motoboy.</div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
-      <div><div class="campo-label">Data</div><input id="ag-data" class="campo-input" type="date"/></div>
-      <div><div class="campo-label">Hora</div><input id="ag-hora" class="campo-input" type="time"/></div>
-      <div><div class="campo-label">Destino</div><input id="ag-dest" class="campo-input" type="text" placeholder="Para onde vai?"/></div>
+      <div style="display:flex;gap:9px;">
+        <div style="flex:1;"><div class="campo-label">Data</div><input id="ag-data" class="campo-input" type="date" style="margin-bottom:0;"/></div>
+        <div style="flex:1;"><div class="campo-label">Hora da entrega</div><input id="ag-hora" class="campo-input" type="time" style="margin-bottom:0;"/></div>
+      </div>
+      <div><div class="campo-label">Endereço de entrega</div><input id="ag-dest" class="campo-input" type="text" placeholder="Rua, número, bairro" style="margin-bottom:0;"/></div>
+      <div><div class="campo-label">Nome do cliente (opcional)</div><input id="ag-cliente" class="campo-input" type="text" placeholder="Quem vai receber" style="margin-bottom:0;"/></div>
+      <div><div class="campo-label">Pedido / observações (opcional)</div><input id="ag-obs" class="campo-input" type="text" placeholder="Ex: 2x pizza margherita, 1 refri" style="margin-bottom:0;"/></div>
     </div>
     <button class="btn-ok" onclick="confirmarAgendada()">Agendar entrega</button>
     <button class="btn-cancel" onclick="document.getElementById('modal-agendada').classList.remove('show')">Cancelar</button>
@@ -1101,24 +1115,28 @@ input[type=file]{display:none;}
   <div class="menu-items">
     <div class="menu-item" onclick="fecharMenu();irPara('perfil')">👤 Meu perfil</div>
     <div class="menu-item" onclick="fecharMenu();abrirCardapio()">🍽️ Meus pratos</div>
-    <div class="menu-item" onclick="fecharMenu();abrirFinanceiro()">📊 Financeiro</div>
-    <div class="menu-item" onclick="fecharMenu();abrirMeusCreditos()">💳 Meus créditos</div>
+    <div class="menu-item" data-priv="1" onclick="fecharMenu();abrirFinanceiro()">📊 Financeiro</div>
+    <div class="menu-item" data-priv="1" onclick="fecharMenu();abrirMeusCreditos()">💳 Meus créditos</div>
     <div class="menu-item" onclick="fecharMenu();abrirMeusClientes()">👥 Meus clientes</div>
     <div class="menu-item" onclick="fecharMenu();abrirSimuladorFrete()">🧮 Simular frete</div>
-    <div class="menu-item" onclick="fecharMenu();abrirEditarPerfil()">✏️ Editar cadastro</div>
-    <div class="menu-item" onclick="fecharMenu();gerarResumoDia()">📤 Resumo do dia</div>
+    <div class="menu-item" data-priv="1" onclick="fecharMenu();abrirEditarPerfil()">✏️ Editar cadastro</div>
+    <div class="menu-item" data-priv="1" onclick="fecharMenu();gerarResumoDia()">📤 Resumo do dia</div>
+    <div class="menu-item" onclick="fecharMenu();abrirHorarioFuncionamento()">🕐 Horário de funcionamento</div>
     <div class="menu-item" onclick="abrirConfig()">⚙️ Configurações</div>
+    <div class="menu-item" id="menu-modo-func-on" onclick="fecharMenu();ativarModoFuncionario()">👔 Ativar modo funcionário</div>
+    <div class="menu-item" id="menu-modo-func-off" style="display:none;color:var(--dourado);" onclick="fecharMenu();desativarModoFuncionario()">🔓 Sair do modo funcionário (dono)</div>
     <div class="menu-sep"></div>
     <div class="menu-item" id="notif-item" onclick="toggleNotifMenu()">🔔 Notificações ativadas</div>
     <div class="menu-item" onclick="fecharMenu();irPara('perfil');setTimeout(()=>document.getElementById('hist-lista').scrollIntoView({behavior:'smooth'}),400)">🕐 Histórico de entregas</div>
     <div class="menu-sep"></div>
     <div class="menu-item" onclick="abrirAgendada();fecharMenu()">📅 Agendar entrega</div>
+    <div class="menu-item" onclick="fecharMenu();abrirAgendamentos()">🗓 Ver agendamentos</div>
     <div class="menu-sep"></div>
     <div class="menu-item" onclick="abrirIndicar();fecharMenu()">🎁 Indicar amigo</div>
     <div class="menu-sep"></div>
     <div class="menu-item" onclick="abrirSobre();fecharMenu()">ℹ️ Sobre o aplicativo</div>
     <div class="menu-sep"></div>
-    <div class="menu-item" style="color:#ef4444;" onclick="sair()">🚪 Sair da conta</div>
+    <div class="menu-item" data-priv="1" style="color:#ef4444;" onclick="sair()">🚪 Sair da conta</div>
   </div>
 </div>
 
@@ -1687,7 +1705,7 @@ function irPara(dest){
     case"home":
       mostrarTela("tela-home");
       iniciarMapaMot();
-      setTimeout(()=>{atualizarHome();renderCardsHome();renderHistRapido();},50);
+      setTimeout(()=>{atualizarHome();renderCardsHome();renderHistRapido();atualizarBadgePausado();atualizarBadgeAgendamentos();},50);
       setTimeout(()=>{if(mapaMot)mapaMot.invalidateSize();},400);
       break;
     case"perfil":mostrarTela("tela-perfil");atualizarPerfil();carregarHist();break;
@@ -2313,9 +2331,145 @@ function _linhaPedidoDrill(c){
     </div>
     <div style="font-size:10px;color:var(--muted);">${_fmtData(dt)} · ${c.motoboy?.nome||"sem motoboy"} · ${c.formaPgto||""}</div>
     ${c.itensDetalhados&&c.itensDetalhados.length?`<div style="font-size:10px;color:var(--muted);margin-top:3px;">📦 ${c.itensDetalhados.map(i=>i.qtd+"x "+i.nome).join(", ")}</div>`:""}
-    ${podeRepetir?`<button onclick="repetirPedido('${c.id}')" style="margin-top:8px;width:100%;padding:8px;border-radius:10px;background:rgba(251,191,36,0.08);border:1px solid var(--border);color:var(--dourado);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">🔁 Repetir este pedido</button>`:""}
+    ${podeRepetir?`<div style="display:flex;gap:7px;margin-top:8px;">
+      <button onclick="repetirPedido('${c.id}')" style="flex:1;padding:8px;border-radius:10px;background:rgba(251,191,36,0.08);border:1px solid var(--border);color:var(--dourado);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">🔁 Repetir</button>
+      <button onclick="compartilharComprovante('${c.id}')" style="flex:1;padding:8px;border-radius:10px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);color:#60a5fa;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">🧾 Comprovante</button>
+    </div>`:`<button onclick="compartilharComprovante('${c.id}')" style="margin-top:8px;width:100%;padding:8px;border-radius:10px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);color:#60a5fa;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">🧾 Comprovante</button>`}
   </div>`;
 }
+// ── MODO FUNCIONÁRIO (PIN do dono) ──
+// Ativo: esconde Financeiro, Créditos, Editar cadastro, Resumo do dia e Sair da conta.
+// Para desativar, exige o PIN do dono (hash salvo no cadastro do restaurante).
+function modoFuncionarioAtivo(){return localStorage.getItem("ej_modo_func")==="1";}
+function aplicarModoFuncionario(){
+  const ativo=modoFuncionarioAtivo();
+  document.querySelectorAll('.menu-item[data-priv="1"]').forEach(el=>el.style.display=ativo?"none":"block");
+  const on=document.getElementById("menu-modo-func-on"),off=document.getElementById("menu-modo-func-off");
+  if(on)on.style.display=ativo?"none":"block";
+  if(off)off.style.display=ativo?"block":"none";
+}
+async function ativarModoFuncionario(){
+  if(!user||user.tipo==="anonimo"){toast("Faça login para usar o modo funcionário.");return;}
+  if(!user.pinDono){
+    const pin=prompt("Crie um PIN de 4 dígitos do DONO (será pedido para sair do modo funcionário):");
+    if(!pin||!/^\d{4}$/.test(pin.trim())){toast("PIN inválido — use exatamente 4 números.");return;}
+    try{
+      const h=hashSenha(pin.trim());
+      await db.collection("ej_restaurantes").doc(user.id).update({pinDono:h});
+      user.pinDono=h;
+      localStorage.setItem("ej_user",JSON.stringify(user));
+    }catch(e){toast("Erro ao salvar o PIN: "+e.message);return;}
+  }
+  localStorage.setItem("ej_modo_func","1");
+  aplicarModoFuncionario();
+  toast("👔 Modo funcionário ativado. Financeiro e cadastro ficam ocultos.");
+}
+function desativarModoFuncionario(){
+  const pin=prompt("Digite o PIN do dono para sair do modo funcionário:");
+  if(!pin)return;
+  if(hashSenha(pin.trim())!==user.pinDono){toast("PIN incorreto.");return;}
+  localStorage.removeItem("ej_modo_func");
+  aplicarModoFuncionario();
+  toast("🔓 Modo dono restaurado. Bem-vindo de volta!");
+}
+
+// ── HORÁRIO DE FUNCIONAMENTO / PAUSA ──
+const DIAS_SEMANA=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+function abrirHorarioFuncionamento(){
+  if(!user||user.tipo==="anonimo"){toast("Faça login para configurar horários.");return;}
+  if(!document.getElementById("modal-horario"))criarModalHorario();
+  const h=user.horarios||{};
+  DIAS_SEMANA.forEach((_,i)=>{
+    const d=h[i]||{aberto:i!==0,de:"18:00",ate:"23:00"};
+    document.getElementById("hr-chk-"+i).checked=d.aberto!==false;
+    document.getElementById("hr-de-"+i).value=d.de||"18:00";
+    document.getElementById("hr-ate-"+i).value=d.ate||"23:00";
+  });
+  document.getElementById("hr-pausado").checked=user.pausado===true;
+  document.getElementById("modal-horario").classList.add("show");
+}
+function criarModalHorario(){
+  const div=document.createElement("div");
+  const linhas=DIAS_SEMANA.map((nome,i)=>`
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">
+      <input type="checkbox" id="hr-chk-${i}" style="width:17px;height:17px;flex-shrink:0;"/>
+      <div style="width:44px;font-size:12px;font-weight:700;color:var(--text);flex-shrink:0;">${nome.slice(0,3)}</div>
+      <input type="time" id="hr-de-${i}" class="campo-input" style="margin-bottom:0;padding:8px;flex:1;font-size:13px;"/>
+      <span style="font-size:11px;color:var(--muted);">às</span>
+      <input type="time" id="hr-ate-${i}" class="campo-input" style="margin-bottom:0;padding:8px;flex:1;font-size:13px;"/>
+    </div>`).join("");
+  div.innerHTML=`<div id="modal-horario" class="modal-base">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+      <div style="font-size:17px;font-weight:900;color:#fff;margin-bottom:3px;">🕐 Horário de funcionamento</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Marque os dias abertos e os horários. Isso fica registrado no seu cadastro.</div>
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:13px;padding:12px;margin-bottom:14px;">
+        <input type="checkbox" id="hr-pausado" style="width:19px;height:19px;flex-shrink:0;"/>
+        <div><div style="font-size:13px;font-weight:800;color:#ef4444;">⏸️ Pausar agora</div><div style="font-size:10px;color:var(--muted);">Cozinha lotada? Marque para registrar que está pausado, independente do horário.</div></div>
+      </div>
+      ${linhas}
+      <button onclick="salvarHorarios()" style="width:100%;margin-top:10px;padding:14px;border-radius:14px;background:linear-gradient(135deg,var(--dourado2),var(--dourado));border:none;color:#1a1a1a;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;margin-bottom:9px;">💾 Salvar</button>
+      <button class="btn-cancel" onclick="document.getElementById('modal-horario').classList.remove('show')">Cancelar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+async function salvarHorarios(){
+  loading(true);
+  try{
+    const horarios={};
+    DIAS_SEMANA.forEach((_,i)=>{
+      horarios[i]={aberto:document.getElementById("hr-chk-"+i).checked,de:document.getElementById("hr-de-"+i).value,ate:document.getElementById("hr-ate-"+i).value};
+    });
+    const pausado=document.getElementById("hr-pausado").checked;
+    await db.collection("ej_restaurantes").doc(user.id).update({horarios,pausado});
+    user.horarios=horarios;user.pausado=pausado;
+    localStorage.setItem("ej_user",JSON.stringify(user));
+    loading(false);
+    document.getElementById("modal-horario").classList.remove("show");
+    atualizarBadgePausado();
+    toast(pausado?"⏸️ Restaurante marcado como pausado.":"Horários salvos! ✓");
+  }catch(e){loading(false);toast("Erro: "+e.message);}
+}
+function atualizarBadgePausado(){
+  const el=document.getElementById("badge-pausado");
+  if(!el)return;
+  el.style.display=user&&user.pausado===true?"flex":"none";
+}
+
+// ── COMPROVANTE DO PEDIDO (texto formatado para compartilhar) ──
+async function compartilharComprovante(pedidoId){
+  const pedidos=await _getPedidosDrill();
+  const c=pedidos.find(p=>p.id===pedidoId);
+  if(!c)return;
+  const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date();
+  const linha="━━━━━━━━━━━━━━━";
+  let txt=`🧾 *COMPROVANTE DE PEDIDO*\n${linha}\n`;
+  txt+=`🏪 *${user.nome}*\n`;
+  txt+=`🗓 ${dt.toLocaleDateString("pt-BR")} às ${dt.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}\n`;
+  txt+=`📋 Pedido nº ${(c.id||"").slice(-6).toUpperCase()}\n${linha}\n`;
+  if(c.nomeClienteFinal)txt+=`👤 Cliente: ${c.nomeClienteFinal}\n`;
+  txt+=`📍 Entrega: ${c.destino||"-"}\n${linha}\n`;
+  if(c.itensDetalhados&&c.itensDetalhados.length){
+    c.itensDetalhados.forEach(i=>{
+      txt+=`${i.qtd}x ${i.nome}`+(i.preco?` — R$ ${(i.preco*i.qtd).toFixed(2).replace(".",",")}`:"")+`\n`;
+    });
+  }else if(c.obs){
+    txt+=`${c.obs}\n`;
+  }
+  txt+=`${linha}\n`;
+  if(c.valorPedido)txt+=`Subtotal: R$ ${c.valorPedido.toFixed(2).replace(".",",")}\n`;
+  if(c.taxaEntrega)txt+=`Taxa de entrega: R$ ${c.taxaEntrega.toFixed(2).replace(".",",")}\n`;
+  const total=c.valorTotal||c.valorPedido||0;
+  txt+=`💰 *TOTAL: R$ ${total.toFixed(2).replace(".",",")}*\n`;
+  if(c.formaPgto)txt+=`💳 Pagamento: ${c.formaPgto}${c.trocoPara?" (troco p/ "+c.trocoPara+")":""}\n`;
+  txt+=`${linha}\n_Entrega Já_ 🛵`;
+  if(navigator.share){
+    try{await navigator.share({text:txt});return;}catch(e){if(e.name==="AbortError")return;}
+  }
+  window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank");
+}
+
 // ── REPETIR PEDIDO: remonta um pedido antigo (endereço + cliente + itens + valor) em um toque ──
 async function repetirPedido(pedidoId){
   const pedidos=await _getPedidosDrill();
@@ -2674,7 +2828,7 @@ function toggleNotif(){const on=localStorage.getItem("ej_notif")!=="false";local
 
 
 // ── MENU ──
-function abrirMenu(){document.getElementById("menu-overlay").style.display="block";document.getElementById("menu-lateral").style.display="block";}
+function abrirMenu(){document.getElementById("menu-overlay").style.display="block";document.getElementById("menu-lateral").style.display="block";aplicarModoFuncionario();}
 function fecharMenu(){document.getElementById("menu-overlay").style.display="none";document.getElementById("menu-lateral").style.display="none";}
 function toggleNotifMenu(){const on=localStorage.getItem("ej_notif")!=="false";localStorage.setItem("ej_notif",on?"false":"true");if(!on)pedirNotif();document.getElementById("notif-item").textContent=(on?"🔕":"🔔")+" Notificações "+(on?"desativadas":"ativadas");}
 function copiarPix(){navigator.clipboard.writeText("19982480386").then(()=>toast("Chave Pix copiada!")).catch(()=>toast("Chave: 19982480386"));}
@@ -2781,10 +2935,11 @@ function usarHistRapido(idx){
 
 // ── AGENDAR CORRIDA ──
 function abrirAgendada(){
-  // Preencher data de hoje
   const hoje=new Date();
   document.getElementById("ag-data").value=hoje.toISOString().split("T")[0];
-  document.getElementById("ag-hora").value=hoje.toTimeString().slice(0,5);
+  document.getElementById("ag-hora").value="";
+  document.getElementById("ag-cliente").value="";
+  document.getElementById("ag-obs").value="";
   if(destSel)document.getElementById("ag-dest").value=destSel.nome.split(",")[0];
   document.getElementById("modal-agendada").classList.add("show");
 }
@@ -2792,18 +2947,125 @@ async function confirmarAgendada(){
   const data=document.getElementById("ag-data").value;
   const hora=document.getElementById("ag-hora").value;
   const dest=document.getElementById("ag-dest").value.trim();
-  if(!data||!hora||!dest){toast("Preencha data, hora e destino");return;}
-  // Salvar agendamento no Firestore
+  const nomeCli=document.getElementById("ag-cliente").value.trim();
+  const obs=document.getElementById("ag-obs").value.trim();
+  if(!data||!hora||!dest){toast("Preencha data, hora e endereço");return;}
+  const quando=new Date(data+"T"+hora);
+  if(isNaN(quando.getTime())||quando<new Date()){toast("Escolha uma data/hora no futuro");return;}
   try{
     await db.collection("ej_agendamentos").add({
       clienteId:user.id,clienteNome:user.nome,clienteFone:user.fone||"",
-      destino:dest,data,hora,status:"agendado",
+      destino:dest,nomeClienteFinal:nomeCli||null,obs:obs||null,
+      data,hora,paraQuando:firebase.firestore.Timestamp.fromDate(quando),
+      status:"agendado",alertado:false,
       criadoEm:firebase.firestore.FieldValue.serverTimestamp()
     });
     document.getElementById("modal-agendada").classList.remove("show");
-    toast("Entrega agendada para "+data.split("-").reverse().join("/")+" às "+hora+" ✓");
+    toast("📅 Agendado para "+data.split("-").reverse().join("/")+" às "+hora+" ✓ Você será avisado 15 min antes.");
+    atualizarBadgeAgendamentos();
   }catch(e){toast("Erro ao agendar: "+e.message);}
 }
+// ── LISTA + ALARME DE AGENDAMENTOS ──
+async function _getAgendamentosAtivos(){
+  if(!user||user.tipo==="anonimo")return[];
+  const snap=await db.collection("ej_agendamentos").where("clienteId","==",user.id).where("status","==","agendado").get();
+  return snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{
+    const ta=a.paraQuando?.toMillis?a.paraQuando.toMillis():0,tb=b.paraQuando?.toMillis?b.paraQuando.toMillis():0;
+    return ta-tb;
+  });
+}
+async function abrirAgendamentos(){
+  if(!document.getElementById("modal-drill"))criarModalDrill();
+  document.getElementById("drill-titulo").textContent="📅 Entregas agendadas";
+  const el=document.getElementById("drill-corpo");
+  el.innerHTML="<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Carregando...</div>";
+  document.getElementById("modal-drill").classList.add("show");
+  try{
+    const ags=await _getAgendamentosAtivos();
+    if(ags.length===0){el.innerHTML="<div style='text-align:center;padding:28px 16px;color:var(--muted);font-size:13px;'>Nenhuma entrega agendada. Use 📅 Agendar entrega no menu.</div>";return;}
+    el.innerHTML=ags.map(a=>{
+      const quando=a.paraQuando?.toDate?a.paraQuando.toDate():new Date(a.data+"T"+a.hora);
+      const emMin=Math.round((quando-new Date())/60000);
+      const urg=emMin<=15;
+      let tempoTxt=emMin<0?"⚠️ Atrasado!":emMin<60?"em "+emMin+" min":quando.toLocaleDateString("pt-BR")+" às "+a.hora;
+      return`<div style="background:var(--card);border:1px solid ${urg?"#ef4444":"var(--border)"};border-radius:13px;padding:13px;margin-bottom:9px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+          <div style="font-size:13px;font-weight:800;color:#fff;">${a.nomeClienteFinal||"Entrega agendada"}</div>
+          <div style="font-size:11px;font-weight:800;color:${urg?"#ef4444":"var(--dourado)"};">${tempoTxt}</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">📍 ${a.destino}</div>
+        ${a.obs?`<div style="font-size:11px;color:var(--muted);margin-bottom:3px;">📦 ${a.obs}</div>`:""}
+        <div style="display:flex;gap:7px;margin-top:9px;">
+          <button onclick="chamarAgendamento('${a.id}')" style="flex:2;padding:9px;border-radius:10px;background:linear-gradient(135deg,var(--dourado2),var(--dourado));border:none;color:#1a1a1a;font-size:11px;font-weight:900;cursor:pointer;font-family:inherit;">🛵 Chamar agora</button>
+          <button onclick="cancelarAgendamento('${a.id}')" style="flex:1;padding:9px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">🗑</button>
+        </div>
+      </div>`;
+    }).join("");
+  }catch(e){el.innerHTML=`<div style='text-align:center;padding:24px;color:var(--muted);font-size:12px;'>Erro ao carregar. (${e.message})</div>`;}
+}
+async function chamarAgendamento(agId){
+  const ags=await _getAgendamentosAtivos();
+  const a=ags.find(x=>x.id===agId);
+  if(!a)return;
+  // Preenche a home com os dados do agendamento (endereço vai pela busca normal para pegar lat/lng)
+  document.getElementById("campo-busca").value=a.destino;
+  if(a.nomeClienteFinal)document.getElementById("campo-nome-cliente").value=a.nomeClienteFinal;
+  if(a.obs){
+    limparSelecaoPratos();
+    _obsManualAtiva=true;
+    document.getElementById("campo-obs").style.display="block";
+    document.getElementById("campo-valor-manual").style.display="block";
+    document.getElementById("campo-obs").value=a.obs;
+  }
+  try{await db.collection("ej_agendamentos").doc(agId).update({status:"chamado"});}catch(e){}
+  fecharDrill();
+  irPara("home");
+  buscarDest(a.destino);
+  atualizarBadgeAgendamentos();
+  toast("📅 Agendamento carregado — confirme o endereço nas sugestões e chame!");
+}
+async function cancelarAgendamento(agId){
+  if(!confirm("Cancelar este agendamento?"))return;
+  try{
+    await db.collection("ej_agendamentos").doc(agId).update({status:"cancelado"});
+    abrirAgendamentos();
+    atualizarBadgeAgendamentos();
+  }catch(e){toast("Erro: "+e.message);}
+}
+async function atualizarBadgeAgendamentos(){
+  const el=document.getElementById("badge-agendamentos");
+  if(!el||!user||user.tipo==="anonimo")return;
+  try{
+    const ags=await _getAgendamentosAtivos();
+    const proximos=ags.filter(a=>{
+      const quando=a.paraQuando?.toDate?a.paraQuando.toDate():new Date(a.data+"T"+a.hora);
+      return (quando-new Date())/60000<=60; // na próxima hora
+    });
+    if(proximos.length>0){
+      document.getElementById("badge-agendamentos-txt").textContent="📅 "+proximos.length+" entrega"+(proximos.length>1?"s":"")+" agendada"+(proximos.length>1?"s":"")+" na próxima hora";
+      el.style.display="flex";
+    }else el.style.display="none";
+  }catch(e){}
+}
+// Alarme: checa a cada minuto e avisa 15 min antes
+setInterval(async()=>{
+  if(!user||user.tipo==="anonimo")return;
+  try{
+    const ags=await _getAgendamentosAtivos();
+    for(const a of ags){
+      if(a.alertado)continue;
+      const quando=a.paraQuando?.toDate?a.paraQuando.toDate():new Date(a.data+"T"+a.hora);
+      const emMin=(quando-new Date())/60000;
+      if(emMin<=15){
+        try{await db.collection("ej_agendamentos").doc(a.id).update({alertado:true});}catch(e){}
+        try{getAC();}catch(e){}
+        notif("📅 Hora de chamar a entrega!",(a.nomeClienteFinal||"Entrega agendada")+" — "+a.destino.split(",")[0]+" às "+a.hora);
+        toast("📅 Entrega agendada chegando: "+a.hora+" — "+(a.nomeClienteFinal||a.destino.split(",")[0]));
+        atualizarBadgeAgendamentos();
+      }
+    }
+  }catch(e){}
+},60000);
 
 // ── INDICAR AMIGO ──
 function abrirIndicar(){
@@ -3290,6 +3552,19 @@ function sosEntrega(){
     // Se não tem contato de emergência, pede pra configurar
     toast("Configure um contato de emergência no seu perfil!");
     setTimeout(()=>abrirEditarPerfil(),1500);
+  }
+}
+// ── RASTREIO PÚBLICO (link pro cliente final acompanhar sem instalar nada) ──
+function enviarRastreioWhatsApp(){
+  if(!entregaAtiva){toast("Nenhuma entrega em foco no momento.");return;}
+  const link="https://heitorserra-81.github.io/ENTREGA-JA-Rastreio/?p="+entregaAtiva.id;
+  const nomeCli=(entregaAtiva.nomeClienteFinal||"").split(" ")[0];
+  const saudacao=nomeCli?"Oi, "+nomeCli+"! 😊":"Oi! 😊";
+  const txt=`${saudacao}\n\n🛵 *Seu pedido já está a caminho!*\nSiga sua entrega em tempo real, veja onde o motoboy está e quanto falta para chegar:\n\n${link}\n\n_${user?.nome||"Entrega Já"}_ 🍕`;
+  if(navigator.share){
+    navigator.share({text:txt}).catch(e=>{if(e.name!=="AbortError")window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank");});
+  }else{
+    window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank");
   }
 }
 function compartilhar(){
