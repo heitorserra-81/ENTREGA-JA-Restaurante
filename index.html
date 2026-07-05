@@ -612,7 +612,10 @@ input[type=file]{display:none;}
       <div id="hist-rapido-lista" style="display:flex;flex-direction:column;gap:6px;"></div>
     </div>
     <input class="campo-obs" id="campo-numero-endereco" type="text" inputmode="numeric" placeholder="Número (ex: 123, ap 4)" autocomplete="off" style="margin-top:8px;"/>
-    <input class="campo-obs" id="campo-nome-cliente" type="text" placeholder="Nome do cliente" autocomplete="off" style="margin-top:8px;"/>
+    <div style="position:relative;">
+      <input class="campo-obs" id="campo-nome-cliente" type="text" placeholder="Nome do cliente" autocomplete="off" style="margin-top:8px;" oninput="sugerirClientes(this.value)" onfocus="sugerirClientes(this.value)"/>
+      <div id="sugestoes-clientes" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:50;background:var(--card2);border:1px solid var(--border);border-radius:12px;margin-top:4px;max-height:190px;overflow-y:auto;box-shadow:0 10px 26px rgba(0,0,0,0.5);"></div>
+    </div>
     <div class="origem-row">
       <span style="font-size:15px;">🏪</span>
       <div class="origem-txt" id="origem-txt">Retirada: endereço do restaurante</div>
@@ -1096,6 +1099,8 @@ input[type=file]{display:none;}
     <div class="menu-item" onclick="fecharMenu();irPara('perfil')">👤 Meu perfil</div>
     <div class="menu-item" onclick="fecharMenu();abrirCardapio()">🍽️ Meus pratos</div>
     <div class="menu-item" onclick="fecharMenu();abrirFinanceiro()">📊 Financeiro</div>
+    <div class="menu-item" onclick="fecharMenu();abrirMeusCreditos()">💳 Meus créditos</div>
+    <div class="menu-item" onclick="fecharMenu();abrirMeusClientes()">👥 Meus clientes</div>
     <div class="menu-item" onclick="abrirConfig()">⚙️ Configurações</div>
     <div class="menu-sep"></div>
     <div class="menu-item" id="notif-item" onclick="toggleNotifMenu()">🔔 Notificações ativadas</div>
@@ -2032,6 +2037,156 @@ function abrirDetalheCard(cardId){
   renderDrillNivel1(cardId);
 }
 function fecharDrill(){document.getElementById("modal-drill").classList.remove("show");}
+
+// ── SISTEMA DE CLIENTES ──
+let _clientesCache=null,_clientesCacheTs=0;
+async function _getClientes(){
+  if(_clientesCache&&Date.now()-_clientesCacheTs<60000)return _clientesCache;
+  if(!user||user.tipo==="anonimo")return[];
+  const snap=await db.collection("ej_restaurantes").doc(user.id).collection("clientes").orderBy("ultimoPedidoEm","desc").limit(200).get();
+  _clientesCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+  _clientesCacheTs=Date.now();
+  return _clientesCache;
+}
+let _sugClientesTO=null;
+document.addEventListener("click",e=>{
+  const sug=document.getElementById("sugestoes-clientes");
+  if(sug&&sug.style.display==="block"&&!e.target.closest("#sugestoes-clientes")&&e.target.id!=="campo-nome-cliente")sug.style.display="none";
+});
+function sugerirClientes(txt){
+  clearTimeout(_sugClientesTO);
+  _sugClientesTO=setTimeout(async()=>{
+    const el=document.getElementById("sugestoes-clientes");
+    if(!el)return;
+    const q=(txt||"").toLowerCase().trim();
+    if(q.length<2){el.style.display="none";return;}
+    try{
+      const clientes=await _getClientes();
+      const combina=clientes.filter(c=>(c.nome||"").toLowerCase().includes(q)).slice(0,5);
+      if(combina.length===0){el.style.display="none";return;}
+      el.innerHTML=combina.map(c=>`
+        <div onclick="usarClienteSugerido('${c.id}')" style="padding:11px 13px;border-bottom:1px solid var(--border);cursor:pointer;">
+          <div style="font-size:13px;font-weight:700;color:#fff;">${c.nome}</div>
+          <div style="font-size:10px;color:var(--muted);">${c.totalPedidos||0} pedido${(c.totalPedidos||0)!==1?"s":""}${c.ultimoEndereco?" · 📍 "+c.ultimoEndereco.split(",")[0]:""}</div>
+        </div>`).join("");
+      el.style.display="block";
+    }catch(e){el.style.display="none";}
+  },250);
+}
+async function usarClienteSugerido(cliId){
+  const clientes=await _getClientes();
+  const c=clientes.find(x=>x.id===cliId);
+  if(!c)return;
+  document.getElementById("campo-nome-cliente").value=c.nome;
+  document.getElementById("sugestoes-clientes").style.display="none";
+  // Oferece reutilizar o último endereço de entrega dele
+  if(c.ultimoEndereco&&c.ultimoEnderecoLat&&!destSel){
+    destSel={nome:c.ultimoEndereco,lat:c.ultimoEnderecoLat,lng:c.ultimoEnderecoLng};
+    document.getElementById("campo-busca").value=c.ultimoEndereco.split(",").slice(0,2).join(",");
+    document.getElementById("btn-chamar").disabled=false;
+    calcularValor();
+    toast("📍 Último endereço de "+c.nome.split(" ")[0]+" preenchido!");
+  }
+}
+async function abrirMeusClientes(){
+  if(!user)return;
+  if(!document.getElementById("modal-drill"))criarModalDrill();
+  document.getElementById("drill-titulo").textContent="👥 Meus clientes";
+  const el=document.getElementById("drill-corpo");
+  el.innerHTML="<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Carregando...</div>";
+  document.getElementById("modal-drill").classList.add("show");
+  try{
+    _clientesCacheTs=0; // força atualizar
+    const clientes=await _getClientes();
+    if(clientes.length===0){
+      el.innerHTML="<div style='text-align:center;padding:28px 16px;color:var(--muted);font-size:13px;'>Nenhum cliente registrado ainda. Preencha o nome do cliente ao chamar entregas e eles aparecem aqui automaticamente.</div>";
+      return;
+    }
+    const ranking=[...clientes].sort((a,b)=>(b.totalPedidos||0)-(a.totalPedidos||0));
+    el.innerHTML=`<input class="campo-input" type="text" placeholder="🔍 Buscar cliente..." oninput="filtrarListaClientes(this.value)" style="margin-bottom:12px;"/>
+      <div id="lista-meus-clientes">`+ranking.map((c,i)=>_linhaClienteHTML(c,i)).join("")+`</div>`;
+  }catch(e){el.innerHTML=`<div style='text-align:center;padding:24px;color:var(--muted);font-size:12px;'>Erro ao carregar. (${e.message})</div>`;}
+}
+function _linhaClienteHTML(c,i){
+  const dt=c.ultimoPedidoEm&&c.ultimoPedidoEm.toDate?c.ultimoPedidoEm.toDate():null;
+  return`<div class="linha-cliente" data-nome="${(c.nome||"").toLowerCase()}" onclick="abrirDetalheCliente('${c.id}')" style="background:var(--card);border:1px solid ${i===0?"var(--dourado)":"var(--border)"};border-radius:13px;padding:13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;cursor:pointer;">
+    <div style="font-size:19px;flex-shrink:0;">${i===0?"👑":i===1?"🥈":i===2?"🥉":"👤"}</div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:13px;font-weight:700;color:#fff;">${c.nome}</div>
+      <div style="font-size:11px;color:var(--muted);">${c.totalPedidos||0} pedido${(c.totalPedidos||0)!==1?"s":""} · ${_fmtBR(c.valorTotal||0)}${dt?" · último: "+dt.toLocaleDateString("pt-BR"):""}</div>
+    </div>
+    <div style="font-size:13px;color:var(--muted);">›</div>
+  </div>`;
+}
+function filtrarListaClientes(txt){
+  const q=(txt||"").toLowerCase().trim();
+  document.querySelectorAll("#lista-meus-clientes .linha-cliente").forEach(el=>{
+    el.style.display=!q||el.dataset.nome.includes(q)?"flex":"none";
+  });
+}
+async function abrirDetalheCliente(cliId){
+  const clientes=await _getClientes();
+  const c=clientes.find(x=>x.id===cliId);
+  if(!c)return;
+  document.getElementById("drill-titulo").textContent="👤 "+c.nome;
+  const el=document.getElementById("drill-corpo");
+  el.innerHTML="<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Carregando...</div>";
+  try{
+    const pedidos=await _getPedidosDrill();
+    const dele=pedidos.filter(p=>(p.nomeClienteFinal||"").toLowerCase().trim()===(c.nome||"").toLowerCase().trim());
+    const header=`<div style="display:flex;gap:9px;margin-bottom:12px;">
+      <div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px;text-align:center;"><div style="font-size:19px;font-weight:900;color:var(--dourado);">${c.totalPedidos||0}</div><div style="font-size:10px;color:var(--muted);">pedidos</div></div>
+      <div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px;text-align:center;"><div style="font-size:19px;font-weight:900;color:var(--dourado);">${_fmtBR(c.valorTotal||0)}</div><div style="font-size:10px;color:var(--muted);">gasto total</div></div>
+    </div>
+    ${c.ultimoEndereco?`<div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--text);">📍 Último endereço: ${c.ultimoEndereco}</div>`:""}
+    <button onclick="fecharDrill();document.getElementById('campo-nome-cliente').value='${(c.nome||"").replace(/'/g,"")}';toast('Cliente preenchido — monte o pedido!');" style="width:100%;padding:13px;border-radius:14px;background:linear-gradient(135deg,var(--dourado2),var(--dourado));border:none;color:#1a1a1a;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;margin-bottom:14px;">🛵 Nova entrega para este cliente</button>
+    <button onclick="abrirMeusClientes()" style="width:100%;padding:10px;border-radius:11px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:13px;">← Voltar à lista</button>
+    <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px;">Histórico de pedidos</div>`;
+    el.innerHTML=header+_listaOuVazio(dele.map(_linhaPedidoDrill),"Os pedidos deste cliente aparecem aqui a partir de agora.");
+  }catch(e){el.innerHTML=`<div style='text-align:center;padding:24px;color:var(--muted);font-size:12px;'>Erro ao carregar. (${e.message})</div>`;}
+}
+async function abrirMeusCreditos(){
+  if(!user)return;
+  if(!document.getElementById("modal-drill"))criarModalDrill();
+  document.getElementById("drill-titulo").textContent="💳 Meus créditos";
+  const el=document.getElementById("drill-corpo");
+  el.innerHTML="<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Carregando...</div>";
+  document.getElementById("modal-drill").classList.add("show");
+  try{
+    // Saldo mais recente direto do banco
+    let saldo=user.creditos||0;
+    if(user.tipo!=="anonimo"){
+      const snap=await db.collection("ej_restaurantes").doc(user.id).get();
+      if(snap.exists){saldo=snap.data().creditos||0;user.creditos=saldo;localStorage.setItem("ej_user",JSON.stringify(user));}
+    }
+    const statusCobranca=CONFIG_COBRANCA_REST.ativa
+      ?`<div style="font-size:11px;color:var(--muted);">Cada entrega aceita desconta do seu saldo. Cancelou? O crédito volta automático. ✓</div>`
+      :`<div style="font-size:11px;color:#22c55e;">🎉 Período gratuito: suas entregas não descontam créditos por enquanto.</div>`;
+    let html=`<div style="background:var(--card);border:1px solid var(--dourado);border-radius:18px;padding:22px;text-align:center;margin-bottom:14px;">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Saldo disponível</div>
+      <div style="font-size:36px;font-weight:900;color:var(--dourado);margin-bottom:8px;">${_fmtBR(saldo)}</div>
+      ${statusCobranca}
+    </div>
+    <button onclick="window.open('https://wa.me/${ADMIN_WHATSAPP}?text='+encodeURIComponent('Olá! Quero comprar créditos para o Entrega Já. Restaurante: ${(user.nome||"").replace(/'/g,"")}'),'_blank')" style="width:100%;padding:15px;border-radius:15px;background:linear-gradient(135deg,var(--dourado2),var(--dourado));border:none;color:#1a1a1a;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;margin-bottom:16px;">💬 Comprar créditos pelo WhatsApp</button>
+    <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px;">Últimos descontos e devoluções</div>`;
+    // Histórico: pedidos com crédito cobrado/devolvido
+    const pedidos=await _getPedidosDrill();
+    const comCredito=pedidos.filter(c=>c.creditoRestCobrado>0);
+    if(comCredito.length===0){
+      html+=`<div style="text-align:center;padding:18px;color:var(--muted);font-size:12px;">Nenhum desconto de crédito ainda.</div>`;
+    }else{
+      html+=comCredito.slice(0,20).map(c=>{
+        const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
+        const devolvido=c.creditoRestDevolvido===true;
+        return`<div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+          <div><div style="font-size:12px;font-weight:700;color:#fff;">${devolvido?"↩️ Devolvido":"➖ Descontado"} · ${(c.destino||"").split(",")[0]}</div><div style="font-size:10px;color:var(--muted);">${_fmtData(dt)}</div></div>
+          <div style="font-size:13px;font-weight:800;color:${devolvido?"#22c55e":"#ef4444"};">${devolvido?"+":"-"}${_fmtBR(c.creditoRestCobrado)}</div>
+        </div>`;
+      }).join("");
+    }
+    el.innerHTML=html;
+  }catch(e){el.innerHTML=`<div style='text-align:center;padding:24px;color:var(--muted);font-size:12px;'>Erro ao carregar. (${e.message})</div>`;}
+}
 function criarModalDrill(){
   const div=document.createElement("div");
   div.innerHTML=`<div id="modal-drill" class="modal-din" style="position:fixed;inset:0;z-index:9989;background:rgba(0,0,0,0.93);backdrop-filter:blur(6px);">
@@ -2669,6 +2824,21 @@ async function confirmarPgtoEChamar(){
       pedido.valorEstimado=destSel.valorEst||"R$ "+val.toFixed(2).replace(".",",");
     }
     await db.collection("ej_pedidos").doc(id).set(pedido);
+    // ── SISTEMA DE CLIENTES: registra/atualiza o cliente automaticamente ──
+    if(nomeClienteFinal&&user.tipo!=="anonimo"){
+      try{
+        const cliId="cli_"+nomeClienteFinal.toLowerCase().trim().replace(/[^a-z0-9]+/g,"_").slice(0,60);
+        await db.collection("ej_restaurantes").doc(user.id).collection("clientes").doc(cliId).set({
+          nome:nomeClienteFinal,
+          ultimoEndereco:destinoCompleto,
+          ultimoEnderecoLat:destSel.lat,
+          ultimoEnderecoLng:destSel.lng,
+          totalPedidos:firebase.firestore.FieldValue.increment(1),
+          valorTotal:firebase.firestore.FieldValue.increment(valorComTaxa||0),
+          ultimoPedidoEm:firebase.firestore.FieldValue.serverTimestamp()
+        },{merge:true});
+      }catch(e){}
+    }
     entregaAtiva={...pedido,id};loading(false);
     limparSelecaoPratos();
     document.getElementById("campo-obs").value="";
