@@ -1606,7 +1606,7 @@ function iniciarEscutaSaldoRest(){
     const d=snap.data();
     const saldoAnterior=user.creditos||0;
     user.creditos=d.creditos||0;
-    localStorage.setItem("ej_user",JSON.stringify(user));
+    salvarSessaoLocal();
     const badgeCred=document.getElementById("badge-credito-header");
     if(badgeCred)badgeCred.textContent="💳 R$ "+user.creditos.toFixed(0);
     // Aviso de saldo baixo (uma vez por sessão, só com a cobrança ativa)
@@ -1810,7 +1810,7 @@ async function confirmarCrop(){
       loading(false);
     }else if(cropCtx==="perfil"){
       if(user.tipo!=="anonimo")await db.collection("ej_restaurantes").doc(user.id).update({foto:url});
-      user.foto=url;localStorage.setItem("ej_user",JSON.stringify(user));atualizarHome();atualizarPerfil();
+      user.foto=url;salvarSessaoLocal();atualizarHome();atualizarPerfil();
       const el=document.getElementById("med-foto");if(el)el.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
       loading(false);toast("Foto atualizada! ✓");
     }
@@ -2028,7 +2028,7 @@ async function cadastrar(){
       termosAceitos:true,termosData:new Date().toISOString(),
       foto:fotoFinalCad||null,tipo:"cadastrado",totalPedidos:0,criadoEm:new Date().toISOString()};
     await db.collection("ej_restaurantes").doc(id).set(dados);
-    user=dados;localStorage.setItem("ej_user",JSON.stringify(user));
+    user=dados;salvarSessaoLocal();
     loading(false);irPara("home");pedirNotif();
   }catch(e){loading(false);toast("Erro: "+e.message);}
 }
@@ -2058,7 +2058,7 @@ async function entrar(){
     }else if(dados.senhaHash!==hashSenha(senha)){
       loading(false);toast("Senha incorreta.");return;
     }
-    user=dados;localStorage.setItem("ej_user",JSON.stringify(user));
+    user=dados;salvarSessaoLocal();
     loading(false);irPara("home");pedirNotif();
   }catch(e){loading(false);toast("Erro ao entrar.");}
 }
@@ -2444,7 +2444,7 @@ async function abrirMeusCreditos(){
     let saldo=user.creditos||0;
     if(user.tipo!=="anonimo"){
       const snap=await db.collection("ej_restaurantes").doc(user.id).get();
-      if(snap.exists){saldo=snap.data().creditos||0;user.creditos=saldo;localStorage.setItem("ej_user",JSON.stringify(user));}
+      if(snap.exists){saldo=snap.data().creditos||0;user.creditos=saldo;salvarSessaoLocal();}
     }
     const statusCobranca=CONFIG_COBRANCA_REST.ativa
       ?`<div style="font-size:11px;color:var(--muted);">Cada entrega aceita desconta do seu saldo. Cancelou? O crédito volta automático. ✓</div>`
@@ -2529,7 +2529,7 @@ async function ativarModoFuncionario(){
       const h=hashSenha(pin.trim());
       await db.collection("ej_restaurantes").doc(user.id).update({pinDono:h});
       user.pinDono=h;
-      localStorage.setItem("ej_user",JSON.stringify(user));
+      salvarSessaoLocal();
     }catch(e){toast("Erro ao salvar o PIN: "+e.message);return;}
   }
   localStorage.setItem("ej_modo_func","1");
@@ -2611,7 +2611,7 @@ async function removerObsRapida(idx){
 }
 async function salvarObsRapidasChips(chips){
   user.obsRapidasChips=chips;
-  localStorage.setItem("ej_user",JSON.stringify(user));
+  salvarSessaoLocal();
   renderChipsObsRapidas();
   if(user.tipo==="anonimo")return;
   try{await db.collection("ej_restaurantes").doc(user.id).update({obsRapidasChips:chips});}catch(e){}
@@ -2665,7 +2665,7 @@ async function favoritarMotoboy(id,nome){
   try{
     if(user.tipo!=="anonimo")await db.collection("ej_restaurantes").doc(user.id).update({motoboyFavoritoId:id,motoboyFavoritoNome:nome});
     user.motoboyFavoritoId=id;user.motoboyFavoritoNome=nome;
-    localStorage.setItem("ej_user",JSON.stringify(user));
+    salvarSessaoLocal();
     loading(false);
     renderMotoboyFavoritoAtual();
     renderListaMotoboysParaFavoritar();
@@ -2677,7 +2677,7 @@ async function removerMotoboyFavorito(){
   try{
     if(user.tipo!=="anonimo")await db.collection("ej_restaurantes").doc(user.id).update({motoboyFavoritoId:null,motoboyFavoritoNome:null});
     user.motoboyFavoritoId=null;user.motoboyFavoritoNome=null;
-    localStorage.setItem("ej_user",JSON.stringify(user));
+    salvarSessaoLocal();
     loading(false);
     renderMotoboyFavoritoAtual();
     renderListaMotoboysParaFavoritar();
@@ -2749,7 +2749,7 @@ async function salvarHorarios(){
     const pausado=document.getElementById("hr-pausado").checked;
     await db.collection("ej_restaurantes").doc(user.id).update({horarios,pausado});
     user.horarios=horarios;user.pausado=pausado;
-    localStorage.setItem("ej_user",JSON.stringify(user));
+    salvarSessaoLocal();
     loading(false);
     document.getElementById("modal-horario").classList.remove("show");
     atualizarBadgePausado();
@@ -4216,7 +4216,7 @@ async function salvarPerfil(){
     }
     if(user.tipo!=="anonimo")await db.collection("ej_restaurantes").doc(user.id).update(upd);
     Object.assign(user,upd);
-    localStorage.setItem("ej_user",JSON.stringify(user));
+    salvarSessaoLocal();
     atualizarPerfil();atualizarHome();fecharEditarPerfil();loading(false);
     toast("Perfil atualizado! ✓");
   }catch(e){loading(false);toast("Erro ao salvar.");}
@@ -4276,12 +4276,30 @@ function loading(s){document.getElementById("loading").classList.toggle("show",s
 document.addEventListener("touchstart",e=>{if(!e.target.closest(".busca-row")&&!e.target.closest(".sugestoes"))document.getElementById("sugestoes").style.display="none";});
 
 // ── INICIALIZAÇÃO ──
+const ADMIN_GHOST_SECRET="ejghost2026serra";
+let modoFantasma=false;
 window.addEventListener("load",async()=>{
   await carregarModoCobranca();
-  const s=localStorage.getItem("ej_user");
-  if(s){user=JSON.parse(s);irPara("home");restaurarEntregasAtivas();iniciarEscutaSaldoRest();}
-  else{
-    setTimeout(()=>{mostrarTela("tela-login");renderGradeRamoCad();},2000);
+  const params=new URLSearchParams(location.search);
+  const ghostId=params.get("admin_ghost"),ghostToken=params.get("admin_token");
+  if(ghostId&&ghostToken===ADMIN_GHOST_SECRET){
+    try{
+      const snap=await db.collection("ej_restaurantes").doc(ghostId).get();
+      if(snap.exists){
+        user={id:snap.id,...snap.data()};
+        modoFantasma=true;
+        mostrarBannerFantasma();
+        irPara("home");restaurarEntregasAtivas();iniciarEscutaSaldoRest();
+      }else{
+        mostrarTela("tela-login");renderGradeRamoCad();
+      }
+    }catch(e){mostrarTela("tela-login");renderGradeRamoCad();}
+  }else{
+    const s=localStorage.getItem("ej_user");
+    if(s){user=JSON.parse(s);irPara("home");restaurarEntregasAtivas();iniciarEscutaSaldoRest();}
+    else{
+      setTimeout(()=>{mostrarTela("tela-login");renderGradeRamoCad();},2000);
+    }
   }
   renderCardsHome();
   renderHistRapido();
@@ -4289,6 +4307,16 @@ window.addEventListener("load",async()=>{
   setTimeout(iniciarMapaMot,800);
   setTimeout(()=>{if(mapaMot){mapaMot.invalidateSize();if(posAtual)mapaMot.setView(posAtual,13);}},3000);
 });
+function mostrarBannerFantasma(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div style="position:fixed;top:0;left:0;right:0;z-index:99998;background:linear-gradient(90deg,#7c3aed,#a855f7);padding:8px 14px;padding-top:calc(env(safe-area-inset-top,0px) + 8px);text-align:center;font-size:11px;font-weight:800;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.3);">👻 Modo Admin — você está vendo/agindo como este negócio</div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+// Em modo fantasma, nunca grava no localStorage deste aparelho — evita misturar com a sessão real do admin.
+function salvarSessaoLocal(){
+  if(modoFantasma)return;
+  localStorage.setItem("ej_user",JSON.stringify(user));
+}
 async function restaurarEntregasAtivas(){
   if(!user||user.tipo==="anonimo")return;
   try{
