@@ -589,7 +589,10 @@ input[type=file]{display:none;}
   </div>
   <div id="cards-container"></div>
   <div class="dest-card">
-    <div class="dest-titulo">Nova entrega 🏍️</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div class="dest-titulo">Nova entrega 🏍️</div>
+      <button onclick="abrirSimuladorFrete()" style="background:rgba(251,191,36,0.08);border:1px solid var(--border);color:var(--dourado);font-size:11px;font-weight:700;padding:6px 12px;border-radius:11px;cursor:pointer;font-family:inherit;">🧮 Simular frete</button>
+    </div>
     <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">Cidade de entrega</div>
     <div class="chips" id="chips-cidade">
       <div class="chip" data-c="Holambra" onclick="selCidade(this)">Holambra</div>
@@ -1101,6 +1104,7 @@ input[type=file]{display:none;}
     <div class="menu-item" onclick="fecharMenu();abrirFinanceiro()">📊 Financeiro</div>
     <div class="menu-item" onclick="fecharMenu();abrirMeusCreditos()">💳 Meus créditos</div>
     <div class="menu-item" onclick="fecharMenu();abrirMeusClientes()">👥 Meus clientes</div>
+    <div class="menu-item" onclick="fecharMenu();abrirSimuladorFrete()">🧮 Simular frete</div>
     <div class="menu-item" onclick="abrirConfig()">⚙️ Configurações</div>
     <div class="menu-sep"></div>
     <div class="menu-item" id="notif-item" onclick="toggleNotifMenu()">🔔 Notificações ativadas</div>
@@ -2037,6 +2041,99 @@ function abrirDetalheCard(cardId){
   renderDrillNivel1(cardId);
 }
 function fecharDrill(){document.getElementById("modal-drill").classList.remove("show");}
+
+// ── SIMULADOR DE FRETE: consulta o valor da entrega sem chamar motoboy ──
+let _simTO=null,_simDestSel=null;
+function abrirSimuladorFrete(){
+  if(!document.getElementById("modal-simulador"))criarModalSimulador();
+  _simDestSel=null;
+  document.getElementById("sim-busca").value="";
+  document.getElementById("sim-sugestoes").style.display="none";
+  document.getElementById("sim-resultado").style.display="none";
+  document.getElementById("modal-simulador").classList.add("show");
+  setTimeout(()=>document.getElementById("sim-busca").focus(),300);
+}
+function fecharSimulador(){document.getElementById("modal-simulador").classList.remove("show");}
+function criarModalSimulador(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div id="modal-simulador" class="modal-base">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+      <div style="font-size:17px;font-weight:900;color:#fff;margin-bottom:3px;">🧮 Simulador de frete</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Digite o endereço do cliente e veja na hora quanto custa a entrega — sem chamar ninguém. Perfeito para informar no telefone.</div>
+      <div style="position:relative;margin-bottom:10px;">
+        <input class="campo-input" id="sim-busca" type="text" placeholder="Rua, bairro do cliente..." autocomplete="off" oninput="simBuscar(this.value)" style="margin-bottom:0;"/>
+        <div id="sim-sugestoes" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:60;background:var(--card2);border:1px solid var(--border);border-radius:12px;margin-top:4px;max-height:200px;overflow-y:auto;box-shadow:0 10px 26px rgba(0,0,0,0.5);"></div>
+      </div>
+      <div id="sim-resultado" style="display:none;background:var(--card2);border:1px solid var(--dourado);border-radius:16px;padding:18px;text-align:center;margin-bottom:12px;">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">Valor da entrega</div>
+        <div id="sim-valor" style="font-size:32px;font-weight:900;color:var(--dourado);">--</div>
+        <div id="sim-detalhe" style="font-size:11px;color:var(--muted);margin-top:5px;"></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:8px;border-top:1px dashed var(--border);padding-top:8px;">💡 Esse é o valor pago ao motoboy. Você decide se repassa ao cliente na taxa de entrega.</div>
+        <button onclick="usarSimulacaoNaEntrega()" style="width:100%;margin-top:12px;padding:12px;border-radius:13px;background:linear-gradient(135deg,var(--dourado2),var(--dourado));border:none;color:#1a1a1a;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;">🛵 Usar este endereço numa entrega</button>
+      </div>
+      <button class="btn-cancel" onclick="fecharSimulador()">Fechar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+function simBuscar(q){
+  clearTimeout(_simTO);
+  const el=document.getElementById("sim-sugestoes");
+  if(!q||q.length<2){el.style.display="none";return;}
+  _simTO=setTimeout(async()=>{
+    try{
+      const query=`${q}, ${cidadeAtual}, SP, Brasil`;
+      const res=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=6&accept-language=pt-BR`,{headers:{"User-Agent":"EntregaJa/1.0"}});
+      const data=await res.json();
+      if(!data.length){el.innerHTML=`<div class="sug-item"><div class="sug-nome" style="color:var(--muted)">Nenhum resultado em ${cidadeAtual}</div></div>`;el.style.display="block";return;}
+      window._simSugs=data;
+      el.innerHTML=data.map((d,i)=>{const p=d.display_name.split(",");return`<div class="sug-item" onclick="simSelDest(${i})"><div class="sug-nome">${p[0]}</div><div class="sug-end">${p.slice(1,3).join(",").trim()}</div></div>`;}).join("");
+      el.style.display="block";
+    }catch(e){el.style.display="none";}
+  },400);
+}
+async function simSelDest(idx){
+  const d=window._simSugs[idx];
+  if(!d)return;
+  _simDestSel={nome:d.display_name,lat:parseFloat(d.lat),lng:parseFloat(d.lon)};
+  document.getElementById("sim-busca").value=d.display_name.split(",").slice(0,2).join(",").trim();
+  document.getElementById("sim-sugestoes").style.display="none";
+  const res=document.getElementById("sim-resultado");
+  res.style.display="block";
+  document.getElementById("sim-valor").textContent="Calculando...";
+  document.getElementById("sim-detalhe").textContent="";
+  if(!posAtual){document.getElementById("sim-valor").textContent="--";document.getElementById("sim-detalhe").textContent="Endereço do restaurante não configurado.";return;}
+  try{
+    let km=null;
+    try{
+      const url=`https://router.project-osrm.org/route/v1/driving/${posAtual[1]},${posAtual[0]};${_simDestSel.lng},${_simDestSel.lat}?overview=false`;
+      const r=await fetch(url);const data=await r.json();
+      if(data.routes&&data.routes[0])km=data.routes[0].distance/1000;
+    }catch(e){}
+    if(km===null){
+      // fallback: distância em linha reta * 1.3
+      const R=6371,dLat=(_simDestSel.lat-posAtual[0])*Math.PI/180,dLng=(_simDestSel.lng-posAtual[1])*Math.PI/180;
+      const a=Math.sin(dLat/2)**2+Math.cos(posAtual[0]*Math.PI/180)*Math.cos(_simDestSel.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+      km=R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))*1.3;
+    }
+    const valor=tabela(km);
+    document.getElementById("sim-valor").textContent="R$ "+valor.toFixed(2).replace(".",",");
+    document.getElementById("sim-detalhe").textContent="📏 "+km.toFixed(1)+" km de rota a partir do restaurante";
+  }catch(e){
+    document.getElementById("sim-valor").textContent="--";
+    document.getElementById("sim-detalhe").textContent="Não foi possível calcular agora.";
+  }
+}
+function usarSimulacaoNaEntrega(){
+  if(!_simDestSel)return;
+  destSel={nome:_simDestSel.nome,lat:_simDestSel.lat,lng:_simDestSel.lng};
+  document.getElementById("campo-busca").value=_simDestSel.nome.split(",").slice(0,2).join(",").trim();
+  document.getElementById("btn-chamar").disabled=false;
+  calcularValor();
+  fecharSimulador();
+  toast("📍 Endereço preenchido — monte o pedido e chame!");
+}
 
 // ── SISTEMA DE CLIENTES ──
 let _clientesCache=null,_clientesCacheTs=0;
