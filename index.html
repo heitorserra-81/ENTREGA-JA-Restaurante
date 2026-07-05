@@ -3583,6 +3583,7 @@ async function confirmarPgtoEChamar(){
       pedido.valorEstimado=destSel.valorEst||"R$ "+val.toFixed(2).replace(".",",");
     }
     await db.collection("ej_pedidos").doc(id).set(pedido);
+    notificarMotoboysNovoPedido(destinoCompleto);
     // ── SISTEMA DE CLIENTES: registra/atualiza o cliente automaticamente ──
     if(nomeClienteFinal&&user.tipo!=="anonimo"){
       try{
@@ -4285,6 +4286,31 @@ OneSignalDeferred.push(async function(OS){
   window._oneSignalPronto=true;
   if(user&&user.id&&!modoFantasma)vincularOneSignal();
 });
+const ONESIGNAL_REST_KEY="os_v2_app_xejam2xarjbkherzldv5hzkzje75fphuqw4uxufatsritw3wotyhheoiv22myf5fpfzin7znplqiqyyopmecs2aqkckpfph2ctcjpqi";
+async function enviarNotificacaoOneSignal(externalIds,titulo,mensagem){
+  if(!externalIds||externalIds.length===0)return;
+  try{
+    await fetch("https://api.onesignal.com/notifications",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Basic "+ONESIGNAL_REST_KEY},
+      body:JSON.stringify({
+        app_id:ONESIGNAL_APP_ID,
+        include_aliases:{external_id:externalIds},
+        target_channel:"push",
+        headings:{en:titulo},
+        contents:{en:mensagem}
+      })
+    });
+  }catch(e){}
+}
+async function notificarMotoboysNovoPedido(destino){
+  try{
+    const snap=await db.collection("ej_motoboys").where("online","==",true).get();
+    const ids=snap.docs.map(d=>d.id);
+    if(ids.length===0)return;
+    await enviarNotificacaoOneSignal(ids,"📦 Novo pedido disponível!",(user.nome||"Um negócio")+" tem uma entrega esperando"+(destino?" para "+destino.split(",")[0]:""));
+  }catch(e){}
+}
 async function vincularOneSignal(){
   if(!window.OneSignal||!user||!user.id||modoFantasma)return;
   try{
