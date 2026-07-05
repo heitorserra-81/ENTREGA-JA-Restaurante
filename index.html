@@ -1972,7 +1972,11 @@ async function calcularDadosCardsRest(){
   }catch(e){dados.motoboys_online={val:"--",sub:"online agora"};}
 
   try{
-    const snap=await db.collection("ej_pedidos").where("clienteId","==",user.id).orderBy("criadoEm","desc").limit(200).get();
+    const snap=await db.collection("ej_pedidos").where("clienteId","==",user.id).get();
+    const _docsOrdenados=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{
+      const ta=a.criadoEm&&a.criadoEm.toMillis?a.criadoEm.toMillis():0,tb=b.criadoEm&&b.criadoEm.toMillis?b.criadoEm.toMillis():0;
+      return tb-ta;
+    });
     const hoje=new Date();hoje.setHours(0,0,0,0);
     const ontem=new Date(hoje);ontem.setDate(ontem.getDate()-1);
     const inicioSemana=new Date(hoje);inicioSemana.setDate(inicioSemana.getDate()-inicioSemana.getDay());
@@ -1986,8 +1990,7 @@ async function calcularDadosCardsRest(){
     const motoboysContagem={};
     let ultimoPedido=null;
 
-    snap.docs.forEach((doc,idx)=>{
-      const c=doc.data();
+    _docsOrdenados.forEach((c,idx)=>{
       const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
       if(idx===0)ultimoPedido=c;
       if(c.nomeClienteFinal)clientesUnicos.add(c.nomeClienteFinal.toLowerCase().trim());
@@ -2045,8 +2048,11 @@ async function calcularDadosCardsRest(){
 let _drillPedidosCache=null,_drillCacheTs=0;
 async function _getPedidosDrill(){
   if(_drillPedidosCache&&Date.now()-_drillCacheTs<60000)return _drillPedidosCache;
-  const snap=await db.collection("ej_pedidos").where("clienteId","==",user.id).orderBy("criadoEm","desc").limit(300).get();
-  _drillPedidosCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const snap=await db.collection("ej_pedidos").where("clienteId","==",user.id).get();
+  _drillPedidosCache=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{
+    const ta=a.criadoEm&&a.criadoEm.toMillis?a.criadoEm.toMillis():0,tb=b.criadoEm&&b.criadoEm.toMillis?b.criadoEm.toMillis():0;
+    return tb-ta;
+  });
   _drillCacheTs=Date.now();
   return _drillPedidosCache;
 }
@@ -3842,12 +3848,9 @@ async function abrirAvaliacoesRecebidas(){
   el.innerHTML="<div style='text-align:center;padding:20px;color:var(--muted);font-size:13px;'>Carregando...</div>";
   if(!user||user.tipo==="anonimo"){el.innerHTML="<div style='text-align:center;padding:20px;color:var(--muted);font-size:13px;'>Faça login para ver suas avaliações.</div>";return;}
   try{
-    const snap=await db.collection("ej_pedidos").where("clienteId","==",user.id).where("avaliacaoMotoboy",">",0).orderBy("avaliacaoMotoboy").limit(30).get();
-    if(snap.empty){el.innerHTML="<div style='text-align:center;padding:20px;color:var(--muted);font-size:13px;'>Nenhuma avaliação recebida ainda.</div>";return;}
-    const docs=snap.docs.map(d=>d.data()).sort((a,b)=>{
-      const ta=a.criadoEm?.toMillis?a.criadoEm.toMillis():0,tb=b.criadoEm?.toMillis?b.criadoEm.toMillis():0;
-      return tb-ta;
-    });
+    const todos=await _getPedidosDrill();
+    const docs=todos.filter(c=>c.avaliacaoMotoboy>0);
+    if(docs.length===0){el.innerHTML="<div style='text-align:center;padding:20px;color:var(--muted);font-size:13px;'>Nenhuma avaliação recebida ainda.</div>";return;}
     el.innerHTML=docs.map(c=>`
       <div style="background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:12px;margin-bottom:9px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
@@ -3874,7 +3877,13 @@ function criarModalAvaliacoesRecebidas(){
 }
 async function carregarHist(){
   if(!user||user.tipo==="anonimo")return;
-  try{const snap=await db.collection("ej_pedidos").where("clienteId","==",user.id).orderBy("criadoEm","desc").limit(10).get();const el=document.getElementById("hist-lista");if(snap.empty){el.innerHTML="<div style='padding:16px;text-align:center;color:var(--muted);font-size:12px;'>Nenhuma entrega ainda</div>";return;}el.innerHTML=snap.docs.map(d=>{const c=d.data();return`<div class="hist-item"><div class="hist-ic">🚗</div><div style="flex:1;"><div class="hist-local">${c.destino||"--"}</div><div class="hist-data">${fmtData(c.criadoEm)}</div></div><div class="hist-val">${c.valorEstimado||"--"}</div></div>`;}).join("");}catch(e){}
+  try{
+    const todos=await _getPedidosDrill();
+    const lista=todos.slice(0,10);
+    const el=document.getElementById("hist-lista");
+    if(lista.length===0){el.innerHTML="<div style='padding:16px;text-align:center;color:var(--muted);font-size:12px;'>Nenhuma entrega ainda</div>";return;}
+    el.innerHTML=lista.map(c=>`<div class="hist-item"><div class="hist-ic">🚗</div><div style="flex:1;"><div class="hist-local">${c.destino||"--"}</div><div class="hist-data">${fmtData(c.criadoEm)}</div></div><div class="hist-val">${c.valorEstimado||"--"}</div></div>`).join("");
+  }catch(e){}
 }
 
 function fmtData(ts){if(!ts)return"--";const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString("pt-BR")+" "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});}
@@ -3899,14 +3908,11 @@ window.addEventListener("load",async()=>{
 async function restaurarEntregasAtivas(){
   if(!user||user.tipo==="anonimo")return;
   try{
-    const snap=await db.collection("ej_pedidos")
-      .where("clienteId","==",user.id)
-      .where("status","in",["aguardando","aceita","motoboy_chegou"])
-      .get();
-    snap.docs.forEach(doc=>{
-      const d=doc.data();
-      entregasAtivas[doc.id]={...d,id:doc.id};
-      escutarEntrega(doc.id);
+    const todos=await _getPedidosDrill();
+    const ativos=["aguardando","aceita","motoboy_chegou"];
+    todos.filter(d=>ativos.includes(d.status)).forEach(d=>{
+      entregasAtivas[d.id]={...d};
+      escutarEntrega(d.id);
     });
     atualizarBadgeMinhasEntregas();
   }catch(e){}
@@ -4201,7 +4207,9 @@ function fecharFinanceiro(){document.getElementById("modal-financeiro").classLis
 async function carregarFinanceiroCompleto(){
   if(!user)return;
   try{
-    const snap=await db.collection("ej_pedidos").where("clienteId","==",user.id).where("status","==","concluida").orderBy("criadoEm","desc").limit(100).get();
+    const todos=await _getPedidosDrill();
+    const docsFiltrados=todos.filter(c=>c.status==="concluida");
+    const snap={docs:docsFiltrados.map(c=>({data:()=>c})),size:docsFiltrados.length};
     const hoje=new Date();hoje.setHours(0,0,0,0);
     const ontem=new Date(hoje);ontem.setDate(ontem.getDate()-1);
     const semana=new Date(hoje);semana.setDate(semana.getDate()-7);
