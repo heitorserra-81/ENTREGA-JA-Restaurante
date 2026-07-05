@@ -15,6 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -533,8 +534,12 @@ input[type=file]{display:none;}
           </div>
           <input type="file" id="inp-foto-cad" accept="image/*" onchange="processarFoto(this,'foto-prev-cad','foto-txt-cad')"/>
         </div>
-        <div><div class="campo-label">Nome do restaurante</div><input class="campo-input" id="cad-nome" type="text" placeholder="Ex: Pizzaria do João" autocomplete="organization"/></div>
-        <div><div class="campo-label">Endereço do restaurante *</div><input class="campo-input" id="cad-endereco" type="text" placeholder="Rua, número, bairro"/></div>
+        <div>
+          <div class="campo-label">Qual é o seu ramo?</div>
+          <div id="grade-ramo-cad" class="grade-cats" style="margin-bottom:14px;"></div>
+        </div>
+        <div><div class="campo-label">Nome do seu negócio</div><input class="campo-input" id="cad-nome" type="text" placeholder="Ex: Pizzaria do João" autocomplete="organization"/></div>
+        <div><div class="campo-label">Endereço do seu negócio *</div><input class="campo-input" id="cad-endereco" type="text" placeholder="Rua, número, bairro"/></div>
         <div><div class="campo-label">WhatsApp</div><input class="campo-input" id="cad-fone" type="tel" placeholder="(19) 99999-9999" maxlength="15" oninput="mascaraTelefone(this)"/></div>
         <div><div class="campo-label">CNPJ (opcional)</div><input class="campo-input" id="cad-cpf" type="text" inputmode="numeric" placeholder="00.000.000/0000-00" maxlength="18"/></div>
         <div><div class="campo-label">Senha *</div><input class="campo-input" id="cad-senha" type="password" placeholder="Crie uma senha (mín. 4 dígitos)" autocomplete="new-password"/></div>
@@ -1000,31 +1005,31 @@ input[type=file]{display:none;}
     <div style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:16px;">Entrega Já · Política de Responsabilidade</div>
     <div class="termos-texto">
       <h4>1. Sobre a plataforma</h4>
-      <p>O Entrega Já é uma plataforma tecnológica que conecta restaurantes e estabelecimentos a motoboys particulares independentes para a realização de entregas. Não somos uma empresa de logística, não possuímos frota, não empregamos motoboys e não prestamos diretamente o serviço de entrega. A relação de entrega é estabelecida exclusivamente entre o restaurante e o motoboy.</p>
+      <p>O Entrega Já é uma plataforma tecnológica que conecta negócios dos mais variados ramos — restaurantes, farmácias, mercados, lojas, floriculturas, pet shops e qualquer outro tipo de comércio ou prestador — a motoboys particulares independentes para a realização de entregas. Não somos uma empresa de logística, não possuímos frota, não empregamos motoboys e não prestamos diretamente o serviço de entrega. A relação de entrega é estabelecida exclusivamente entre o negócio contratante e o motoboy.</p>
       <h4>2. Cadastro e acesso</h4>
-      <p>O restaurante deve fornecer dados verdadeiros (nome, endereço, telefone). O acesso é protegido por senha e intransferível, sendo o titular responsável por toda atividade na conta. Recomenda-se que o cadastro seja usado apenas por pessoas autorizadas pelo estabelecimento.</p>
+      <p>O negócio deve fornecer dados verdadeiros (nome, endereço, telefone). O acesso é protegido por senha e intransferível, sendo o titular responsável por toda atividade na conta. Recomenda-se que o cadastro seja usado apenas por pessoas autorizadas pelo estabelecimento.</p>
       <h4>3. Retirada e entrega</h4>
-      <p>O motoboy retira a encomenda no endereço cadastrado do restaurante e realiza a entrega no endereço informado pelo restaurante a cada pedido. É responsabilidade do restaurante informar corretamente o endereço de entrega e detalhes relevantes (ex: troco necessário, itens frágeis, observações do cliente).</p>
+      <p>O motoboy retira a encomenda no endereço cadastrado do negócio e realiza a entrega no endereço informado pelo negócio a cada pedido. É responsabilidade do negócio informar corretamente o endereço de entrega e detalhes relevantes (ex: troco necessário, itens frágeis, observações do cliente).</p>
       <h4>4. Forma de pagamento</h4>
-      <p>O valor da encomenda e a forma de pagamento (dinheiro, Pix, cartão) são combinados diretamente entre o restaurante e o cliente final. A plataforma não recebe, não intermedeia e não se responsabiliza pelos pagamentos entre restaurante, motoboy e cliente. Quando aplicável, eventuais taxas de entrega cobradas são definidas e informadas dentro do próprio aplicativo.</p>
+      <p>O valor da encomenda e a forma de pagamento (dinheiro, Pix, cartão) são combinados diretamente entre o negócio e o cliente final. A plataforma não recebe, não intermedeia e não se responsabiliza pelos pagamentos entre negócio, motoboy e cliente. Quando aplicável, eventuais taxas de entrega cobradas são definidas e informadas dentro do próprio aplicativo.</p>
       <h4>5. Responsabilidades do motoboy</h4>
       <p>O motoboy declara possuir CNH válida com EAR quando exigido, veículo regularizado e em boas condições, e seguro vigente quando aplicável. É responsável por conduzir com segurança, pela integridade da encomenda transportada, e por multas, acidentes ou danos durante a entrega. Atua como profissional autônomo, sem vínculo empregatício com a plataforma. O motoboy pode recusar entregas a seu critério.</p>
-      <h4>6. Responsabilidades do restaurante</h4>
-      <p>O restaurante deve fornecer informações corretas sobre o pedido e o endereço de entrega, embalar adequadamente os produtos, tratar o motoboy com respeito e disponibilizar a encomenda pronta no momento em que o motoboy chegar para retirada.</p>
+      <h4>6. Responsabilidades do negócio</h4>
+      <p>O negócio deve fornecer informações corretas sobre o pedido e o endereço de entrega, embalar adequadamente os produtos, tratar o motoboy com respeito e disponibilizar a encomenda pronta no momento em que o motoboy chegar para retirada.</p>
       <h4>7. Créditos (motoboy)</h4>
       <p>Os créditos são utilizados pelo motoboy para receber pedidos de entrega. Ao aceitar uma entrega, os créditos são descontados conforme a política vigente no aplicativo do motoboy. Se a entrega for cancelada antes da retirada, os créditos são devolvidos automaticamente ao motoboy. Caso o crédito se esgote, o motoboy deixa de receber novos pedidos até nova recarga. Os créditos não são reembolsáveis.</p>
       <h4>8. Avaliações</h4>
-      <p>Ao final de cada entrega, restaurante e motoboy avaliam-se mutuamente com estrelas (obrigatório) e comentário (opcional). A média de avaliações pode afetar o nível e a visibilidade do motoboy na plataforma. Avaliações consideradas injustas podem ser contestadas junto à administração.</p>
+      <p>Ao final de cada entrega, negócio e motoboy avaliam-se mutuamente com estrelas (obrigatório) e comentário (opcional). A média de avaliações pode afetar o nível e a visibilidade do motoboy na plataforma. Avaliações consideradas injustas podem ser contestadas junto à administração.</p>
       <h4>9. Relação entre as partes</h4>
-      <p>A entrega é um acordo direto entre o restaurante e o motoboy. Conflitos, danos ou prejuízos devem ser resolvidos diretamente entre eles, podendo recorrer aos meios legais quando necessário. A plataforma não tem obrigação de intervir ou arbitrar conflitos, mas pode auxiliar na mediação quando solicitada.</p>
+      <p>A entrega é um acordo direto entre o negócio e o motoboy. Conflitos, danos ou prejuízos devem ser resolvidos diretamente entre eles, podendo recorrer aos meios legais quando necessário. A plataforma não tem obrigação de intervir ou arbitrar conflitos, mas pode auxiliar na mediação quando solicitada.</p>
       <h4>10. Isenção de responsabilidade</h4>
       <p>Na máxima extensão permitida por lei, o Entrega Já não se responsabiliza por: acidentes de trânsito, danos materiais durante o transporte, extravio ou avaria de encomendas, atrasos, cancelamentos ou condutas das partes, condições do veículo, veracidade das informações dos usuários, ou prejuízos indiretos decorrentes do uso da plataforma.</p>
       <h4>11. Proteção de dados (LGPD)</h4>
-      <p>Em conformidade com a Lei nº 13.709/2018, coletamos dados (nome do restaurante, endereço, telefone, localização) para viabilizar o serviço de intermediação e a comunicação entre as partes. O restaurante pode solicitar a exclusão de seus dados, ressalvado o que deva ser mantido por obrigação legal.</p>
+      <p>Em conformidade com a Lei nº 13.709/2018, coletamos dados (nome do negócio, endereço, telefone, localização) para viabilizar o serviço de intermediação e a comunicação entre as partes. O negócio pode solicitar a exclusão de seus dados, ressalvado o que deva ser mantido por obrigação legal.</p>
       <h4>12. Conduta proibida</h4>
       <p>É vedado usar o aplicativo para fins ilícitos, assediar ou agredir usuários, fornecer informações falsas, solicitar transporte de itens proibidos por lei, ou tentar fraudar o sistema (incluindo confirmar etapas de entrega sem realizá-las de fato). O descumprimento pode resultar em suspensão ou exclusão da conta.</p>
       <h4>13. Disposições gerais</h4>
-      <p>Estes termos podem ser atualizados a qualquer momento. O uso continuado implica aceitação. Fica eleito o foro da comarca de Holambra/SP para dirimir conflitos. Ao concluir o cadastro, o restaurante declara ter lido e aceito integralmente estes termos.</p>
+      <p>Estes termos podem ser atualizados a qualquer momento. O uso continuado implica aceitação. Fica eleito o foro da comarca de Holambra/SP para dirimir conflitos. Ao concluir o cadastro, o negócio declara ter lido e aceito integralmente estes termos.</p>
     </div>
     <button class="btn-p" onclick="document.getElementById('cad-termos').checked=true;document.getElementById('modal-termos').classList.remove('show')" style="width:100%;margin-top:14px;">Li e aceito</button>
     <button class="btn-cancel" onclick="document.getElementById('modal-termos').classList.remove('show')" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:9px;">Fechar</button>
@@ -1063,7 +1068,7 @@ input[type=file]{display:none;}
       <div style="font-size:12px;color:var(--muted);margin-top:2px;">Desenvolvido por <b style="color:var(--dourado);">Heitor Serra Neto</b></div>
     </div>
     <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;">
-      <div style="font-size:13px;color:var(--text);line-height:1.6;">O Entrega Já é uma plataforma que conecta passageiros a motoboys particulares de forma rápida e segura na sua região. Chame uma entrega, acompanhe o motoboy em tempo real e viaje com tranquilidade.</div>
+      <div style="font-size:13px;color:var(--text);line-height:1.6;">O Entrega Já é uma plataforma que conecta restaurantes, farmácias, mercados e negócios de todo tipo a motoboys particulares de forma rápida e segura na sua região. Chame uma entrega, acompanhe o motoboy em tempo real e leve seu produto até o cliente com tranquilidade.</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
       <div class="sobre-row"><span>🛡️</span><div><div class="sobre-lb">Segurança</div><div class="sobre-vl">Botão SOS e compartilhamento de entrega</div></div></div>
@@ -1208,9 +1213,13 @@ input[type=file]{display:none;}
   <div class="crop-container" id="crop-container">
     <canvas class="crop-canvas" id="crop-canvas" width="260" height="260"></canvas>
   </div>
+  <div style="display:flex;gap:9px;background:rgba(255,255,255,0.06);border-radius:13px;padding:4px;">
+    <button id="crop-btn-redondo" onclick="setCropShape('redondo')" style="padding:8px 16px;border-radius:10px;font-weight:700;border:none;cursor:pointer;font-family:inherit;font-size:12px;background:var(--dourado);color:#1a1a1a;">⚪ Redondo</button>
+    <button id="crop-btn-quadrado" onclick="setCropShape('quadrado')" style="padding:8px 16px;border-radius:10px;font-weight:700;border:none;cursor:pointer;font-family:inherit;font-size:12px;background:transparent;color:var(--muted);">⬜ Quadrado</button>
+  </div>
   <div style="display:flex;gap:11px;">
     <button onclick="cancelarCrop()" style="padding:11px 22px;border-radius:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;font-size:13px;background:rgba(255,255,255,0.07);color:var(--muted);">Cancelar</button>
-    <button onclick="confirmarCrop()" style="padding:11px 22px;border-radius:13px;font-weight:700;border:1px solid var(--border);cursor:pointer;font-family:inherit;font-size:13px;background:var(--azul2);color:var(--dourado);">Usar foto</button>
+    <button onclick="confirmarCrop()" id="crop-btn-usar" style="padding:11px 22px;border-radius:13px;font-weight:700;border:1px solid var(--border);cursor:pointer;font-family:inherit;font-size:13px;background:var(--azul2);color:var(--dourado);">Usar foto</button>
   </div>
 </div>
 
@@ -1346,7 +1355,13 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
         <div class="fin-card-tit">Comparativo</div>
         <div class="fin-card-sub">Economia vs. outros apps</div>
       </button>
+      <button class="fin-card-grande fin-card-1" style="grid-column:span 2;" onclick="abrirFinMargem()">
+        <div class="fin-card-icon">💰</div>
+        <div class="fin-card-tit">Margem de entrega</div>
+        <div class="fin-card-sub">Taxa cobrada vs. custo do motoboy</div>
+      </button>
     </div>
+    <button onclick="exportarRelatorioMensalCSV()" style="width:100%;margin-top:14px;padding:14px;border-radius:16px;background:var(--card);border:1px solid var(--border);color:var(--dourado);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">📥 Exportar relatório do mês (planilha)</button>
   </div>
 </div>
 
@@ -1416,6 +1431,30 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
     </div>
     <div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:10px;">Histórico de pagamentos</div>
     <div id="fin-lista-custos"><div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Nenhum custo registrado ainda</div></div>
+  </div>
+</div>
+
+<!-- SUB-TELA: MARGEM DE ENTREGA -->
+<div id="modal-fin-margem" class="modal-din" style="position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,0.95);backdrop-filter:blur(6px);">
+  <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+      <button onclick="fecharFinMargem()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:36px;height:36px;border-radius:11px;font-size:16px;cursor:pointer;">←</button>
+      <div style="font-size:16px;font-weight:800;color:#fff;">💰 Margem de entrega</div>
+    </div>
+    <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:14px;padding:13px;margin-bottom:16px;font-size:12px;color:var(--text);line-height:1.5;" id="fin-margem-aviso">
+      Compara a taxa de entrega que você cobra do cliente com o que a entrega custa (créditos descontados pela plataforma, quando a cobrança estiver ativa).
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div class="fin-mini-card"><div class="fin-mini-val" id="fin-margem-taxa-total">R$ 0,00</div><div class="fin-mini-lb">Total cobrado em taxas</div></div>
+      <div class="fin-mini-card"><div class="fin-mini-val" id="fin-margem-custo-total">R$ 0,00</div><div class="fin-mini-lb">Total gasto com entregas</div></div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px;">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Margem líquida (este mês)</div>
+      <div style="font-size:30px;font-weight:900;" id="fin-margem-liquida">R$ 0,00</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px;" id="fin-margem-sub">--</div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:10px;">Por entrega (últimas 20)</div>
+    <div id="fin-margem-lista"></div>
   </div>
 </div>
 
@@ -1698,28 +1737,74 @@ function somAceito(){nota(784,0,.1,.8);nota(1047,.12,.1,.8);nota(1318,.24,.08,.8
 function somChegou(){nota(784,0,.15,.7);nota(1047,.18,.15,.7);nota(1318,.36,.4,.65);setTimeout(()=>falar("Entrega Já! Seu motoboy chegou!"),600);}
 if("speechSynthesis"in window){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}
 
+// ── SUPABASE STORAGE (fotos/logos reais, sem base64) ──
+const SUPABASE_URL="https://prizqulyuqkhuwbjrckv.supabase.co";
+const SUPABASE_KEY="sb_publishable_ldNovdxDU9W5SIE1GXM1rw_g2rmuWtb";
+let _supabaseClient=null;
+function getSupabase(){
+  if(!_supabaseClient)_supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  return _supabaseClient;
+}
+function _canvasParaBlob(canvas){
+  return new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",0.85));
+}
+async function uploadFotoSupabase(canvas,pastaArquivo){
+  const blob=await _canvasParaBlob(canvas);
+  if(!blob)throw new Error("Não foi possível processar a imagem.");
+  const sb=getSupabase();
+  const caminho=pastaArquivo+"_"+Date.now()+".jpg";
+  const{error}=await sb.storage.from("entrega-ja-bucket").upload(caminho,blob,{contentType:"image/jpeg",upsert:true});
+  if(error)throw error;
+  const{data}=sb.storage.from("entrega-ja-bucket").getPublicUrl(caminho);
+  return data.publicUrl;
+}
+
 // ── CROP ──
+let cropShape="redondo";
+function setCropShape(forma){
+  cropShape=forma;
+  document.getElementById("crop-btn-redondo").style.background=forma==="redondo"?"var(--dourado)":"transparent";
+  document.getElementById("crop-btn-redondo").style.color=forma==="redondo"?"#1a1a1a":"var(--muted)";
+  document.getElementById("crop-btn-quadrado").style.background=forma==="quadrado"?"var(--dourado)":"transparent";
+  document.getElementById("crop-btn-quadrado").style.color=forma==="quadrado"?"#1a1a1a":"var(--muted)";
+  desenharCrop();
+}
 function processarFoto(inp,prevId,txtId){
   const f=inp.files[0];if(!f)return;cropCtx="cad";
-  const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{cropImg=img;const cw=260,ch=260,sw=cw/img.naturalWidth,sh=ch/img.naturalHeight;cropBaseScale=Math.max(sw,sh);cropBaseX=(cw-img.naturalWidth*cropBaseScale)/2;cropBaseY=(ch-img.naturalHeight*cropBaseScale)/2;cropScale=1;cropTX=0;cropTY=0;desenharCrop();document.getElementById("crop-overlay").style.display="flex";};img.src=e.target.result;};r.readAsDataURL(f);inp.value="";
+  const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{cropImg=img;const cw=260,ch=260,sw=cw/img.naturalWidth,sh=ch/img.naturalHeight;cropBaseScale=Math.max(sw,sh);cropBaseX=(cw-img.naturalWidth*cropBaseScale)/2;cropBaseY=(ch-img.naturalHeight*cropBaseScale)/2;cropScale=1;cropTX=0;cropTY=0;setCropShape("redondo");document.getElementById("crop-overlay").style.display="flex";};img.src=e.target.result;};r.readAsDataURL(f);inp.value="";
 }
 function atualizarFoto(inp){
   const f=inp.files[0];if(!f||!user)return;cropCtx="perfil";
-  const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{cropImg=img;const cw=260,ch=260,sw=cw/img.naturalWidth,sh=ch/img.naturalHeight;cropBaseScale=Math.max(sw,sh);cropBaseX=(cw-img.naturalWidth*cropBaseScale)/2;cropBaseY=(ch-img.naturalHeight*cropBaseScale)/2;cropScale=1;cropTX=0;cropTY=0;desenharCrop();document.getElementById("crop-overlay").style.display="flex";};img.src=e.target.result;};r.readAsDataURL(f);inp.value="";
+  const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{cropImg=img;const cw=260,ch=260,sw=cw/img.naturalWidth,sh=ch/img.naturalHeight;cropBaseScale=Math.max(sw,sh);cropBaseX=(cw-img.naturalWidth*cropBaseScale)/2;cropBaseY=(ch-img.naturalHeight*cropBaseScale)/2;cropScale=1;cropTX=0;cropTY=0;setCropShape("redondo");document.getElementById("crop-overlay").style.display="flex";};img.src=e.target.result;};r.readAsDataURL(f);inp.value="";
 }
-function desenharCrop(){if(!cropImg)return;const cv=document.getElementById("crop-canvas"),ctx=cv.getContext("2d");ctx.clearRect(0,0,260,260);const sc=cropBaseScale*cropScale;ctx.save();ctx.beginPath();ctx.arc(130,130,130,0,Math.PI*2);ctx.clip();ctx.drawImage(cropImg,cropBaseX+cropTX,cropBaseY+cropTY,cropImg.naturalWidth*sc,cropImg.naturalHeight*sc);ctx.restore();}
+function desenharCrop(){if(!cropImg)return;const cv=document.getElementById("crop-canvas"),ctx=cv.getContext("2d");ctx.clearRect(0,0,260,260);const sc=cropBaseScale*cropScale;ctx.save();ctx.beginPath();if(cropShape==="quadrado"){ctx.rect(5,5,250,250);}else{ctx.arc(130,130,130,0,Math.PI*2);}ctx.clip();ctx.drawImage(cropImg,cropBaseX+cropTX,cropBaseY+cropTY,cropImg.naturalWidth*sc,cropImg.naturalHeight*sc);ctx.restore();}
 function cancelarCrop(){document.getElementById("crop-overlay").style.display="none";cropImg=null;}
 async function confirmarCrop(){
   if(!cropImg)return;
   const cv=document.getElementById("crop-canvas"),out=document.createElement("canvas");out.width=200;out.height=200;
-  const ctx=out.getContext("2d");ctx.save();ctx.beginPath();ctx.arc(100,100,100,0,Math.PI*2);ctx.clip();ctx.drawImage(cv,0,0,260,260,0,0,200,200);ctx.restore();
-  const url=out.toDataURL("image/jpeg",.75);
+  const ctx=out.getContext("2d");
+  ctx.save();
+  ctx.beginPath();
+  if(cropShape==="quadrado")ctx.rect(0,0,200,200);
+  else ctx.arc(100,100,100,0,Math.PI*2);
+  ctx.clip();
+  ctx.drawImage(cv,0,0,260,260,0,0,200,200);
+  ctx.restore();
   document.getElementById("crop-overlay").style.display="none";cropImg=null;
-  if(cropCtx==="cad"){fotoFinalCad=url;document.getElementById("foto-prev-cad").innerHTML=`<img src="${url}"/>`;document.getElementById("foto-txt-cad").textContent="Foto adicionada ✓";}
-  else if(cropCtx==="perfil"){
-    loading(true);
-    try{if(user.tipo!=="anonimo")await db.collection("ej_restaurantes").doc(user.id).update({foto:url});user.foto=url;localStorage.setItem("ej_user",JSON.stringify(user));atualizarHome();atualizarPerfil();const el=document.getElementById("med-foto");if(el)el.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;loading(false);toast("Foto atualizada! ✓");}catch(e){loading(false);toast("Erro ao salvar foto.");}
-  }
+  loading(true);
+  try{
+    const pasta=cropCtx==="perfil"&&user&&user.tipo!=="anonimo"?"restaurantes/"+user.id:"restaurantes/cad_"+Date.now()+"_"+Math.floor(Math.random()*10000);
+    const url=await uploadFotoSupabase(out,pasta);
+    if(cropCtx==="cad"){
+      fotoFinalCad=url;document.getElementById("foto-prev-cad").innerHTML=`<img src="${url}"/>`;document.getElementById("foto-txt-cad").textContent="Foto adicionada ✓";
+      loading(false);
+    }else if(cropCtx==="perfil"){
+      if(user.tipo!=="anonimo")await db.collection("ej_restaurantes").doc(user.id).update({foto:url});
+      user.foto=url;localStorage.setItem("ej_user",JSON.stringify(user));atualizarHome();atualizarPerfil();
+      const el=document.getElementById("med-foto");if(el)el.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
+      loading(false);toast("Foto atualizada! ✓");
+    }
+  }catch(e){loading(false);toast("Erro ao enviar a foto: "+e.message);}
 }
 (()=>{
   const cont=document.getElementById("crop-container");
@@ -1752,7 +1837,8 @@ function sair(){
   if(unsubChat){unsubChat();unsubChat=null;}
   if(unsubMot){unsubMot();unsubMot=null;}
   entregaAtiva=null;
-  localStorage.removeItem("ej_user");user=null;mostrarTela("tela-login");
+  _ramoNegocioSel=null;
+  localStorage.removeItem("ej_user");user=null;mostrarTela("tela-login");renderGradeRamoCad();
 }
 
 // ── TELEFONE ──
@@ -1788,7 +1874,39 @@ function validarCPF(cpf){
 }
 
 // ── LOGIN ──
-function altTab(t){["cad","ent"].forEach(x=>{document.getElementById("form-"+x).style.display="none";document.getElementById("tab-"+x).classList.remove("ativo");});document.getElementById("form-"+t).style.display="block";document.getElementById("tab-"+t).classList.add("ativo");}
+const RAMOS_NEGOCIO=[
+  {id:"restaurante",nome:"Restaurante",icone:"🍽️"},
+  {id:"pizzaria",nome:"Pizzaria",icone:"🍕"},
+  {id:"lanchonete",nome:"Lanchonete",icone:"🍔"},
+  {id:"padaria",nome:"Padaria/Confeitaria",icone:"🥐"},
+  {id:"bar",nome:"Bar/Boteco",icone:"🍺"},
+  {id:"farmacia",nome:"Farmácia",icone:"💊"},
+  {id:"mercado",nome:"Mercado/Mercearia",icone:"🛒"},
+  {id:"roupa",nome:"Loja de roupa",icone:"👗"},
+  {id:"presentes",nome:"Presentes/Variedades",icone:"🎁"},
+  {id:"flores",nome:"Floricultura",icone:"🌸"},
+  {id:"pet",nome:"Pet shop",icone:"🐾"},
+  {id:"outro",nome:"Outro",icone:"📦"},
+];
+let _ramoNegocioSel=null;
+function renderGradeRamoCad(){
+  const el=document.getElementById("grade-ramo-cad");
+  if(!el)return;
+  el.innerHTML=RAMOS_NEGOCIO.map(r=>`
+    <button type="button" onclick="selecionarRamoCad('${r.id}')" class="cat-btn-anim${_ramoNegocioSel===r.id?" selecionada":""}">
+      <div class="cat-luz"></div>
+      <div class="cat-inner">
+        <div class="cat-inner-ic">${r.icone}</div>
+        <div class="cat-inner-nome">${r.nome}</div>
+      </div>
+    </button>`).join("");
+}
+function selecionarRamoCad(id){
+  _ramoNegocioSel=id;
+  renderGradeRamoCad();
+  if(navigator.vibrate)navigator.vibrate(10);
+}
+function altTab(t){["cad","ent"].forEach(x=>{document.getElementById("form-"+x).style.display="none";document.getElementById("tab-"+x).classList.remove("ativo");});document.getElementById("form-"+t).style.display="block";document.getElementById("tab-"+t).classList.add("ativo");if(t==="cad")renderGradeRamoCad();}
 // ── RECUPERAR SENHA ──
 const ADMIN_WHATSAPP="5519982480386"; // configurável no painel admin futuramente
 let recUserDoc=null;
@@ -1860,11 +1978,12 @@ async function cadastrar(){
   const senha=(document.getElementById("cad-senha")?.value||"").trim();
   const pergunta=(document.getElementById("cad-pergunta")?.value||"").trim();
   const resposta=(document.getElementById("cad-resposta")?.value||"").trim();
-  if(!nome||!fone){toast("Preencha o nome do restaurante e WhatsApp");return;}
-  if(!endereco){toast("Informe o endereço do restaurante");return;}
+  if(!nome||!fone){toast("Preencha o nome do negócio e WhatsApp");return;}
+  if(!endereco){toast("Informe o endereço do negócio");return;}
   if(senha.length<4){toast("Crie uma senha de pelo menos 4 dígitos");return;}
   if(!pergunta){toast("Escolha uma pergunta de segurança");return;}
   if(!resposta){toast("Responda a pergunta de segurança");return;}
+  if(!_ramoNegocioSel){toast("Escolha o ramo do seu negócio");return;}
   if(!document.getElementById("cad-termos")?.checked){toast("Você precisa aceitar os Termos de Uso");return;}
   loading(true);
   try{
@@ -1892,6 +2011,7 @@ async function cadastrar(){
     const dados={id,nome,fone,
       endereco,enderecoLat,enderecoLng,
       cnpj:cnpjVal||null,
+      ramoNegocio:_ramoNegocioSel,
       senhaHash:hashSenha(senha),
       pergunta:pergunta,
       respostaHash:hashSenha(resposta.toLowerCase()),
@@ -3342,6 +3462,47 @@ async function verificarMotoboysOnlineBusca(){
 function pararBusc(){if(contBusc){clearInterval(contBusc);contBusc=null;}const av=document.getElementById("busc-demora-aviso");if(av)av.style.display="none";}
 
 // ── ESCUTAR CORRIDA ──
+// ── AVISO DE PEDIDO ESQUECIDO (aguardando há muito tempo sem motoboy aceitar) ──
+let _avisosEsquecidoMostrados=new Set();
+function criarModalPedidoEsquecido(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div class="modal-base" id="modal-pedido-esquecido">
+    <div class="modal-sheet">
+      <div style="text-align:center;font-size:36px;margin-bottom:10px;">⏳</div>
+      <div style="font-size:16px;font-weight:900;color:#fff;text-align:center;margin-bottom:6px;">Nenhum motoboy aceitou ainda</div>
+      <div id="pe-texto" style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:18px;line-height:1.5;"></div>
+      <button id="pe-btn-ver" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,var(--dourado2),var(--dourado));border:none;color:#1a1a1a;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;margin-bottom:9px;">👀 Ver e decidir</button>
+      <button onclick="document.getElementById('modal-pedido-esquecido').classList.remove('show')" style="width:100%;padding:12px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Continuar esperando</button>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+function avisarPedidoEsquecido(id,minutos){
+  if(!document.getElementById("modal-pedido-esquecido"))criarModalPedidoEsquecido();
+  document.getElementById("pe-texto").textContent="Já faz "+minutos+" minutos que essa entrega está aguardando um motoboy. Você pode continuar esperando ou cancelar e tentar de novo.";
+  document.getElementById("pe-btn-ver").onclick=()=>{
+    document.getElementById("modal-pedido-esquecido").classList.remove("show");
+    focarEntregaRestaurante(id);
+  };
+  document.getElementById("modal-pedido-esquecido").classList.add("show");
+  try{getAC();}catch(e){}
+  notif("⏳ Pedido aguardando há "+minutos+" min","Nenhum motoboy aceitou ainda. Toque para decidir.");
+}
+setInterval(()=>{
+  if(!user||user.tipo==="anonimo")return;
+  Object.values(entregasAtivas).forEach(d=>{
+    if(d.status!=="aguardando")return;
+    if(_avisosEsquecidoMostrados.has(d.id))return;
+    const criadoEm=d.criadoEm&&d.criadoEm.toDate?d.criadoEm.toDate():null;
+    if(!criadoEm)return;
+    const minutos=Math.round((Date.now()-criadoEm.getTime())/60000);
+    if(minutos>=8){
+      _avisosEsquecidoMostrados.add(d.id);
+      avisarPedidoEsquecido(d.id,minutos);
+    }
+  });
+},60000);
+
 function escutarEntrega(id){
   if(unsubsEntregas[id])unsubsEntregas[id]();
   unsubsEntregas[id]=db.collection("ej_pedidos").doc(id).onSnapshot(snap=>{
@@ -3350,8 +3511,10 @@ function escutarEntrega(id){
 
     if(d.status==="concluida"||d.status==="cancelada_motoboy"||d.status==="cancelada_cliente"){
       delete entregasAtivas[id];
+      _avisosEsquecidoMostrados.delete(id);
     }else{
       entregasAtivas[id]={...d,id};
+      if(d.status!=="aguardando")_avisosEsquecidoMostrados.delete(id);
     }
     atualizarBadgeMinhasEntregas();
 
@@ -3806,11 +3969,13 @@ function atualizarPerfil(){
   else g("perf-initial").textContent=(user.nome||"R")[0].toUpperCase();
   // Nivel por nº de pedidos + cor do anel girando
   const tc=user.totalPedidos||0;
-  let nivel="🥉 Restaurante Bronze";
+  const ramoInfo=RAMOS_NEGOCIO.find(r=>r.id===user.ramoNegocio);
+  const rotuloRamo=ramoInfo?ramoInfo.nome:"Negócio";
+  let nivel="🥉 "+rotuloRamo+" Bronze";
   let grad="conic-gradient(#cd7f32,#f0b97d,#8b5a2b,#cd7f32)"; // bronze
-  if(tc>=50){nivel="💎 Restaurante Diamante";grad="conic-gradient(#b9f2ff,#7fd4e8,#5fa8d3,#a0e9ff,#b9f2ff)";}
-  else if(tc>=20){nivel="🥇 Restaurante Ouro";grad="conic-gradient(#ffd700,#fff3a0,#daa520,#ffd700)";}
-  else if(tc>=5){nivel="🥈 Restaurante Prata";grad="conic-gradient(#c0c0c0,#f5f5f5,#a8a8a8,#e8e8e8,#c0c0c0)";}
+  if(tc>=50){nivel="💎 "+rotuloRamo+" Diamante";grad="conic-gradient(#b9f2ff,#7fd4e8,#5fa8d3,#a0e9ff,#b9f2ff)";}
+  else if(tc>=20){nivel="🥇 "+rotuloRamo+" Ouro";grad="conic-gradient(#ffd700,#fff3a0,#daa520,#ffd700)";}
+  else if(tc>=5){nivel="🥈 "+rotuloRamo+" Prata";grad="conic-gradient(#c0c0c0,#f5f5f5,#a8a8a8,#e8e8e8,#c0c0c0)";}
   if(g("perf-nivel"))g("perf-nivel").textContent=nivel;
   const ring=g("perf-av-ring");
   if(ring)ring.style.setProperty("--nivel-grad",grad);
@@ -3947,7 +4112,7 @@ window.addEventListener("load",async()=>{
   const s=localStorage.getItem("ej_user");
   if(s){user=JSON.parse(s);irPara("home");restaurarEntregasAtivas();iniciarEscutaSaldoRest();}
   else{
-    setTimeout(()=>mostrarTela("tela-login"),2000);
+    setTimeout(()=>{mostrarTela("tela-login");renderGradeRamoCad();},2000);
   }
   renderCardsHome();
   renderHistRapido();
@@ -4433,6 +4598,92 @@ function abrirFinComparativo(){
   document.getElementById("fin-economia-total").textContent="R$ "+economia.toFixed(2).replace(".",",");
   document.getElementById("fin-comp-nosso").textContent="R$ "+nossoCusto.toFixed(2).replace(".",",");
   document.getElementById("fin-comp-outros").textContent="R$ "+custoOutrosApps.toFixed(2).replace(".",",");
+}
+function abrirFinMargem(){
+  document.getElementById("modal-fin-margem").classList.add("show");
+  const f=_finCache;if(!f)return;
+  const pedidos=f.docs.map(d=>d.data());
+  const taxaTotal=pedidos.reduce((s,c)=>s+(c.taxaEntrega||0),0);
+  const custoTotal=pedidos.reduce((s,c)=>s+(c.creditoRestCobrado||0),0);
+  const margem=taxaTotal-custoTotal;
+  const temCusto=custoTotal>0;
+
+  document.getElementById("fin-margem-taxa-total").textContent="R$ "+taxaTotal.toFixed(2).replace(".",",");
+  document.getElementById("fin-margem-custo-total").textContent="R$ "+custoTotal.toFixed(2).replace(".",",");
+  const elLiq=document.getElementById("fin-margem-liquida");
+  elLiq.textContent="R$ "+margem.toFixed(2).replace(".",",");
+  elLiq.style.color=margem>=0?"var(--verde)":"#ef4444";
+  document.getElementById("fin-margem-sub").textContent=temCusto
+    ?(margem>=0?"Suas taxas estão cobrindo o custo das entregas ✓":"Você está complementando do próprio bolso")
+    :"A cobrança por entrega ainda não está ativa — quando ativar, aqui mostra o custo real";
+  document.getElementById("fin-margem-aviso").style.display=temCusto?"none":"block";
+
+  const comTaxa=pedidos.filter(c=>c.taxaEntrega||c.creditoRestCobrado).slice(0,20);
+  const elLista=document.getElementById("fin-margem-lista");
+  if(comTaxa.length===0){
+    elLista.innerHTML="<div style='text-align:center;padding:20px;color:var(--muted);font-size:12px;'>Nenhuma entrega com taxa registrada ainda.</div>";
+    return;
+  }
+  elLista.innerHTML=comTaxa.map(c=>{
+    const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
+    const taxa=c.taxaEntrega||0,custo=c.creditoRestCobrado||0,m=taxa-custo;
+    return`<div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <div style="font-size:12px;font-weight:700;color:#fff;">${(c.nomeClienteFinal||(c.destino||"Pedido").split(",")[0])}</div>
+        <div style="font-size:12px;font-weight:800;color:${m>=0?"var(--verde)":"#ef4444"};">${m>=0?"+":""}R$ ${m.toFixed(2).replace(".",",")}</div>
+      </div>
+      <div style="font-size:10px;color:var(--muted);">${dt.toLocaleDateString("pt-BR")} · Taxa: R$ ${taxa.toFixed(2).replace(".",",")} · Custo: R$ ${custo.toFixed(2).replace(".",",")}</div>
+    </div>`;
+  }).join("");
+}
+function fecharFinMargem(){document.getElementById("modal-fin-margem").classList.remove("show");}
+
+// ── RELATÓRIO MENSAL EXPORTÁVEL (CSV) ──
+async function exportarRelatorioMensalCSV(){
+  if(!user)return;
+  loading(true);
+  try{
+    const todos=await _getPedidosDrill();
+    const hoje=new Date();
+    const inicioMes=new Date(hoje.getFullYear(),hoje.getMonth(),1);
+    const doMes=todos.filter(c=>{
+      const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():null;
+      return dt&&dt>=inicioMes;
+    });
+    loading(false);
+    if(doMes.length===0){toast("Nenhuma entrega registrada este mês ainda.");return;}
+
+    const cab=["Data","Hora","Cliente","Destino","Itens","Valor pedido","Taxa entrega","Valor total","Forma pagamento","Motoboy","Status"];
+    const linhas=[cab.join(";")];
+    doMes.forEach(c=>{
+      const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
+      const itens=(c.itensDetalhados||[]).map(i=>i.qtd+"x "+i.nome).join(", ")||c.obs||"";
+      const linha=[
+        dt.toLocaleDateString("pt-BR"),
+        dt.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),
+        c.nomeClienteFinal||"",
+        (c.destino||"").replace(/;/g,","),
+        itens.replace(/;/g,","),
+        (c.valorPedido||0).toFixed(2).replace(".",","),
+        (c.taxaEntrega||0).toFixed(2).replace(".",","),
+        (c.valorTotal||c.valorPedido||0).toFixed(2).replace(".",","),
+        c.formaPgto||"",
+        c.motoboy?.nome||"",
+        c.status||""
+      ];
+      linhas.push(linha.join(";"));
+    });
+    const csv="\uFEFF"+linhas.join("\n"); // BOM para acentos abrirem certo no Excel
+    const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+    const nomeArq="entrega-ja-"+hoje.getFullYear()+"-"+String(hoje.getMonth()+1).padStart(2,"0")+".csv";
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[new File([blob],nomeArq)]})){
+      try{await navigator.share({files:[new File([blob],nomeArq,{type:"text/csv"})],title:"Relatório Entrega Já"});return;}catch(e){if(e.name==="AbortError")return;}
+    }
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download=nomeArq;document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+    toast("📥 Relatório exportado! "+doMes.length+" entrega(s).");
+  }catch(e){loading(false);toast("Erro ao exportar: "+e.message);}
 }
 function fecharFinComparativo(){document.getElementById("modal-fin-comparativo").classList.remove("show");}
 
