@@ -169,7 +169,7 @@ input[type=file]{display:none;}
 .pgto-opcoes{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
 .pgto-btn{padding:11px 8px;border-radius:12px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
 .pgto-btn.ativo{background:rgba(251,191,36,0.12);border-color:var(--dourado);color:var(--dourado);}
-.valor-card{background:rgba(251,191,36,0.07);border:1px solid var(--border);border-radius:13px;padding:10px 14px;margin-bottom:8px;display:none;}
+.valor-card{background:rgba(251,191,36,0.07);border:1px solid var(--border);border-radius:13px;padding:10px 14px;margin-top:18px;margin-bottom:8px;display:none;}
 .valor-num{font-size:22px;font-weight:900;color:var(--dourado);}
 .valor-info{font-size:11px;color:var(--muted);}
 
@@ -462,11 +462,33 @@ input[type=file]{display:none;}
 .notinha-serrilha-baixo{transform:rotate(180deg);}
 .taxa-chip{padding:8px 13px;border-radius:10px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
 .taxa-chip.ativo{background:rgba(251,191,36,0.15);border-color:var(--dourado);color:var(--dourado);}
-.cat-btn-grande{display:flex;align-items:center;gap:12px;background:linear-gradient(150deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:16px;padding:16px;cursor:pointer;font-family:inherit;text-align:left;width:100%;transition:transform 0.15s ease;-webkit-tap-highlight-color:transparent;}
-.cat-btn-grande:active{transform:scale(0.97);background:var(--card2);}
-.cat-btn-nome{flex:1;font-size:15px;font-weight:800;color:#fff;}
-.cat-btn-qtd{font-size:11px;color:var(--muted);background:rgba(251,191,36,0.1);padding:4px 10px;border-radius:20px;flex-shrink:0;}
-.cat-btn-seta{font-size:16px;color:var(--dourado);flex-shrink:0;}
+/* GRADE DE CATEGORIAS/PRATOS ANIMADA (seletor de pedido) */
+.grade-cats{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:4px;}
+.cat-btn-anim{position:relative;border-radius:16px;padding:2px;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform 0.15s ease;}
+.cat-btn-anim:active{transform:scale(0.95);}
+.cat-btn-anim.selecionada .cat-luz{animation:gira 2.2s linear infinite;opacity:1;}
+.cat-luz{position:absolute;top:50%;left:50%;width:220%;height:220%;background:conic-gradient(from var(--bordaAng,0deg),#ef4444,#f97316,#fbbf24,#22c55e,#3b82f6,#a855f7,#ef4444);opacity:0.55;transition:opacity 0.3s;}
+.cat-btn-anim:not(.selecionada) .cat-luz{animation:gira 6s linear infinite;}
+.cat-inner{position:relative;z-index:1;background:linear-gradient(150deg,var(--card),var(--card2));border-radius:14px;padding:14px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:88px;justify-content:center;}
+.cat-inner-ic{font-size:26px;}
+.cat-inner-nome{font-size:12px;font-weight:800;color:#fff;text-align:center;line-height:1.25;}
+.cat-inner-qtd{font-size:10px;color:var(--muted);}
+.cat-inner-sel{font-size:9px;font-weight:800;color:var(--dourado);background:rgba(251,191,36,0.15);padding:2px 8px;border-radius:9px;margin-top:1px;}
+
+.grade-pratos{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:9px 0 16px;animation:apareceBaixo 0.3s ease;}
+@keyframes apareceBaixo{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.prato-btn-anim{position:relative;border-radius:15px;padding:2px;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform 0.15s ease;}
+.prato-btn-anim:active{transform:scale(0.95);}
+.prato-btn-anim.tem-qtd .prato-luz{animation:gira 2.2s linear infinite;opacity:0.9;}
+.prato-luz{position:absolute;top:50%;left:50%;width:220%;height:220%;background:conic-gradient(from var(--bordaAng,0deg),var(--dourado2),var(--dourado),#fff8e1,var(--dourado),var(--dourado2));opacity:0;transition:opacity 0.3s;}
+.prato-inner{position:relative;z-index:1;background:var(--card);border-radius:13px;padding:10px;display:flex;flex-direction:column;gap:6px;}
+.prato-foto-btn{width:100%;height:64px;border-radius:10px;background:var(--card2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px;}
+.prato-foto-btn img{width:100%;height:100%;object-fit:cover;}
+.prato-nome-btn{font-size:12px;font-weight:800;color:#fff;line-height:1.25;min-height:30px;}
+.prato-preco-btn{font-size:12px;font-weight:800;color:var(--dourado);}
+.prato-qtd-badge{position:absolute;top:6px;right:6px;z-index:2;background:var(--dourado);color:#1a1a1a;font-size:11px;font-weight:900;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
+.prato-menos-btn{position:absolute;top:6px;left:6px;z-index:2;background:rgba(239,68,68,0.9);color:#fff;font-size:14px;font-weight:900;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
+.btn-voltar-cats{display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:9px 14px;margin-bottom:11px;cursor:pointer;font-size:12px;font-weight:700;color:var(--dourado);width:100%;font-family:inherit;-webkit-tap-highlight-color:transparent;}
 </style>
 </head>
 <body>
@@ -572,8 +594,9 @@ input[type=file]{display:none;}
           </div>
         </div>
       </div>
-      <!-- DIREITA: hamburger -->
+      <!-- DIREITA: saldo de créditos + hamburger -->
       <div style="flex:1;"></div>
+      <button onclick="abrirMeusCreditos()" style="background:rgba(251,191,36,0.12);border:1px solid var(--border);border-radius:12px;padding:7px 11px;font-size:11px;font-weight:800;color:var(--dourado);cursor:pointer;flex-shrink:0;margin-right:8px;position:relative;z-index:1;" id="badge-credito-header">💳 --</button>
       <button class="btn-ham" onclick="abrirMenu()" style="flex-shrink:0;position:relative;z-index:1;">☰</button>
     </div>
   </div>
@@ -614,7 +637,8 @@ input[type=file]{display:none;}
     <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;margin-top:6px;">Endereço de entrega (cliente)</div>
     <div style="position:relative;">
       <div class="busca-row">
-        <input class="campo-busca" id="campo-busca" type="text" placeholder="Rua, bairro do cliente..." autocomplete="off" oninput="buscarDest(this.value)"/>
+        <input class="campo-busca" id="campo-busca" type="text" placeholder="Rua, bairro do cliente..." autocomplete="off" oninput="buscarDest(this.value)" style="flex:1;"/>
+        <input class="campo-busca" id="campo-numero-endereco" type="text" inputmode="numeric" placeholder="Nº" autocomplete="off" style="width:58px;flex:none;padding-left:10px;padding-right:10px;text-align:center;"/>
         <button class="btn-mapa-ic" onclick="abrirMapaDest()">🗺️</button>
       </div>
       <div class="sugestoes" id="sugestoes"></div>
@@ -623,7 +647,6 @@ input[type=file]{display:none;}
       <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">🕐 Endereços recentes</div>
       <div id="hist-rapido-lista" style="display:flex;flex-direction:column;gap:6px;"></div>
     </div>
-    <input class="campo-obs" id="campo-numero-endereco" type="text" inputmode="numeric" placeholder="Número (ex: 123, ap 4)" autocomplete="off" style="margin-top:8px;"/>
     <div style="position:relative;">
       <input class="campo-obs" id="campo-nome-cliente" type="text" placeholder="Nome do cliente" autocomplete="off" style="margin-top:8px;" oninput="sugerirClientes(this.value)" onfocus="sugerirClientes(this.value)"/>
       <div id="sugestoes-clientes" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:50;background:var(--card2);border:1px solid var(--border);border-radius:12px;margin-top:4px;max-height:190px;overflow-y:auto;box-shadow:0 10px 26px rgba(0,0,0,0.5);"></div>
@@ -679,6 +702,10 @@ input[type=file]{display:none;}
         <div><div class="valor-num" id="valor-num">R$ --</div><div class="valor-info" id="valor-dist">calculando...</div></div>
         <div class="valor-info" id="valor-tempo" style="text-align:right;"></div>
       </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:7px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:11px;padding:8px 12px;margin-top:12px;margin-bottom:2px;">
+      <span style="font-size:13px;">🟢</span>
+      <span id="count-mot-mini" style="font-size:11px;font-weight:700;color:var(--text);">Verificando motoboys online...</span>
     </div>
     <div class="btn-chamar-wrap">
       <button class="btn-chamar" id="btn-chamar" onclick="chamarEntregaComNotinha()" disabled>
@@ -1061,6 +1088,11 @@ input[type=file]{display:none;}
   <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--card);border-bottom:1px solid var(--border);">
     <div style="font-size:13px;font-weight:600;color:var(--text);">🔔 Receber notificações</div>
     <div id="tog-notif" class="toggle on" onclick="toggleNotif()"></div>
+  </div>
+  <div class="config-sec">Nova entrega</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--card);border-bottom:1px solid var(--border);">
+    <div><div style="font-size:13px;font-weight:600;color:var(--text);">🕐 Mostrar endereços recentes</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">Atalho pros últimos 3 endereços, acima do campo de busca</div></div>
+    <div id="tog-hist-rapido" class="toggle off" onclick="toggleHistRapido()"></div>
   </div>
 </div>
 
@@ -1526,6 +1558,8 @@ function iniciarEscutaSaldoRest(){
     const saldoAnterior=user.creditos||0;
     user.creditos=d.creditos||0;
     localStorage.setItem("ej_user",JSON.stringify(user));
+    const badgeCred=document.getElementById("badge-credito-header");
+    if(badgeCred)badgeCred.textContent="💳 R$ "+user.creditos.toFixed(0);
     // Aviso de saldo baixo (uma vez por sessão, só com a cobrança ativa)
     if(CONFIG_COBRANCA_REST.ativa&&user.creditos<=CONFIG_COBRANCA_REST.alertaSaldoBaixo&&user.creditos<saldoAnterior&&!_avisoSaldoMostrado){
       _avisoSaldoMostrado=true;
@@ -2335,7 +2369,7 @@ function _linhaPedidoDrill(c){
       <div style="font-size:12px;font-weight:700;color:#fff;">${ic} ${c.nomeClienteFinal||(c.destino||"Pedido").split(",")[0]}</div>
       <div style="font-size:12px;font-weight:800;color:var(--dourado);">${_fmtBR(c.valorPedido||c.valorTotal)}</div>
     </div>
-    <div style="font-size:10px;color:var(--muted);">${_fmtData(dt)} · ${c.motoboy?.nome||"sem motoboy"} · ${c.formaPgto||""}</div>
+    <div style="font-size:10px;color:var(--muted);">${_fmtData(dt)} · ${c.motoboy?.nome||"sem motoboy"} · ${c.formaPgto||""}${c.trocoPara?" · 💵 Troco p/ R$ "+c.trocoPara:""}</div>
     ${c.itensDetalhados&&c.itensDetalhados.length?`<div style="font-size:10px;color:var(--muted);margin-top:3px;">📦 ${c.itensDetalhados.map(i=>i.qtd+"x "+i.nome).join(", ")}</div>`:""}
     ${podeRepetir?`<div style="display:flex;gap:7px;margin-top:8px;">
       <button onclick="repetirPedido('${c.id}')" style="flex:1;padding:8px;border-radius:10px;background:rgba(251,191,36,0.08);border:1px solid var(--border);color:var(--dourado);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">🔁 Repetir</button>
@@ -2784,7 +2818,13 @@ function fimDragCard(e){
 }
 
 // ── CONFIG ──
-function abrirConfig(){fecharMenu();document.getElementById("tela-config").style.display="block";renderConfigCards();}
+function abrirConfig(){
+  fecharMenu();
+  document.getElementById("tela-config").style.display="block";
+  renderConfigCards();
+  document.getElementById("tog-notif").className="toggle "+(localStorage.getItem("ej_notif")!=="false"?"on":"off");
+  document.getElementById("tog-hist-rapido").className="toggle "+(localStorage.getItem("ej_mostrar_hist_rapido")==="1"?"on":"off");
+}
 function fecharConfig(){document.getElementById("tela-config").style.display="none";renderCardsHome();}
 function renderConfigCards(){
   const el=document.getElementById("config-lista");
@@ -2831,6 +2871,12 @@ function setTamCard(id,tam){
   if(c){c.tam=tam;saveConfigCards(cards);renderConfigCards();}
 }
 function toggleNotif(){const on=localStorage.getItem("ej_notif")!=="false";localStorage.setItem("ej_notif",on?"false":"true");if(!on)pedirNotif();document.getElementById("tog-notif").className="toggle "+(on?"off":"on");}
+function toggleHistRapido(){
+  const on=localStorage.getItem("ej_mostrar_hist_rapido")==="1";
+  localStorage.setItem("ej_mostrar_hist_rapido",on?"0":"1");
+  document.getElementById("tog-hist-rapido").className="toggle "+(on?"off":"on");
+  renderHistRapido();
+}
 
 
 // ── MENU ──
@@ -2912,10 +2958,11 @@ function salvarHist(d){
 
 function renderHistRapido(){
   try{
-    const h=JSON.parse(localStorage.getItem("ej_hist")||"[]");
     const wrap=document.getElementById("hist-rapido");
     const lista=document.getElementById("hist-rapido-lista");
     if(!wrap||!lista)return;
+    if(localStorage.getItem("ej_mostrar_hist_rapido")!=="1"){wrap.style.display="none";return;}
+    const h=JSON.parse(localStorage.getItem("ej_hist")||"[]");
     if(h.length===0){wrap.style.display="none";return;}
     wrap.style.display="block";
     lista.innerHTML=h.slice(0,3).map((d,i)=>`
@@ -3678,6 +3725,7 @@ function iniciarMapaMot(){
       snap.docs.forEach(d=>{const m=d.data();if(!m.lat||!m.lng)return;ativos.add(d.id);if(marcsMot[d.id])marcsMot[d.id].setLatLng([m.lat,m.lng]);else marcsMot[d.id]=L.marker([m.lat,m.lng],{icon:ic}).addTo(mapaMot);});
       Object.keys(marcsMot).forEach(id=>{if(!ativos.has(id)){mapaMot.removeLayer(marcsMot[id]);delete marcsMot[id];}});
       const count=ativos.size;const el=document.getElementById("count-mot");if(el)el.textContent=count===0?"Nenhum disponível":count+" disponível"+(count>1?"is":"");
+      const elMini=document.getElementById("count-mot-mini");if(elMini)elMini.textContent=count===0?"Nenhum motoboy online no momento":count+" motoboy"+(count>1?"s":"")+" online agora";
     });
   },300);
 }
@@ -3728,6 +3776,8 @@ function atualizarHome(){
   const elNome=document.getElementById("home-nome");
   elNome.textContent=(user.nome||"").trim();
   ajustarFonteNomeHome();
+  const badgeCred=document.getElementById("badge-credito-header");
+  if(badgeCred)badgeCred.textContent="💳 R$ "+(user.creditos||0).toFixed(0);
   const av=document.getElementById("home-avatar");
   if(user.foto)av.innerHTML=`<img src="${user.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
   else av.innerHTML=`<span style="font-size:15px;font-weight:700;color:var(--dourado);">${(user.nome||"P")[0].toUpperCase()}</span>`;
@@ -3933,14 +3983,17 @@ async function carregarCardapioCompleto(){
   const el=document.getElementById("lista-categorias-pratos");
   el.innerHTML="<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Carregando...</div>";
   try{
-    const [snapCat,snapPratos]=await Promise.all([
-      db.collection("ej_restaurantes").doc(user.id).collection("categorias").orderBy("ordem").get(),
-      db.collection("ej_restaurantes").doc(user.id).collection("pratos").orderBy("criadoEm","desc").get()
-    ]);
-    _categoriasCache=snapCat.docs.map(d=>({id:d.id,...d.data()}));
-    _pratosCache=snapPratos.docs.map(d=>({id:d.id,...d.data()}));
+    await _fetchCardapioCache();
     renderCardapio();
   }catch(e){el.innerHTML="<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Erro ao carregar cardápio</div>";}
+}
+async function _fetchCardapioCache(){
+  const [snapCat,snapPratos]=await Promise.all([
+    db.collection("ej_restaurantes").doc(user.id).collection("categorias").orderBy("ordem").get(),
+    db.collection("ej_restaurantes").doc(user.id).collection("pratos").orderBy("criadoEm","desc").get()
+  ]);
+  _categoriasCache=snapCat.docs.map(d=>({id:d.id,...d.data()}));
+  _pratosCache=snapPratos.docs.map(d=>({id:d.id,...d.data()}));
 }
 
 function renderCardapio(filtro){
@@ -4389,55 +4442,95 @@ function fecharFinComparativo(){document.getElementById("modal-fin-comparativo")
 let _itensPedidoSel={}; // {pratoId: {prato, qtd}}
 let _obsManualAtiva=false;
 
-function abrirSeletorPratos(){
+async function abrirSeletorPratos(){
+  if(!user||user.tipo==="anonimo"){toast("Faça login para usar o cardápio.");return;}
+  document.getElementById("modal-seletor-pratos").classList.add("show");
+  const el=document.getElementById("lista-seletor-pratos");
+  el.innerHTML="<div style='text-align:center;padding:24px;color:var(--muted);font-size:13px;'>Carregando cardápio...</div>";
+  try{
+    await _fetchCardapioCache();
+  }catch(e){}
   if(_categoriasCache.length===0&&_pratosCache.length===0){
+    fecharSeletorPratos();
     toast("Você ainda não cadastrou pratos. Vá em 'Meus pratos' no menu para cadastrar.");
     return;
   }
-  document.getElementById("modal-seletor-pratos").classList.add("show");
   renderSeletorPratos();
 }
-function fecharSeletorPratos(){document.getElementById("modal-seletor-pratos").classList.remove("show");}
+function fecharSeletorPratos(){document.getElementById("modal-seletor-pratos").classList.remove("show");_catSeletorAberta=null;}
 
 let _catSeletorAberta=null;
+function iconeParaCategoria(nome){
+  const n=(nome||"").toLowerCase();
+  const mapa=[
+    [["sobremesa","doce","sorvete","pudim","torta"],"🍨"],
+    [["bebida","suco","refri","drink","cerveja","vinho"],"🥤"],
+    [["petisco","entrada","aperitivo","porção","tira-gosto"],"🍢"],
+    [["pizza"],"🍕"],
+    [["lanche","sanduíche","sanduiche","burguer","hambúrguer","hamburguer","hot dog"],"🍔"],
+    [["massa","macarrão","macarrao","lasanha","nhoque"],"🍝"],
+    [["salada","fit","natural"],"🥗"],
+    [["sopa","caldo"],"🍲"],
+    [["café","padaria","pão","salgado"],"☕"],
+    [["sushi","japon"],"🍣"],
+    [["carne","churrasco","grelhado"],"🍖"],
+    [["frango"],"🍗"],
+    [["principal","prato"],"🍽️"],
+  ];
+  for(const[chaves,ic]of mapa){if(chaves.some(k=>n.includes(k)))return ic;}
+  return "🍴";
+}
 function renderSeletorPratos(filtro){
   const el=document.getElementById("lista-seletor-pratos");
   const termo=(filtro||"").toLowerCase().trim();
 
   if(termo){
     const pratos=_pratosCache.filter(p=>(p.nome||"").toLowerCase().includes(termo));
-    el.innerHTML=pratos.length>0?pratos.map(p=>renderItemSeletor(p)).join(""):"<div style='text-align:center;padding:30px;color:var(--muted);font-size:13px;'>Nenhum prato encontrado</div>";
+    el.innerHTML=pratos.length>0?`<div class="grade-pratos">${pratos.map(p=>renderItemSeletor(p)).join("")}</div>`:"<div style='text-align:center;padding:30px;color:var(--muted);font-size:13px;'>Nenhum prato encontrado</div>";
     return;
   }
 
-  // Sem busca: mostra botões de categoria, expansíveis (clica pra abrir/fechar sem trocar de tela)
+  // Categoria aberta: mostra o botão de voltar + os pratos dela em grade animada
+  if(_catSeletorAberta){
+    const ehSemCat=_catSeletorAberta==="_sem_categoria";
+    const cat=ehSemCat?null:_categoriasCache.find(c=>c.id===_catSeletorAberta);
+    const pratosCat=ehSemCat?_pratosCache.filter(p=>!p.categoriaId):_pratosCache.filter(p=>p.categoriaId===_catSeletorAberta);
+    let html=`<button class="btn-voltar-cats" onclick="toggleCategoriaSeletor(null)">← Todas as categorias</button>`;
+    html+=`<div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:11px;">${ehSemCat?"🍴":iconeParaCategoria(cat?.nome)} ${ehSemCat?"Sem categoria":cat?.nome}</div>`;
+    html+=pratosCat.length>0?`<div class="grade-pratos">${pratosCat.map(p=>renderItemSeletor(p)).join("")}</div>`:"<div style='padding:20px;color:var(--muted);font-size:12px;text-align:center;'>Nenhum prato aqui ainda</div>";
+    el.innerHTML=html;
+    return;
+  }
+
+  // Sem categoria aberta: grade de botões de categoria, animados
   const semCategoriaQtd=_pratosCache.filter(p=>!p.categoriaId).length;
-  let html="";
+  let html='<div class="grade-cats">';
   _categoriasCache.forEach(cat=>{
     const pratosCat=_pratosCache.filter(p=>p.categoriaId===cat.id);
-    const aberta=_catSeletorAberta===cat.id;
     const selecionadosNaCat=pratosCat.filter(p=>_itensPedidoSel[p.id]).length;
-    html+=`<button onclick="toggleCategoriaSeletor('${cat.id}')" class="cat-btn-grande" style="margin-bottom:${aberta?'9px':'9px'};">
-      <div class="cat-btn-nome">${cat.nome}${selecionadosNaCat>0?` <span style="color:var(--dourado);font-size:12px;">(${selecionadosNaCat} selecionado${selecionadosNaCat>1?"s":""})</span>`:""}</div>
-      <div class="cat-btn-qtd">${pratosCat.length}</div>
-      <div class="cat-btn-seta">${aberta?"▲":"▼"}</div>
+    html+=`<button onclick="toggleCategoriaSeletor('${cat.id}')" class="cat-btn-anim${selecionadosNaCat>0?" selecionada":""}">
+      <div class="cat-luz"></div>
+      <div class="cat-inner">
+        <div class="cat-inner-ic">${iconeParaCategoria(cat.nome)}</div>
+        <div class="cat-inner-nome">${cat.nome}</div>
+        <div class="cat-inner-qtd">${pratosCat.length} prato${pratosCat.length!==1?"s":""}</div>
+        ${selecionadosNaCat>0?`<div class="cat-inner-sel">${selecionadosNaCat} no pedido</div>`:""}
+      </div>
     </button>`;
-    if(aberta){
-      html+='<div style="margin-bottom:9px;">'+(pratosCat.length>0?pratosCat.map(p=>renderItemSeletor(p)).join(""):"<div style='padding:10px;color:var(--muted);font-size:12px;text-align:center;'>Nenhum prato aqui</div>")+'</div>';
-    }
   });
   if(semCategoriaQtd>0){
-    const pratosSemCat=_pratosCache.filter(p=>!p.categoriaId);
-    const aberta=_catSeletorAberta==="_sem_categoria";
-    html+=`<button onclick="toggleCategoriaSeletor('_sem_categoria')" class="cat-btn-grande" style="margin-bottom:9px;">
-      <div class="cat-btn-nome">Sem categoria</div>
-      <div class="cat-btn-qtd">${semCategoriaQtd}</div>
-      <div class="cat-btn-seta">${aberta?"▲":"▼"}</div>
+    const selSemCat=_pratosCache.filter(p=>!p.categoriaId&&_itensPedidoSel[p.id]).length;
+    html+=`<button onclick="toggleCategoriaSeletor('_sem_categoria')" class="cat-btn-anim${selSemCat>0?" selecionada":""}">
+      <div class="cat-luz"></div>
+      <div class="cat-inner">
+        <div class="cat-inner-ic">🍴</div>
+        <div class="cat-inner-nome">Sem categoria</div>
+        <div class="cat-inner-qtd">${semCategoriaQtd} prato${semCategoriaQtd!==1?"s":""}</div>
+        ${selSemCat>0?`<div class="cat-inner-sel">${selSemCat} no pedido</div>`:""}
+      </div>
     </button>`;
-    if(aberta){
-      html+='<div style="margin-bottom:9px;">'+pratosSemCat.map(p=>renderItemSeletor(p)).join("")+'</div>';
-    }
   }
+  html+="</div>";
   el.innerHTML=html;
 }
 function toggleCategoriaSeletor(catId){
@@ -4447,16 +4540,13 @@ function toggleCategoriaSeletor(catId){
 function renderItemSeletor(p){
   const sel=_itensPedidoSel[p.id];
   const qtd=sel?sel.qtd:0;
-  return`<div style="display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid ${qtd>0?"var(--dourado)":"var(--border)"};border-radius:14px;padding:11px;margin-bottom:9px;">
-    <div style="width:50px;height:50px;border-radius:11px;background:var(--card2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;">${p.foto?`<img src="${p.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"🍽️"}</div>
-    <div style="flex:1;min-width:0;">
-      <div style="font-size:13px;font-weight:700;color:#fff;">${p.nome}</div>
-      <div style="font-size:12px;color:var(--dourado);font-weight:700;">R$ ${parseFloat(p.preco||0).toFixed(2).replace(".",",")}</div>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-      <button onclick="ajustarQtdPrato('${p.id}',-1)" style="width:30px;height:30px;border-radius:9px;background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:16px;font-weight:800;cursor:pointer;">−</button>
-      <div style="width:22px;text-align:center;font-size:14px;font-weight:800;color:#fff;">${qtd}</div>
-      <button onclick="ajustarQtdPrato('${p.id}',1)" style="width:30px;height:30px;border-radius:9px;background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:16px;font-weight:800;cursor:pointer;">+</button>
+  return`<div class="prato-btn-anim${qtd>0?" tem-qtd":""}" onclick="ajustarQtdPrato('${p.id}',1)">
+    <div class="prato-luz"></div>
+    <div class="prato-inner">
+      ${qtd>0?`<div class="prato-qtd-badge">${qtd}</div><div class="prato-menos-btn" onclick="event.stopPropagation();ajustarQtdPrato('${p.id}',-1)">−</div>`:""}
+      <div class="prato-foto-btn">${p.foto?`<img src="${p.foto}"/>`:"🍽️"}</div>
+      <div class="prato-nome-btn">${p.nome}</div>
+      <div class="prato-preco-btn">R$ ${parseFloat(p.preco||0).toFixed(2).replace(".",",")}</div>
     </div>
   </div>`;
 }
