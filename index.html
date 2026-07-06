@@ -29,6 +29,7 @@
 html,body{height:100%;font-family:-apple-system,sans-serif;color:var(--text);overflow:hidden;touch-action:pan-x pan-y;-webkit-user-select:none;user-select:none;background:#080f1e;}
 input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 @keyframes gira{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+@keyframes entradaAviso3D{0%{opacity:0;transform:perspective(800px) rotateX(35deg) scale(0.85) translateY(30px);}100%{opacity:1;transform:perspective(800px) rotateX(0deg) scale(1) translateY(0);}}
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
 @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
@@ -805,12 +806,12 @@ input[type=file]{display:none;}
     </div>
     <div class="corrida-valor" id="corrida-valor">R$ --</div>
     <div class="acoes">
-      <button class="btn-acao" style="background:rgba(59,130,246,0.12);color:#60a5fa;flex:2;" onclick="abrirChat()">💬 Chat com motoboy</button>
-      <button class="btn-acao" style="background:rgba(239,68,68,0.1);color:#ef4444;" onclick="sosEntrega()">🆘 SOS</button>
-      <button class="btn-acao" style="background:rgba(34,197,94,0.1);color:#22c55e;" onclick="compartilhar()">📤</button>
+      <button class="btn-acao" style="background:rgba(239,68,68,0.1);color:#ef4444;flex:1;" onclick="sosEntrega()">🆘 SOS</button>
+      <button class="btn-acao" style="background:rgba(34,197,94,0.1);color:#22c55e;flex:1;" onclick="compartilhar()">📤 Compartilhar</button>
     </div>
     <button onclick="enviarRastreioWhatsApp()" style="width:100%;margin-top:10px;padding:13px;border-radius:14px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);color:#22c55e;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">🛵 Enviar rastreio pro cliente pelo WhatsApp</button>
     <button class="btn-cancelar-cor" onclick="cancelarEntrega()">Cancelar entrega</button>
+    <button onclick="abrirChat()" style="position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);right:18px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;box-shadow:0 6px 18px rgba(37,99,235,0.5);font-size:24px;cursor:pointer;z-index:50;display:flex;align-items:center;justify-content:center;">💬<div id="chat-badge-rest" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:11px;font-weight:900;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid var(--bg);">0</div></button>
   </div>
 </div>
 
@@ -1765,11 +1766,19 @@ function incrementarBadgeApp(){_badgeCountRest++;try{if("setAppBadge"in navigato
 function limparBadgeAppRest(){_badgeCountRest=0;try{if("clearAppBadge"in navigator)navigator.clearAppBadge();}catch(e){}}
 function somAceito(){nota(784,0,.1,.8);nota(1047,.12,.1,.8);nota(1318,.24,.08,.8);nota(1047,.34,.08,.7);nota(1318,.44,.4,.75);setTimeout(()=>falar("Entrega Já! Entrega aceita! Seu motoboy está a caminho!"),500);}
 function somChegou(){nota(784,0,.15,.7);nota(1047,.18,.15,.7);nota(1318,.36,.4,.65);setTimeout(()=>falar("Entrega Já! Seu motoboy chegou!"),600);}
+function somConcluida(){nota(659,0,.1,.75);nota(784,.1,.1,.75);nota(988,.2,.1,.8);nota(1318,.3,.5,.85);}
 function somMsgChat(){nota(880,0,.1,.6);nota(1108,.12,.15,.6);}
 
 // ── NOTIFICAÇÃO DE NOVAS MENSAGENS NO CHAT (mesmo com o chat fechado) ──
 let _chatAbertoRest=false;
 let _unsubsNotifChat={};
+let _naoLidasChatRest=0;
+function atualizarBadgeChatRest(){
+  const el=document.getElementById("chat-badge-rest");
+  if(!el)return;
+  if(_naoLidasChatRest>0){el.style.display="flex";el.textContent=_naoLidasChatRest>9?"9+":_naoLidasChatRest;}
+  else el.style.display="none";
+}
 function escutarNotifChatRest(cId){
   if(_unsubsNotifChat[cId])return; // já está escutando essa entrega
   let primeira=true;
@@ -1782,6 +1791,8 @@ function escutarNotifChatRest(cId){
         if(!_chatAbertoRest){
           somMsgChat();
           notif("💬 Nova mensagem do motoboy",m.texto||"Você recebeu uma mensagem.");
+          _naoLidasChatRest++;
+          atualizarBadgeChatRest();
         }
       }
     });
@@ -2075,7 +2086,7 @@ async function cadastrar(){
       foto:fotoFinalCad||null,tipo:"cadastrado",totalPedidos:0,criadoEm:new Date().toISOString()};
     await db.collection("ej_restaurantes").doc(id).set(dados);
     user=dados;salvarSessaoLocal();
-    loading(false);irPara("home");pedirNotif();vincularOneSignal();
+    loading(false);irPara("home");pedirNotif();vincularOneSignal();conferirAvisoImportante();
   }catch(e){loading(false);toast("Erro: "+e.message);}
 }
 function calcularIdadeCad(dataNasc){
@@ -2105,7 +2116,7 @@ async function entrar(){
       loading(false);toast("Senha incorreta.");return;
     }
     user=dados;salvarSessaoLocal();
-    loading(false);irPara("home");pedirNotif();vincularOneSignal();
+    loading(false);irPara("home");pedirNotif();vincularOneSignal();conferirAvisoImportante();
   }catch(e){loading(false);toast("Erro ao entrar.");}
 }
 
@@ -3768,6 +3779,9 @@ function escutarEntrega(id){
       if(unsubsEntregas[id]){unsubsEntregas[id]();delete unsubsEntregas[id];}
       const mNome=d.motoboy?.nome||"motoboy";
       try{getAC();}catch(e){}
+      somConcluida();
+      notif("🎉 Entrega concluída!",mNome+" concluiu a entrega com sucesso.");
+      incrementarBadgeApp();
       dispararConfete();
       if(emFoco){
         pararBusc();
@@ -4010,7 +4024,16 @@ function enviarRastreioWhatsApp(){
   const link="https://heitorserra-81.github.io/ENTREGA-JA-Rastreio/?p="+entregaAtiva.id;
   const nomeCli=(entregaAtiva.nomeClienteFinal||"").split(" ")[0];
   const saudacao=nomeCli?"Oi, "+nomeCli+"! 😊":"Oi! 😊";
-  const txt=`${saudacao}\n\n🛵 *Seu pedido já está a caminho!*\nSiga sua entrega em tempo real, veja onde o motoboy está e quanto falta para chegar:\n\n${link}\n\n_${user?.nome||"Entrega Já"}_ 🍕`;
+  let itensTxt="";
+  if(entregaAtiva.itensDetalhados&&entregaAtiva.itensDetalhados.length){
+    itensTxt="📦 "+entregaAtiva.itensDetalhados.map(i=>i.qtd+"x "+i.nome).join(", ")+"\n";
+  }else if(entregaAtiva.obs){
+    itensTxt="📦 "+entregaAtiva.obs+"\n";
+  }
+  const total=entregaAtiva.valorTotal||entregaAtiva.valorPedido;
+  const valorTxt=total?"💰 Total: R$ "+parseFloat(total).toFixed(2).replace(".",",")+"\n":"";
+  const motoboyTxt=entregaAtiva.motoboy?.nome?"🏍️ Motoboy: "+entregaAtiva.motoboy.nome+"\n":"";
+  const txt=`${saudacao}\n\n🛵 *Seu pedido já está a caminho!*\n${itensTxt}${valorTxt}${motoboyTxt}\nSiga sua entrega em tempo real, veja onde o motoboy está e quanto falta para chegar:\n\n${link}\n\n_${user?.nome||"Entrega Já"}_ 🍕`;
   if(navigator.share){
     navigator.share({text:txt}).catch(e=>{if(e.name!=="AbortError")window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank");});
   }else{
@@ -4040,7 +4063,7 @@ function iniciarChat(cId){
     snap.docChanges().forEach(ch=>{if(ch.type==="added"){const m=ch.doc.data();const isMinha=m.de==="passageiro";const div=document.createElement("div");div.className="msg "+(isMinha?"minha":"dele");div.innerHTML=m.texto+`<div class="msg-time">${m.ts?new Date(m.ts.toDate()).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):"--"}</div>`;msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;}});
   });
 }
-function abrirChat(){document.getElementById("modal-chat").classList.add("show");_chatAbertoRest=true;}
+function abrirChat(){document.getElementById("modal-chat").classList.add("show");_chatAbertoRest=true;_naoLidasChatRest=0;atualizarBadgeChatRest();}
 function fecharChat(){document.getElementById("modal-chat").classList.remove("show");_chatAbertoRest=false;}
 async function enviarMsg(){
   const inp=document.getElementById("chat-inp");const txt=inp.value.trim();if(!txt||!entregaAtiva)return;inp.value="";
@@ -4373,6 +4396,36 @@ async function notificarMotoboysNovoPedido(destino){
     await enviarNotificacaoOneSignal(ids,"📦 Novo pedido disponível!",(user.nome||"Um negócio")+" tem uma entrega esperando"+(destino?" para "+destino.split(",")[0]:""));
   }catch(e){}
 }
+// ── AVISO IMPORTANTE (fixo na tela até confirmar leitura) ──
+async function conferirAvisoImportante(){
+  try{
+    const snap=await db.collection("ej_avisos").orderBy("criadoEm","desc").limit(1).get();
+    if(snap.empty)return;
+    const doc=snap.docs[0];
+    const d=doc.data();
+    if(d.publico&&d.publico!=="todos"&&d.publico!=="restaurantes")return;
+    const ultimoVisto=localStorage.getItem("ej_ultimo_aviso_visto");
+    if(ultimoVisto===doc.id)return;
+    mostrarAvisoImportante(doc.id,d.titulo,d.mensagem);
+  }catch(e){}
+}
+function mostrarAvisoImportante(id,titulo,mensagem){
+  const div=document.createElement("div");
+  div.innerHTML=`<div id="modal-aviso-importante" style="position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:24px;">
+    <div style="width:100%;max-width:380px;background:linear-gradient(150deg,var(--card),var(--card2));border:1px solid var(--dourado);border-radius:22px;padding:26px 22px;text-align:center;animation:entradaAviso3D 0.5s cubic-bezier(0.2,0.8,0.3,1);box-shadow:0 20px 60px rgba(0,0,0,0.6);">
+      <div style="font-size:44px;margin-bottom:12px;">📢</div>
+      <div style="font-size:18px;font-weight:900;color:#fff;margin-bottom:10px;">${titulo}</div>
+      <div style="font-size:14px;color:var(--text);line-height:1.5;margin-bottom:22px;">${mensagem}</div>
+      <button onclick="fecharAvisoImportante('${id}')" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,var(--dourado2),var(--dourado));border:none;color:#1a1a1a;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;">Ok, entendi</button>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+function fecharAvisoImportante(id){
+  localStorage.setItem("ej_ultimo_aviso_visto",id);
+  const el=document.getElementById("modal-aviso-importante");
+  if(el)el.remove();
+}
 async function vincularOneSignal(){
   if(!window.OneSignal||!user||!user.id||modoFantasma)return;
   try{
@@ -4416,7 +4469,7 @@ window.addEventListener("load",async()=>{
     }catch(e){mostrarTela("tela-login");renderGradeRamoCad();}
   }else{
     const s=localStorage.getItem("ej_user");
-    if(s){user=JSON.parse(s);irPara("home");restaurarEntregasAtivas();iniciarEscutaSaldoRest();vincularOneSignal();}
+    if(s){user=JSON.parse(s);irPara("home");restaurarEntregasAtivas();iniciarEscutaSaldoRest();vincularOneSignal();conferirAvisoImportante();}
     else{
       setTimeout(()=>{mostrarTela("tela-login");renderGradeRamoCad();},2000);
     }
