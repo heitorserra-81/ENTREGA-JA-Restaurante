@@ -1,0 +1,17 @@
+{
+  "name": "Entrega Já",
+  "short_name": "Entrega Já",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#080f1e",
+  "theme_color": "#0f1a2e",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
