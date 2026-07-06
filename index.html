@@ -1766,6 +1766,31 @@ function nota(f,s,d,v=.7){try{const c=getAC(),o=c.createOscillator(),g=c.createG
 function falar(txt){try{if(!("speechSynthesis"in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang="pt-BR";u.rate=1;u.pitch=1.1;const v=speechSynthesis.getVoices().find(x=>x.lang.startsWith("pt"));if(v)u.voice=v;speechSynthesis.speak(u);}catch(e){}}
 function somAceito(){nota(784,0,.1,.8);nota(1047,.12,.1,.8);nota(1318,.24,.08,.8);nota(1047,.34,.08,.7);nota(1318,.44,.4,.75);setTimeout(()=>falar("Entrega Já! Entrega aceita! Seu motoboy está a caminho!"),500);}
 function somChegou(){nota(784,0,.15,.7);nota(1047,.18,.15,.7);nota(1318,.36,.4,.65);setTimeout(()=>falar("Entrega Já! Seu motoboy chegou!"),600);}
+function somMsgChat(){nota(880,0,.1,.6);nota(1108,.12,.15,.6);}
+
+// ── NOTIFICAÇÃO DE NOVAS MENSAGENS NO CHAT (mesmo com o chat fechado) ──
+let _chatAbertoRest=false;
+let _unsubsNotifChat={};
+function escutarNotifChatRest(cId){
+  if(_unsubsNotifChat[cId])return; // já está escutando essa entrega
+  let primeira=true;
+  _unsubsNotifChat[cId]=db.collection("ej_pedidos").doc(cId).collection("chat").orderBy("ts").onSnapshot(snap=>{
+    if(primeira){primeira=false;return;} // ignora histórico ao conectar
+    snap.docChanges().forEach(ch=>{
+      if(ch.type==="added"){
+        const m=ch.doc.data();
+        if(m.de==="passageiro")return; // não notifica a própria mensagem (restaurante usa a tag "passageiro", herdada do Corrida Já)
+        if(!_chatAbertoRest){
+          somMsgChat();
+          notif("💬 Nova mensagem do motoboy",m.texto||"Você recebeu uma mensagem.");
+        }
+      }
+    });
+  });
+}
+function pararNotifChatRest(cId){
+  if(_unsubsNotifChat[cId]){_unsubsNotifChat[cId]();delete _unsubsNotifChat[cId];}
+}
 if("speechSynthesis"in window){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}
 
 // ── SUPABASE STORAGE (fotos/logos reais, sem base64) ──
@@ -3712,12 +3737,14 @@ setInterval(()=>{
 
 function escutarEntrega(id){
   if(unsubsEntregas[id])unsubsEntregas[id]();
+  escutarNotifChatRest(id);
   unsubsEntregas[id]=db.collection("ej_pedidos").doc(id).onSnapshot(snap=>{
     const d=snap.data();if(!d)return;
     const emFoco=entregaAtiva&&entregaAtiva.id===id;
 
     if(d.status==="concluida"||d.status==="cancelada_motoboy"||d.status==="cancelada_cliente"){
       delete entregasAtivas[id];
+      pararNotifChatRest(id);
       _avisosEsquecidoMostrados.delete(id);
     }else{
       entregasAtivas[id]={...d,id};
@@ -4013,11 +4040,16 @@ function iniciarChat(cId){
     snap.docChanges().forEach(ch=>{if(ch.type==="added"){const m=ch.doc.data();const isMinha=m.de==="passageiro";const div=document.createElement("div");div.className="msg "+(isMinha?"minha":"dele");div.innerHTML=m.texto+`<div class="msg-time">${m.ts?new Date(m.ts.toDate()).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):"--"}</div>`;msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;}});
   });
 }
-function abrirChat(){document.getElementById("modal-chat").classList.add("show");}
-function fecharChat(){document.getElementById("modal-chat").classList.remove("show");}
+function abrirChat(){document.getElementById("modal-chat").classList.add("show");_chatAbertoRest=true;}
+function fecharChat(){document.getElementById("modal-chat").classList.remove("show");_chatAbertoRest=false;}
 async function enviarMsg(){
   const inp=document.getElementById("chat-inp");const txt=inp.value.trim();if(!txt||!entregaAtiva)return;inp.value="";
-  try{await db.collection("ej_pedidos").doc(entregaAtiva.id).collection("chat").add({texto:txt,de:"passageiro",nome:user?.nome||"Passageiro",ts:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){toast("Erro ao enviar.");}
+  try{
+    await db.collection("ej_pedidos").doc(entregaAtiva.id).collection("chat").add({texto:txt,de:"passageiro",nome:user?.nome||"Passageiro",ts:firebase.firestore.FieldValue.serverTimestamp()});
+    if(entregaAtiva.motoboy?.id){
+      enviarNotificacaoOneSignal([entregaAtiva.motoboy.id],"💬 Mensagem do restaurante",txt);
+    }
+  }catch(e){toast("Erro ao enviar.");}
 }
 
 // ── AVALIAÇÃO ──
@@ -4318,7 +4350,7 @@ document.addEventListener("touchstart",e=>{if(!e.target.closest(".busca-row")&&!
 const ONESIGNAL_APP_ID="b912066a-e08a-42a3-9239-58ebd3e55949";
 window.OneSignalDeferred=window.OneSignalDeferred||[];
 OneSignalDeferred.push(async function(OS){
-  await OS.init({appId:ONESIGNAL_APP_ID,safari_web_id:"web.onesignal.auto.487bfeae-71a3-407e-85d8-1b40bd783a80"});
+  await OS.init({appId:ONESIGNAL_APP_ID,safari_web_id:"web.onesignal.auto.487bfeae-71a3-407e-85d8-1b40bd783a80",serviceWorkerPath:"ENTREGA-JA-Restaurante/OneSignalSDKWorker.js",serviceWorkerParam:{scope:"/ENTREGA-JA-Restaurante/"}});
   window._oneSignalPronto=true;
   if(user&&user.id&&!modoFantasma)vincularOneSignal();
 });
