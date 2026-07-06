@@ -1759,6 +1759,10 @@ let _ac=null;
 function getAC(){if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();if(_ac.state==="suspended")_ac.resume();return _ac;}
 function nota(f,s,d,v=.7){try{const c=getAC(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.setValueAtTime(f,c.currentTime+s);g.gain.setValueAtTime(0,c.currentTime+s);g.gain.linearRampToValueAtTime(v,c.currentTime+s+.01);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+s+d);o.start(c.currentTime+s);o.stop(c.currentTime+s+d+.05);}catch(e){}}
 function falar(txt){try{if(!("speechSynthesis"in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang="pt-BR";u.rate=1;u.pitch=1.1;const v=speechSynthesis.getVoices().find(x=>x.lang.startsWith("pt"));if(v)u.voice=v;speechSynthesis.speak(u);}catch(e){}}
+// ── BADGE NO ÍCONE DO APP (contador vermelho, funciona no iPhone com app instalado) ──
+let _badgeCountRest=0;
+function incrementarBadgeApp(){_badgeCountRest++;try{if("setAppBadge"in navigator)navigator.setAppBadge(_badgeCountRest);}catch(e){}}
+function limparBadgeAppRest(){_badgeCountRest=0;try{if("clearAppBadge"in navigator)navigator.clearAppBadge();}catch(e){}}
 function somAceito(){nota(784,0,.1,.8);nota(1047,.12,.1,.8);nota(1318,.24,.08,.8);nota(1047,.34,.08,.7);nota(1318,.44,.4,.75);setTimeout(()=>falar("Entrega Já! Entrega aceita! Seu motoboy está a caminho!"),500);}
 function somChegou(){nota(784,0,.15,.7);nota(1047,.18,.15,.7);nota(1318,.36,.4,.65);setTimeout(()=>falar("Entrega Já! Seu motoboy chegou!"),600);}
 function somMsgChat(){nota(880,0,.1,.6);nota(1108,.12,.15,.6);}
@@ -1875,6 +1879,7 @@ function irPara(dest){
     case"home":
       mostrarTela("tela-home");
       iniciarMapaMot();
+      limparBadgeAppRest();
       setTimeout(()=>{atualizarHome();renderCardsHome();renderHistRapido();atualizarBadgePausado();atualizarBadgeAgendamentos();renderChipsObsRapidas();},50);
       setTimeout(()=>{if(mapaMot)mapaMot.invalidateSize();},400);
       break;
@@ -3751,13 +3756,13 @@ function escutarEntrega(id){
       if(emFoco){
         pararBusc();entregaAtiva={...d,id};
         try{getAC();}catch(e){}
-        somAceito();notif("🚗 Entrega Já! Motoboy encontrado!",d.motoboy.nome+" está a caminho!");
+        somAceito();notif("🚗 Entrega Já! Motoboy encontrado!",d.motoboy.nome+" está a caminho!");incrementarBadgeApp();
         mostrarTelaCorrente(d);
       }else{
         toast("🚗 "+d.motoboy.nome+" aceitou outra entrega sua!");
       }
     }
-    if(emFoco&&d.status==="motoboy_chegou"){somChegou();notif("📍 Motoboy chegou!","Dirija-se ao veículo.");document.getElementById("corrida-status").textContent="📍 Seu motoboy chegou!";}
+    if(emFoco&&d.status==="motoboy_chegou"){somChegou();notif("📍 Motoboy chegou!","Dirija-se ao veículo.");incrementarBadgeApp();document.getElementById("corrida-status").textContent="📍 Seu motoboy chegou!";}
     if(emFoco&&d.statusEtapa==="no_carro")document.getElementById("corrida-status").textContent="🚗 A caminho do destino!";
     if(d.status==="concluida"){
       if(unsubsEntregas[id]){unsubsEntregas[id]();delete unsubsEntregas[id];}
