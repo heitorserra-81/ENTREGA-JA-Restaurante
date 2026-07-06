@@ -463,6 +463,8 @@ input[type=file]{display:none;}
 .notinha-serrilha-topo,.notinha-serrilha-baixo{height:10px;background:repeating-linear-gradient(90deg,transparent,transparent 6px,var(--bg) 6px,var(--bg) 8px),radial-gradient(circle at 5px 0,transparent 5px,#fdfdfb 5px);background-size:16px 100%,16px 100%;}
 .notinha-serrilha-baixo{transform:rotate(180deg);}
 .taxa-chip{padding:8px 13px;border-radius:10px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.motoboy-chip{padding:8px 13px;border-radius:10px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.motoboy-chip.ativo{background:var(--verde);border-color:var(--verde);color:#0a1a0f;}
 .taxa-chip.ativo{background:rgba(251,191,36,0.15);border-color:var(--dourado);color:var(--dourado);}
 /* GRADE DE CATEGORIAS/PRATOS ANIMADA (seletor de pedido) */
 .grade-cats{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:4px;}
@@ -682,6 +684,11 @@ input[type=file]{display:none;}
       <div class="chip" data-pgto="Crédito" onclick="selPgtoRest(this)">💳 Crédito</div>
     </div>
     <input class="campo-obs" id="campo-troco" type="text" placeholder="Troco para quanto?" autocomplete="off" style="margin-top:8px;"/>
+
+    <div style="margin-top:12px;background:rgba(34,197,94,0.06);border:1px solid var(--verde);border-radius:13px;padding:11px 14px;display:flex;align-items:center;gap:10px;">
+      <div style="font-size:18px;">🏍️</div>
+      <div style="font-size:11px;color:var(--text);">O valor pago ao motoboy é calculado automaticamente pela distância (veja no card de valor acima) — não precisa definir nada aqui.</div>
+    </div>
 
     <label style="display:flex;align-items:center;gap:9px;margin-top:10px;padding:11px 14px;background:rgba(251,191,36,0.06);border:1px solid var(--border);border-radius:13px;cursor:pointer;">
       <input type="checkbox" id="chk-cobrar-taxa" onchange="toggleTaxaEntrega()" style="width:18px;height:18px;flex-shrink:0;"/>
@@ -1529,9 +1536,20 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
           <div style="display:flex;justify-content:space-between;font-size:12px;color:#666;margin-bottom:4px;" id="notinha-taxa-row"><span>Taxa de entrega</span><span id="notinha-taxa">R$ 0,00</span></div>
           <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:900;color:#1a1a1a;margin-top:8px;"><span>Total</span><span id="notinha-total">R$ 0,00</span></div>
         </div>
+        <div style="background:rgba(34,197,94,0.08);border:1px solid #22c55e;border-radius:10px;padding:10px 12px;margin-bottom:10px;">
+          <div style="font-size:10px;color:#1a7a3a;font-weight:700;text-transform:uppercase;margin-bottom:3px;">🏍️ Motoboy vai receber (calculado automaticamente)</div>
+          <div id="notinha-valor-motoboy" style="font-size:16px;color:#1a7a3a;font-weight:900;">R$ 0,00</div>
+        </div>
         <div style="background:#f7f7f7;border-radius:10px;padding:10px 12px;margin-bottom:10px;">
           <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Pagamento</div>
           <div id="notinha-pgto" style="font-size:13px;color:#333;font-weight:700;">--</div>
+        </div>
+        <div style="background:#f7f7f7;border-radius:10px;padding:10px 12px;margin-bottom:10px;display:none;" id="notinha-troco-row">
+          <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:3px;">💵 Cliente vai pagar com</div>
+          <div id="notinha-troco-paga" style="font-size:14px;color:#1a1a1a;font-weight:900;">--</div>
+          <div style="border-top:1px dashed rgba(0,0,0,0.2);margin:8px 0;"></div>
+          <div style="font-size:10px;color:#c0392b;font-weight:700;text-transform:uppercase;margin-bottom:3px;">🔴 Troco a devolver</div>
+          <div id="notinha-troco-calc" style="font-size:19px;color:#c0392b;font-weight:900;">--</div>
         </div>
         <div style="background:#f7f7f7;border-radius:10px;padding:10px 12px;margin-bottom:10px;" id="notinha-cliente-row">
           <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Cliente</div>
@@ -1618,6 +1636,7 @@ function iniciarEscutaSaldoRest(){
     }
   });
 }
+let FAIXAS_PRECO_REST=null;
 async function carregarModoCobranca(){
   try{
     const snap=await db.collection("ej_config").doc("geral").get();
@@ -1626,6 +1645,7 @@ async function carregarModoCobranca(){
       if(d.modoCobranca)MODO_COBRANCA=d.modoCobranca;
       CONFIG_COBRANCA_REST.ativa=d.cobrancaRestaurante===true;
       CONFIG_COBRANCA_REST.alertaSaldoBaixo=d.alertaSaldoBaixo!==undefined?d.alertaSaldoBaixo:10;
+      if(d.faixasPreco&&d.faixasPreco.length>0)FAIXAS_PRECO_REST=d.faixasPreco;
     }
   }catch(e){}
 }
@@ -2500,7 +2520,7 @@ function _linhaPedidoDrill(c){
       <div style="font-size:12px;font-weight:700;color:#fff;">${ic} ${c.nomeClienteFinal||(c.destino||"Pedido").split(",")[0]}</div>
       <div style="font-size:12px;font-weight:800;color:var(--dourado);">${_fmtBR(c.valorPedido||c.valorTotal)}</div>
     </div>
-    <div style="font-size:10px;color:var(--muted);">${_fmtData(dt)} · ${c.motoboy?.nome||"sem motoboy"} · ${c.formaPgto||""}${c.trocoPara?" · 💵 Troco p/ R$ "+c.trocoPara:""}</div>
+    <div style="font-size:10px;color:var(--muted);">${_fmtData(dt)} · ${c.motoboy?.nome||"sem motoboy"} · ${c.formaPgto||""}${c.trocoPara?" · 💵 Troco: R$ "+Math.max(0,(parseFloat(c.trocoPara)||0)-(c.valorTotal||c.valorPedido||0)).toFixed(2).replace(".",","):""}</div>
     ${c.itensDetalhados&&c.itensDetalhados.length?`<div style="font-size:10px;color:var(--muted);margin-top:3px;">📦 ${c.itensDetalhados.map(i=>i.qtd+"x "+i.nome).join(", ")}</div>`:""}
     ${c.obsExtra?`<div style="font-size:10px;color:var(--dourado);margin-top:3px;">📝 ${c.obsExtra}</div>`:""}
     ${c.fotoComprovante?`<div style="margin-top:8px;"><img src="${c.fotoComprovante}" onclick="event.stopPropagation();window.open('${c.fotoComprovante}','_blank')" style="width:100%;max-height:140px;object-fit:cover;border-radius:10px;cursor:pointer;"/></div>`:""}
@@ -2788,7 +2808,15 @@ async function compartilharComprovante(pedidoId){
   if(c.taxaEntrega)txt+=`Taxa de entrega: R$ ${c.taxaEntrega.toFixed(2).replace(".",",")}\n`;
   const total=c.valorTotal||c.valorPedido||0;
   txt+=`💰 *TOTAL: R$ ${total.toFixed(2).replace(".",",")}*\n`;
-  if(c.formaPgto)txt+=`💳 Pagamento: ${c.formaPgto}${c.trocoPara?" (troco p/ "+c.trocoPara+")":""}\n`;
+  if(c.formaPgto){
+    let linhaTroco="";
+    if(c.trocoPara){
+      const pagaCom=parseFloat(c.trocoPara)||0;
+      const trocoCalc=Math.max(0,pagaCom-total);
+      linhaTroco=` (paga com R$ ${pagaCom.toFixed(2).replace(".",",")}, troco de R$ ${trocoCalc.toFixed(2).replace(".",",")})`;
+    }
+    txt+=`💳 Pagamento: ${c.formaPgto}${linhaTroco}\n`;
+  }
   txt+=`${linha}\n_Entrega Já_ 🛵`;
   if(navigator.share){
     try{await navigator.share({text:txt});return;}catch(e){if(e.name==="AbortError")return;}
@@ -3213,7 +3241,14 @@ function selDest(idx){
 
 // ── VALOR ──
 function dKm(la1,lo1,la2,lo2){const R=6371,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180;const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
-function tabela(km){const t=[{a:2,p:8},{a:5,p:12},{a:10,p:18},{a:20,p:28},{a:35,p:40},{a:50,p:52},{a:999,p:65}];for(const x of t)if(km<=x.a)return x.p;return 65;}
+function tabela(km){
+  if(FAIXAS_PRECO_REST&&FAIXAS_PRECO_REST.length>0){
+    const ordenadas=[...FAIXAS_PRECO_REST].sort((a,b)=>a.ate-b.ate);
+    for(const f of ordenadas)if(km<=f.ate)return f.precoRestaurante;
+    return ordenadas[ordenadas.length-1].precoRestaurante;
+  }
+  const t=[{a:2,p:8},{a:5,p:12},{a:10,p:18},{a:20,p:28},{a:35,p:40},{a:50,p:52},{a:999,p:65}];for(const x of t)if(km<=x.a)return x.p;return 65;
+}
 async function calcularValor(){
   if(!destSel||!posAtual)return;
   document.getElementById("valor-card").style.display="block";
@@ -3226,9 +3261,9 @@ async function calcularValor(){
       document.getElementById("valor-num").textContent="R$ "+val.toFixed(2).replace(".",",");
       document.getElementById("valor-dist").textContent=km.toFixed(1)+" km pela rota";
       document.getElementById("valor-tempo").textContent="~"+min+" min";
-      destSel.valorEst="R$ "+val.toFixed(2).replace(".",",");destSel.distKm=km.toFixed(1);
+      destSel.valorEst="R$ "+val.toFixed(2).replace(".",",");destSel.distKm=km.toFixed(1);destSel.valorMotoboyNum=val;
     }
-  }catch(e){const km=dKm(posAtual[0],posAtual[1],destSel.lat,destSel.lng),val=tabela(km);document.getElementById("valor-num").textContent="R$ "+val.toFixed(2).replace(".",",");document.getElementById("valor-dist").textContent="~"+km.toFixed(1)+" km";destSel.valorEst="R$ "+val.toFixed(2).replace(".",",");destSel.distKm=km.toFixed(1);}
+  }catch(e){const km=dKm(posAtual[0],posAtual[1],destSel.lat,destSel.lng),val=tabela(km);document.getElementById("valor-num").textContent="R$ "+val.toFixed(2).replace(".",",");document.getElementById("valor-dist").textContent="~"+km.toFixed(1)+" km";destSel.valorEst="R$ "+val.toFixed(2).replace(".",",");destSel.distKm=km.toFixed(1);destSel.valorMotoboyNum=val;}
 }
 
 // ── HIST ──
@@ -3563,6 +3598,7 @@ async function confirmarPgtoEChamar(){
       obs:dadosItens.obs,
       obsExtra:(document.getElementById("campo-obs-extra")?.value||"").trim()||null,
       motoboyFavoritoId:user.motoboyFavoritoId||null,
+      valorMotoboy:destSel.valorMotoboyNum||null,
       favoritoExpiraEm:user.motoboyFavoritoId?firebase.firestore.Timestamp.fromMillis(Date.now()+30000):null,
       valorPedido:dadosItens.valorPedido,
       taxaEntrega:taxaEntrega>0?taxaEntrega:null,
@@ -5155,6 +5191,7 @@ function ajustarTaxa(delta){
 function chamarEntregaComNotinha(){
   if(!destSel){toast("Informe o endereço de entrega");return;}
   if(!posAtual){toast("Endereço do restaurante não configurado. Verifique seu cadastro.");return;}
+  if(!destSel.valorMotoboyNum||destSel.valorMotoboyNum<=0){toast("Aguarde o cálculo do valor da entrega");return;}
   abrirNotinha();
 }
 
@@ -5176,13 +5213,23 @@ function abrirNotinha(){
   }
 
   document.getElementById("notinha-subtotal").textContent="R$ "+subtotal.toFixed(2).replace(".",",");
+  document.getElementById("notinha-valor-motoboy").textContent="R$ "+(destSel.valorMotoboyNum||0).toFixed(2).replace(".",",");
   document.getElementById("notinha-taxa-row").style.display=taxa>0?"flex":"none";
   document.getElementById("notinha-taxa").textContent="R$ "+taxa.toFixed(2).replace(".",",");
   document.getElementById("notinha-total").textContent="R$ "+total.toFixed(2).replace(".",",");
 
   const trocoTxt=(document.getElementById("campo-troco")?.value||"").trim();
   let pgtoTxt=pgtoRestSel;
-  if(pgtoRestSel==="Dinheiro"&&trocoTxt)pgtoTxt+=" — troco para "+trocoTxt;
+  const trocoRow=document.getElementById("notinha-troco-row");
+  if(pgtoRestSel==="Dinheiro"&&trocoTxt){
+    const pagaCom=parseFloat(trocoTxt.replace(",","."))||0;
+    const trocoCalculado=Math.max(0,pagaCom-total);
+    trocoRow.style.display="block";
+    document.getElementById("notinha-troco-paga").textContent="R$ "+pagaCom.toFixed(2).replace(".",",");
+    document.getElementById("notinha-troco-calc").textContent="R$ "+trocoCalculado.toFixed(2).replace(".",",");
+  }else{
+    trocoRow.style.display="none";
+  }
   document.getElementById("notinha-pgto").textContent=pgtoTxt;
 
   const numeroEnd=(document.getElementById("campo-numero-endereco")?.value||"").trim();
