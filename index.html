@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Entrega Já"/>
-<link rel="manifest" id="manifest-link"/>
+<link rel="manifest" href="./manifest.json"/>
 <link rel="apple-touch-icon" id="apple-icon"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -1718,7 +1718,7 @@ function dispararConfete(){
   const logoUrl=document.getElementById("logo-splash")?.src||"";
   if(document.getElementById("apple-icon"))document.getElementById("apple-icon").href=logoUrl;
   const m={name:"Entrega Já",short_name:"Entrega Já",start_url:"./",display:"standalone",background_color:"#080f1e",theme_color:"#0f1a2e",lang:"pt-BR",icons:[{src:logoUrl,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
-  document.getElementById("manifest-link").href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:"application/json"}));
+  // manifest agora e um arquivo estatico real (manifest.json), nao precisa mais gerar blob dinamico
   if("serviceWorker"in navigator){
     navigator.serviceWorker.register("./firebase-messaging-sw.js",{scope:"./"}).catch(()=>{
       const sw=`const C="ej-r-v1";self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(["./"])));self.skipWaiting();});self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim();});self.addEventListener("fetch",e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
