@@ -4309,8 +4309,24 @@ async function vincularOneSignal(){
   if(!window.OneSignal||!user||!user.id||modoFantasma)return;
   try{
     await OneSignal.login(user.id);
-    await OneSignal.Notifications.requestPermission();
+    // No Safari/iPhone, pedir permissão só funciona se for reação direta a um toque —
+    // se já não tiver permissão nem recusa registrada, mostra um botão pra pessoa tocar.
+    if(typeof Notification!=="undefined"&&Notification.permission==="default"){
+      mostrarBotaoAtivarNotif();
+    }
   }catch(e){}
+}
+function mostrarBotaoAtivarNotif(){
+  if(document.getElementById("btn-ativar-notif"))return;
+  const div=document.createElement("div");
+  div.innerHTML=`<button id="btn-ativar-notif" onclick="ativarNotifAgora()" style="position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);left:16px;right:16px;z-index:99997;padding:14px;border-radius:16px;background:linear-gradient(135deg,var(--dourado2),var(--dourado));border:none;color:#1a1a1a;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(0,0,0,0.4);">🔔 Toque aqui para ativar notificações</button>`;
+  document.body.appendChild(div.firstElementChild);
+}
+function ativarNotifAgora(){
+  // Chamada direta, sem nenhum "await" antes — precisa ser reação imediata ao toque pro Safari aceitar.
+  if(window.OneSignal&&OneSignal.Notifications)OneSignal.Notifications.requestPermission();
+  const btn=document.getElementById("btn-ativar-notif");
+  if(btn)btn.remove();
 }
 const ADMIN_GHOST_SECRET="ejghost2026serra";
 let modoFantasma=false;
