@@ -26,9 +26,22 @@
   --verde:#22c55e;--danger:#ef4444;
   --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--satmin:max(env(safe-area-inset-top,0px),12px);
 }
-html,body{height:100%;font-family:-apple-system,sans-serif;color:var(--text);overflow:hidden;touch-action:pan-x pan-y;-webkit-user-select:none;user-select:none;background:#080f1e;}
+body.claro{
+  --bg:#f7f3ea;--card:#ffffff;--card2:#f1ece0;--azul2:#e3ecfb;--azul3:#d3e0f7;
+  --dourado:#d97706;--dourado2:#b45309;--dourado3:#92400e;
+  --border:rgba(180,83,9,0.25);--text:#1f2430;--muted:#6b7280;
+  --verde:#16a34a;--danger:#dc2626;
+}
+html,body{height:100%;font-family:-apple-system,sans-serif;color:var(--text);overflow:hidden;touch-action:pan-x pan-y;-webkit-user-select:none;user-select:none;background:var(--bg);transition:background 0.3s;}
 input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 @keyframes gira{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+/* CAIXAS DA TELA DE NOVA ENTREGA — cada etapa com luz de cor diferente girando só na borda */
+.caixa-secao{position:relative;border-radius:18px;padding:2px;overflow:hidden;margin-bottom:14px;}
+.caixa-luz{position:absolute;top:50%;left:50%;width:220%;height:220%;animation:gira 5s linear infinite;opacity:0.7;}
+.caixa-luz.end{background:conic-gradient(from 0deg,#3b82f6,#60a5fa,#93c5fd,#3b82f6);}
+.caixa-luz.itens{background:conic-gradient(from 0deg,#a855f7,#d8b4fe,#e879f9,#a855f7);}
+.caixa-luz.pgto{background:conic-gradient(from 0deg,#22c55e,#4ade80,#86efac,#22c55e);}
+.caixa-inner{position:relative;z-index:1;background:var(--card);border-radius:16px;padding:14px;}
 @keyframes entradaAviso3D{0%{opacity:0;transform:perspective(800px) rotateX(35deg) scale(0.85) translateY(30px);}100%{opacity:1;transform:perspective(800px) rotateX(0deg) scale(1) translateY(0);}}
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
@@ -606,6 +619,7 @@ input[type=file]{display:none;}
       <!-- DIREITA: saldo de créditos + hamburger -->
       <div style="flex:1;"></div>
       <button onclick="abrirMeusCreditos()" style="background:rgba(251,191,36,0.12);border:1px solid var(--border);border-radius:12px;padding:7px 11px;font-size:11px;font-weight:800;color:var(--dourado);cursor:pointer;flex-shrink:0;margin-right:8px;position:relative;z-index:1;" id="badge-credito-header">💳 --</button>
+      <button onclick="alternarTema()" style="background:var(--card2);border:1px solid var(--border);border-radius:12px;width:34px;height:34px;font-size:15px;cursor:pointer;flex-shrink:0;margin-right:8px;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;" id="btn-tema">🌙</button>
       <button class="btn-ham" onclick="abrirMenu()" style="flex-shrink:0;position:relative;z-index:1;">☰</button>
     </div>
   </div>
@@ -630,6 +644,9 @@ input[type=file]{display:none;}
   </div>
   <div id="cards-container"></div>
   <div class="dest-card">
+    <div class="caixa-secao">
+      <div class="caixa-luz end"></div>
+      <div class="caixa-inner">
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <div class="dest-titulo">Nova entrega 🏍️</div>
       <button onclick="abrirSimuladorFrete()" style="background:rgba(251,191,36,0.08);border:1px solid var(--border);color:var(--dourado);font-size:11px;font-weight:700;padding:6px 12px;border-radius:11px;cursor:pointer;font-family:inherit;">🧮 Simular frete</button>
@@ -664,8 +681,14 @@ input[type=file]{display:none;}
       <span style="font-size:15px;">🏪</span>
       <div class="origem-txt" id="origem-txt">Retirada: endereço do restaurante</div>
     </div>
-    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;margin-top:8px;">O que está sendo entregue?</div>
-    <div id="itens-pedido-resumo" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;margin-bottom:8px;"></div>
+      </div>
+    </div>
+
+    <div class="caixa-secao">
+      <div class="caixa-luz itens"></div>
+      <div class="caixa-inner">
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">O que está sendo entregue?</div>
+    <div id="itens-pedido-resumo" style="display:none;background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:12px;margin-bottom:8px;"></div>
     <div style="display:flex;gap:8px;">
       <button onclick="abrirSeletorPratos()" style="flex:1;padding:12px;border-radius:13px;background:rgba(251,191,36,0.1);border:1px dashed var(--dourado);color:var(--dourado);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">🍽️ Escolher do cardápio</button>
       <button onclick="toggleObsManual()" style="flex:1;padding:12px;border-radius:13px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">✏️ Digitar manualmente</button>
@@ -676,8 +699,13 @@ input[type=file]{display:none;}
     <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;margin-top:8px;">📝 Observações rápidas</div>
     <div class="chips" id="chips-obs-rapidas" style="margin-bottom:8px;"></div>
     <input class="campo-obs" id="campo-obs-extra" type="text" placeholder="Toque nos chips acima ou digite aqui" autocomplete="off"/>
+      </div>
+    </div>
 
-    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;margin-top:8px;">Forma de pagamento do cliente</div>
+    <div class="caixa-secao">
+      <div class="caixa-luz pgto"></div>
+      <div class="caixa-inner">
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">Forma de pagamento do cliente</div>
     <div class="chips" id="chips-pgto">
       <div class="chip ativo" data-pgto="Dinheiro" onclick="selPgtoRest(this)">💵 Dinheiro</div>
       <div class="chip" data-pgto="Pix" onclick="selPgtoRest(this)">📱 Pix</div>
@@ -690,7 +718,7 @@ input[type=file]{display:none;}
       <input type="checkbox" id="chk-cobrar-taxa" onchange="toggleTaxaEntrega()" style="width:18px;height:18px;flex-shrink:0;"/>
       <div><div style="font-size:12px;font-weight:700;color:var(--text);">Cobrar taxa de entrega do cliente</div><div style="font-size:10px;color:var(--muted);">Valor somado à conta final do cliente</div></div>
     </label>
-    <div id="taxa-entrega-box" style="display:none;margin-top:8px;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;">
+    <div id="taxa-entrega-box" style="display:none;margin-top:8px;background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:12px;">
       <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;" id="taxa-chips-rapidos">
         <button onclick="setTaxaRapida(5)" class="taxa-chip">R$5</button>
         <button onclick="setTaxaRapida(8)" class="taxa-chip">R$8</button>
@@ -699,9 +727,9 @@ input[type=file]{display:none;}
         <button onclick="setTaxaRapida(20)" class="taxa-chip">R$20</button>
       </div>
       <div style="display:flex;align-items:center;gap:10px;justify-content:center;">
-        <button onclick="ajustarTaxa(-0.5)" style="width:38px;height:38px;border-radius:11px;background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:19px;font-weight:800;cursor:pointer;">−</button>
+        <button onclick="ajustarTaxa(-0.5)" style="width:38px;height:38px;border-radius:11px;background:var(--card);border:1px solid var(--border);color:var(--dourado);font-size:19px;font-weight:800;cursor:pointer;">−</button>
         <div style="font-size:20px;font-weight:900;color:var(--dourado);min-width:90px;text-align:center;" id="taxa-valor-display">R$ 0,00</div>
-        <button onclick="ajustarTaxa(0.5)" style="width:38px;height:38px;border-radius:11px;background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:19px;font-weight:800;cursor:pointer;">+</button>
+        <button onclick="ajustarTaxa(0.5)" style="width:38px;height:38px;border-radius:11px;background:var(--card);border:1px solid var(--border);color:var(--dourado);font-size:19px;font-weight:800;cursor:pointer;">+</button>
       </div>
     </div>
 
@@ -709,6 +737,8 @@ input[type=file]{display:none;}
       <input type="checkbox" id="chk-maquininha" style="width:18px;height:18px;flex-shrink:0;"/>
       <div><div style="font-size:12px;font-weight:700;color:var(--text);">Motoboy vai levar a maquininha</div><div style="font-size:10px;color:var(--muted);">Ele precisará devolver depois da entrega</div></div>
     </label>
+      </div>
+    </div>
 
     <div class="valor-card" id="valor-card" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -4177,6 +4207,21 @@ function abrirMapaFull(){
 function fecharMapaFull(){const m=document.getElementById("modal-mapa-full");m.style.display="none";m.classList.remove("show");}
 
 // ── GPS ──
+// ── MODO CLARO/ESCURO ──
+function alternarTema(){
+  const claro=document.body.classList.toggle("claro");
+  localStorage.setItem("ej_tema",claro?"claro":"escuro");
+  document.getElementById("btn-tema").textContent=claro?"☀️":"🌙";
+}
+function aplicarTemaSalvo(){
+  const salvo=localStorage.getItem("ej_tema");
+  if(salvo==="claro"){
+    document.body.classList.add("claro");
+    const btn=document.getElementById("btn-tema");
+    if(btn)btn.textContent="☀️";
+  }
+}
+aplicarTemaSalvo();
 function iniciarGPS(){
   // Para o restaurante, a "origem" é sempre o endereço FIXO cadastrado (não o GPS do celular no momento),
   // já que o pedido sempre parte do restaurante, não de onde o dono está usando o celular.
