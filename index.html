@@ -4515,8 +4515,15 @@ function mostrarBotaoAtivarNotif(){
   document.body.appendChild(div.firstElementChild);
 }
 function ativarNotifAgora(){
-  // Chamada direta, sem nenhum "await" antes — precisa ser reação imediata ao toque pro Safari aceitar.
-  if(window.OneSignal&&OneSignal.Notifications)OneSignal.Notifications.requestPermission();
+  // Chamada direta à API nativa do navegador — precisa ser reação imediata ao toque, sem passar pelo SDK do OneSignal antes.
+  if(typeof Notification!=="undefined"&&Notification.requestPermission){
+    Notification.requestPermission().then(perm=>{
+      if(perm==="granted"&&window.OneSignal&&OneSignal.Notifications){
+        // Permissão do iPhone já concedida — agora só avisa o OneSignal pra ele completar o registro dele
+        OneSignal.Notifications.requestPermission();
+      }
+    });
+  }
   const btn=document.getElementById("btn-ativar-notif");
   if(btn)btn.remove();
 }
