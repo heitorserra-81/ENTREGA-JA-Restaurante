@@ -4518,9 +4518,9 @@ function ativarNotifAgora(){
   // Chamada direta à API nativa do navegador — precisa ser reação imediata ao toque, sem passar pelo SDK do OneSignal antes.
   if(typeof Notification!=="undefined"&&Notification.requestPermission){
     Notification.requestPermission().then(perm=>{
-      if(perm==="granted"&&window.OneSignal&&OneSignal.Notifications){
-        // Permissão do iPhone já concedida — agora só avisa o OneSignal pra ele completar o registro dele
-        OneSignal.Notifications.requestPermission();
+      if(perm==="granted"){
+        // O SDK do OneSignal não percebe a permissão nova até a página recarregar do zero — então recarrega sozinho.
+        location.reload();
       }
     });
   }
