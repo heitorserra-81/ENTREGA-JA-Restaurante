@@ -61,7 +61,7 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 #tela-splash{align-items:center;justify-content:center;gap:18px;padding-top:max(40px,var(--sat));}
 .splash-logo{width:130px;height:130px;border-radius:32px;overflow:hidden;box-shadow:0 0 50px rgba(251,191,36,0.35);animation:float 3s ease-in-out infinite;}
 .splash-logo img{width:100%;height:100%;object-fit:cover;}
-.splash-title{font-size:30px;font-weight:900;color:#fff;text-align:center;}
+.splash-title{font-size:30px;font-weight:900;color:var(--text);text-align:center;}
 .splash-title span{color:var(--dourado);}
 .splash-sub{font-size:13px;color:var(--muted);}
 .splash-bar{width:44px;height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
@@ -72,7 +72,7 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 .login-header{padding:16px 22px 20px;text-align:center;}
 .login-logo{width:80px;height:80px;border-radius:20px;overflow:hidden;margin:0 auto 12px;box-shadow:0 6px 24px rgba(251,191,36,0.25);}
 .login-logo img{width:100%;height:100%;object-fit:cover;}
-.login-header h1{font-size:22px;font-weight:900;color:#fff;margin-bottom:3px;}
+.login-header h1{font-size:22px;font-weight:900;color:var(--text);margin-bottom:3px;}
 .login-header p{font-size:12px;color:var(--muted);}
 .login-body{padding:0 22px;display:flex;flex-direction:column;gap:11px;}
 .modo-tabs{display:flex;background:var(--card);border-radius:14px;padding:3px;border:1px solid var(--border);}
@@ -87,7 +87,7 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 .emerg-desc{font-size:11px;color:var(--muted);margin-bottom:10px;}
 .sobre-row{display:flex;align-items:center;gap:11px;padding:10px 13px;background:var(--card2);border:1px solid var(--border);border-radius:12px;}
 .sobre-row span{font-size:20px;}
-.sobre-lb{font-size:13px;font-weight:700;color:#fff;}
+.sobre-lb{font-size:13px;font-weight:700;color:var(--text);}
 .sobre-vl{font-size:11px;color:var(--muted);margin-top:1px;}
 .termos-texto{max-height:50vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:6px;}
 .termos-texto h4{font-size:13px;font-weight:800;color:var(--dourado);margin:14px 0 5px;}
@@ -115,8 +115,8 @@ input[type=file]{display:none;}
 .avatar{width:48px;height:48px;border-radius:50%;background:var(--card2);border:2px solid var(--dourado);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;font-size:14px;font-weight:700;color:var(--dourado);}
 .avatar img{width:100%;height:100%;object-fit:cover;}
 .header-info{flex:1;}
-.header-saudacao{font-size:11px;color:rgba(255,255,255,0.6);}
-.header-nome{font-size:16px;font-weight:800;color:#fff;}
+.header-saudacao{font-size:11px;color:var(--muted);}
+.header-nome{font-size:16px;font-weight:800;color:var(--text);}
 .btn-ham{background:rgba(251,191,36,0.08);border:1px solid var(--border);border-radius:13px;color:var(--dourado);font-size:22px;cursor:pointer;padding:9px 13px;flex-shrink:0;}
 
 /* CARDS WIDGET (home customizável) */
@@ -146,7 +146,7 @@ input[type=file]{display:none;}
 .config-card-item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:15px;padding:13px;margin:0 16px 9px;}
 .config-card-icon{font-size:22px;width:32px;text-align:center;flex-shrink:0;}
 .config-card-info{flex:1;min-width:0;}
-.config-card-nome{font-size:13px;font-weight:700;color:#fff;}
+.config-card-nome{font-size:13px;font-weight:700;color:var(--text);}
 .config-card-desc{font-size:11px;color:var(--muted);margin-top:1px;}
 .config-toggle{position:relative;width:46px;height:26px;border-radius:13px;background:var(--card2);border:2px solid var(--border);cursor:pointer;flex-shrink:0;transition:background 0.25s;}
 .config-toggle::before{content:"";position:absolute;top:1px;left:1px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:transform 0.25s,background 0.25s;}
@@ -158,7 +158,7 @@ input[type=file]{display:none;}
 
 /* CARD DESTINO */
 .dest-card{margin:12px 14px 10px;background:rgba(15,26,46,0.55);border:1px solid var(--border);border-radius:20px;padding:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
-.dest-titulo{font-size:15px;font-weight:800;color:#fff;margin-bottom:10px;}
+.dest-titulo{font-size:15px;font-weight:800;color:var(--text);margin-bottom:10px;}
 .chips{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none;margin-bottom:8px;}
 .chips::-webkit-scrollbar{display:none;}
 .chip{flex-shrink:0;padding:5px 13px;border-radius:18px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;}
@@ -181,7 +181,7 @@ input[type=file]{display:none;}
 .campo-obs{width:100%;padding:10px 13px;background:var(--card2);border:1px solid var(--border);border-radius:13px;color:var(--text);font-size:13px;font-family:inherit;outline:none;-webkit-appearance:none;margin-bottom:7px;-webkit-user-select:text;user-select:text;}
 .campo-obs::placeholder{color:var(--muted);}
 .pgto-sec{margin-bottom:8px;}
-.pgto-titulo{font-size:13px;font-weight:800;color:#fff;margin-bottom:8px;}
+.pgto-titulo{font-size:13px;font-weight:800;color:var(--text);margin-bottom:8px;}
 .pgto-opcoes{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
 .pgto-btn{padding:11px 8px;border-radius:12px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
 .pgto-btn.ativo{background:rgba(251,191,36,0.12);border-color:var(--dourado);color:var(--dourado);}
@@ -202,7 +202,7 @@ input[type=file]{display:none;}
   width:100%;padding:16px 20px;border-radius:17px;
   background:linear-gradient(135deg,#1e40af,#2563eb,#1d4ed8);
   border:none;
-  color:#ffffff;
+  color:var(--text);
   font-size:18px;font-weight:900;
   cursor:pointer;font-family:inherit;
   position:relative;z-index:2;overflow:hidden;
@@ -239,7 +239,7 @@ input[type=file]{display:none;}
 #tela-buscando{align-items:center;justify-content:center;gap:14px;padding:24px;padding-top:max(60px,calc(var(--sat)+40px));}
 .busc-logo{width:84px;height:84px;border-radius:20px;overflow:hidden;animation:float 2s ease-in-out infinite;}
 .busc-logo img{width:100%;height:100%;object-fit:cover;}
-.busc-titulo{font-size:20px;font-weight:900;color:#fff;text-align:center;}
+.busc-titulo{font-size:20px;font-weight:900;color:var(--text);text-align:center;}
 .busc-sub{font-size:13px;color:var(--muted);text-align:center;}
 .busc-spinner{width:48px;height:48px;border:3px solid rgba(251,191,36,0.12);border-top-color:var(--dourado);border-radius:50%;animation:spin 0.9s linear infinite;}
 .busc-num{font-size:34px;font-weight:900;color:var(--dourado);}
@@ -261,7 +261,7 @@ input[type=file]{display:none;}
 .mot-card{display:flex;align-items:center;gap:11px;padding:11px;background:var(--card2);border-radius:14px;border:1px solid var(--border);margin-bottom:9px;cursor:pointer;}
 .mot-foto{width:48px;height:48px;border-radius:50%;background:var(--bg);border:2px solid var(--dourado);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:18px;}
 .mot-foto img{width:100%;height:100%;object-fit:cover;}
-.mot-nome{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;}
+.mot-nome{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;}
 .mot-veic{font-size:11px;color:var(--muted);}
 .mot-placa{font-size:11px;font-weight:700;color:var(--dourado);}
 .entrega-valor{font-size:22px;font-weight:900;color:var(--dourado);text-align:center;margin-bottom:9px;}
@@ -274,7 +274,7 @@ input[type=file]{display:none;}
 #modal-chat.show{display:flex;}
 .chat-sheet{background:var(--card);border-radius:22px 22px 0 0;border-top:1px solid var(--border);width:100%;height:68vh;display:flex;flex-direction:column;}
 .chat-hdr{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
-.chat-tit{flex:1;font-size:14px;font-weight:700;color:#fff;}
+.chat-tit{flex:1;font-size:14px;font-weight:700;color:var(--text);}
 .chat-msgs{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:7px;}
 .msg{max-width:78%;padding:8px 13px;border-radius:14px;font-size:13px;line-height:1.4;}
 .msg.minha{align-self:flex-end;background:var(--azul2);color:var(--dourado);border-bottom-right-radius:3px;}
@@ -288,13 +288,13 @@ input[type=file]{display:none;}
 /* PERFIL */
 #tela-perfil{padding-bottom:72px;}
 .perf-hdr{background:linear-gradient(180deg,rgba(26,42,74,0.95),transparent);padding:14px 18px 18px;padding-top:calc(env(safe-area-inset-top,0px) + 14px);}
-.perf-hdr h2{font-size:20px;font-weight:800;color:#fff;}
+.perf-hdr h2{font-size:20px;font-weight:800;color:var(--text);}
 .perf-card{margin:0 16px 12px;background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;}
 .perf-user{display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid var(--border);cursor:pointer;}
 .perf-av{width:64px;height:64px;border-radius:50%;background:var(--card2);border:3px solid var(--dourado);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--dourado);position:relative;flex-shrink:0;}
 .perf-av img{width:100%;height:100%;object-fit:cover;}
 .perf-edit{position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--dourado);display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;border:2px solid var(--card);}
-.perf-nome{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px;}
+.perf-nome{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px;}
 .perf-fone{font-size:12px;color:var(--muted);}
 .perf-badge{display:inline-flex;margin-top:4px;background:rgba(251,191,36,0.08);border:1px solid var(--border);border-radius:7px;padding:2px 8px;font-size:10px;font-weight:700;color:var(--dourado);}
 /* PERFIL NOVO */
@@ -313,7 +313,7 @@ input[type=file]{display:none;}
 .perf-av-big{position:relative;z-index:1;width:96px;height:96px;border-radius:50%;background:var(--card2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:42px;box-shadow:0 4px 14px rgba(0,0,0,0.5);}
 .perf-av-big img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 .perf-av-outer .perf-edit{position:absolute;bottom:-2px;right:-2px;width:32px;height:32px;border-radius:50%;background:var(--dourado);border:3px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
-.perf-nome-big{font-size:22px;font-weight:900;color:#fff;margin-top:12px;text-shadow:0 2px 8px rgba(0,0,0,0.6);}
+.perf-nome-big{font-size:22px;font-weight:900;color:var(--text);margin-top:12px;text-shadow:0 2px 8px rgba(0,0,0,0.6);}
 .perf-nivel{margin-top:8px;background:rgba(0,0,0,0.3);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 15px;font-size:12px;font-weight:700;color:#ffe9b0;}
 .perf-stats-row{display:flex;gap:10px;margin:0 16px 16px;}
 .perf-stat-wrap{flex:1;position:relative;border-radius:16px;padding:2px;overflow:hidden;}
@@ -328,10 +328,10 @@ input[type=file]{display:none;}
 .perf-info-ic{font-size:20px;width:26px;text-align:center;flex-shrink:0;}
 .perf-info-txt{flex:1;min-width:0;}
 .perf-info-lb{font-size:11px;color:var(--muted);margin-bottom:3px;}
-.perf-info-vl{font-size:15px;color:#fff;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.perf-info-vl{font-size:15px;color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .perf-emerg{border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.05);}
 .perf-acoes{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 16px;}
-.perf-acao{display:flex;align-items:center;gap:9px;padding:15px 13px;background:var(--card);border:1px solid var(--border);border-radius:14px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left;}
+.perf-acao{display:flex;align-items:center;gap:9px;padding:15px 13px;background:var(--card);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left;}
 .perf-acao span{font-size:18px;}
 .perf-acao:active{background:var(--card2);}
 .perf-hist{margin:0 16px;display:flex;flex-direction:column;gap:8px;}
@@ -351,7 +351,7 @@ input[type=file]{display:none;}
 #modal-mapa-rest.show{display:flex;}
 #mapa-dest-div{flex:1;position:relative;}
 .dest-hdr{background:var(--card);border-bottom:1px solid var(--border);padding:13px 18px;padding-top:max(13px,calc(var(--sat)+8px));display:flex;align-items:center;gap:11px;}
-.dest-hdr-tit{flex:1;font-size:13px;font-weight:700;color:#fff;}
+.dest-hdr-tit{flex:1;font-size:13px;font-weight:700;color:var(--text);}
 .btn-fechar-dest{padding:7px 13px;border-radius:11px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
 .dest-footer{background:var(--card);border-top:1px solid var(--border);padding:11px 16px;padding-bottom:max(11px,var(--sab));}
 .dest-end-txt{font-size:12px;color:var(--muted);margin-bottom:8px;min-height:16px;}
@@ -385,7 +385,7 @@ input[type=file]{display:none;}
 .menu-hdr{padding:max(54px,calc(var(--sat)+42px)) 18px 18px;background:linear-gradient(180deg,var(--azul2),var(--card));border-bottom:1px solid var(--border);text-align:center;}
 .menu-logo{width:80px;height:80px;border-radius:22px;overflow:hidden;margin:0 auto 12px;box-shadow:0 6px 20px rgba(251,191,36,0.3);}
 .menu-logo img{width:100%;height:100%;object-fit:cover;}
-.menu-app{font-size:18px;font-weight:900;color:#fff;margin-bottom:4px;}
+.menu-app{font-size:18px;font-weight:900;color:var(--text);margin-bottom:4px;}
 .menu-dev-por{font-size:10px;color:var(--muted);margin-bottom:5px;}
 .menu-ret{position:relative;display:inline-block;border-radius:12px;padding:2px;overflow:hidden;}
 .menu-ret-luz{position:absolute;top:50%;left:50%;width:200%;height:200%;background:conic-gradient(#ef4444,#3b82f6,var(--dourado),#22c55e,#ef4444);animation:gira 2s linear infinite;}
@@ -399,7 +399,7 @@ input[type=file]{display:none;}
 /* CONFIG */
 #tela-config{display:none;position:fixed;inset:0;z-index:8002;overflow-y:auto;background:var(--bg);}
 .config-hdr{padding:max(18px,calc(var(--sat)+14px)) 16px 14px;background:linear-gradient(180deg,rgba(26,42,74,0.95),transparent);display:flex;align-items:center;gap:12px;}
-.config-tit{font-size:21px;font-weight:900;color:#fff;}
+.config-tit{font-size:21px;font-weight:900;color:var(--text);}
 .config-sec{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:12px 16px 6px;}
 .config-item{display:flex;align-items:center;gap:11px;padding:12px 16px;border-bottom:1px solid rgba(251,191,36,0.04);}
 .config-ic{font-size:22px;width:38px;text-align:center;}
@@ -419,7 +419,7 @@ input[type=file]{display:none;}
 .crop-canvas{width:260px;height:260px;display:block;}
 
 /* ESTRELAS */
-.estrela{font-size:36px;color:rgba(255,255,255,0.12);cursor:pointer;transition:color 0.1s;}
+.estrela{font-size:36px;color:var(--muted);cursor:pointer;transition:color 0.1s;}
 .estrela.on{color:var(--dourado);}
 
 /* PWA */
@@ -428,18 +428,18 @@ input[type=file]{display:none;}
 .pwa-inner{display:flex;align-items:center;gap:11px;}
 .pwa-logo{width:42px;height:42px;border-radius:11px;overflow:hidden;flex-shrink:0;}
 .pwa-logo img{width:100%;height:100%;object-fit:cover;}
-.pwa-txt strong{display:block;font-size:13px;font-weight:700;color:#fff;}
+.pwa-txt strong{display:block;font-size:13px;font-weight:700;color:var(--text);}
 .pwa-txt span{font-size:11px;color:var(--muted);}
 .pwa-btns{display:flex;gap:7px;align-items:center;margin-left:auto;}
 .btn-inst{padding:7px 13px;border-radius:18px;background:var(--azul2);border:1px solid var(--border);color:var(--dourado);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
 .btn-x{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.07);border:none;color:var(--muted);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 #ios-guide{display:none;position:fixed;bottom:0;left:0;right:0;z-index:9997;padding:18px 16px;padding-bottom:max(18px,var(--sab));background:rgba(15,26,46,0.97);border-top:1px solid var(--border);}
 #ios-guide.show{display:block;animation:slideUp 0.4s ease;}
-.ios-tit{font-size:14px;font-weight:700;color:#fff;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;}
+.ios-tit{font-size:14px;font-weight:700;color:var(--text);margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;}
 .ios-steps{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
-.ios-step{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:rgba(255,255,255,0.62);line-height:1.5;}
+.ios-step{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--muted);line-height:1.5;}
 .ios-n{width:19px;height:19px;border-radius:50%;background:rgba(251,191,36,0.1);color:var(--dourado);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.ios-step em{font-style:normal;color:#fff;font-weight:600;}
+.ios-step em{font-style:normal;color:var(--text);font-weight:600;}
 .chip-ios{background:rgba(251,191,36,0.08);border-radius:5px;padding:1px 6px;font-size:10px;color:var(--dourado);font-weight:600;}
 
 /* TOAST / LOADING */
@@ -465,8 +465,8 @@ input[type=file]{display:none;}
 .fin-card-3{background:linear-gradient(150deg,#2f1e3d,#160f1a);border:1px solid rgba(168,85,247,0.25);box-shadow:0 6px 20px rgba(168,85,247,0.1);}
 .fin-card-4{background:linear-gradient(150deg,#1a3d28,#0d1a12);border:1px solid rgba(34,197,94,0.3);box-shadow:0 6px 20px rgba(34,197,94,0.12);}
 .fin-card-icon{font-size:28px;margin-bottom:10px;}
-.fin-card-tit{font-size:14px;font-weight:800;color:#fff;margin-bottom:3px;}
-.fin-card-sub{font-size:10px;color:rgba(255,255,255,0.55);line-height:1.3;}
+.fin-card-tit{font-size:14px;font-weight:800;color:var(--text);margin-bottom:3px;}
+.fin-card-sub{font-size:10px;color:var(--muted);line-height:1.3;}
 .fin-mini-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:15px;text-align:center;}
 .fin-mini-val{font-size:24px;font-weight:900;color:var(--dourado);}
 .fin-mini-lb{font-size:11px;color:var(--muted);margin-top:2px;}
@@ -489,7 +489,7 @@ input[type=file]{display:none;}
 .cat-btn-anim:not(.selecionada) .cat-luz{animation:gira 6s linear infinite;}
 .cat-inner{position:relative;z-index:1;background:linear-gradient(150deg,var(--card),var(--card2));border-radius:14px;padding:14px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:88px;justify-content:center;}
 .cat-inner-ic{font-size:26px;}
-.cat-inner-nome{font-size:12px;font-weight:800;color:#fff;text-align:center;line-height:1.25;}
+.cat-inner-nome{font-size:12px;font-weight:800;color:var(--text);text-align:center;line-height:1.25;}
 .cat-inner-qtd{font-size:10px;color:var(--muted);}
 .cat-inner-sel{font-size:9px;font-weight:800;color:var(--dourado);background:rgba(251,191,36,0.15);padding:2px 8px;border-radius:9px;margin-top:1px;}
 
@@ -502,10 +502,10 @@ input[type=file]{display:none;}
 .prato-inner{position:relative;z-index:1;background:var(--card);border-radius:13px;padding:10px;display:flex;flex-direction:column;gap:6px;}
 .prato-foto-btn{width:100%;height:64px;border-radius:10px;background:var(--card2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px;}
 .prato-foto-btn img{width:100%;height:100%;object-fit:cover;}
-.prato-nome-btn{font-size:12px;font-weight:800;color:#fff;line-height:1.25;min-height:30px;}
+.prato-nome-btn{font-size:12px;font-weight:800;color:var(--text);line-height:1.25;min-height:30px;}
 .prato-preco-btn{font-size:12px;font-weight:800;color:var(--dourado);}
 .prato-qtd-badge{position:absolute;top:6px;right:6px;z-index:2;background:var(--dourado);color:#1a1a1a;font-size:11px;font-weight:900;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
-.prato-menos-btn{position:absolute;top:6px;left:6px;z-index:2;background:rgba(239,68,68,0.9);color:#fff;font-size:14px;font-weight:900;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
+.prato-menos-btn{position:absolute;top:6px;left:6px;z-index:2;background:rgba(239,68,68,0.9);color:var(--text);font-size:14px;font-weight:900;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
 .btn-voltar-cats{display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:9px 14px;margin-bottom:11px;cursor:pointer;font-size:12px;font-weight:700;color:var(--dourado);width:100%;font-family:inherit;-webkit-tap-highlight-color:transparent;}
 </style>
 </head>
@@ -601,8 +601,8 @@ input[type=file]{display:none;}
       <div style="display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;" onclick="irPara('perfil')">
         <div class="avatar" id="home-avatar"><span id="home-initial">👤</span></div>
         <div style="min-width:0;max-width:132px;">
-          <div style="font-size:11px;color:rgba(255,255,255,0.65);" id="saudacao">Bom dia!</div>
-          <div style="font-size:16px;font-weight:800;color:#fff;line-height:1.2;word-break:normal;overflow-wrap:normal;" id="home-nome">...</div>
+          <div style="font-size:11px;color:var(--muted);" id="saudacao">Bom dia!</div>
+          <div style="font-size:16px;font-weight:800;color:var(--text);line-height:1.2;word-break:normal;overflow-wrap:normal;" id="home-nome">...</div>
         </div>
       </div>
       <!-- CENTRO: logo absolutamente centralizado + crédito do desenvolvedor -->
@@ -841,7 +841,7 @@ input[type=file]{display:none;}
     </div>
     <button onclick="enviarRastreioWhatsApp()" style="width:100%;margin-top:10px;padding:13px;border-radius:14px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);color:#22c55e;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">🛵 Enviar rastreio pro cliente pelo WhatsApp</button>
     <button class="btn-cancelar-cor" onclick="cancelarEntrega()">Cancelar entrega</button>
-    <button onclick="abrirChat()" style="position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);right:18px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;box-shadow:0 6px 18px rgba(37,99,235,0.5);font-size:24px;cursor:pointer;z-index:50;display:flex;align-items:center;justify-content:center;">💬<div id="chat-badge-rest" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:11px;font-weight:900;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid var(--bg);">0</div></button>
+    <button onclick="abrirChat()" style="position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);right:18px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;box-shadow:0 6px 18px rgba(37,99,235,0.5);font-size:24px;cursor:pointer;z-index:50;display:flex;align-items:center;justify-content:center;">💬<div id="chat-badge-rest" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:var(--text);font-size:11px;font-weight:900;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid var(--bg);">0</div></button>
   </div>
 </div>
 
@@ -853,15 +853,15 @@ input[type=file]{display:none;}
         <div class="ped-av-big" id="mm-foto"><span>🚗</span></div>
       </div>
     </div>
-    <div style="font-size:18px;font-weight:900;color:#fff;margin-bottom:5px;" id="mm-nome">--</div>
+    <div style="font-size:18px;font-weight:900;color:var(--text);margin-bottom:5px;" id="mm-nome">--</div>
     <div style="display:flex;gap:7px;align-items:center;justify-content:center;margin-bottom:6px;">
       <div class="ped-badge" id="mm-nivel">🥉 Bronze</div>
     </div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:13px;" id="mm-info">--</div>
     <div style="display:flex;gap:9px;margin-bottom:13px;">
-      <div style="flex:1;background:var(--card2);border-radius:12px;padding:10px;"><div style="font-size:14px;font-weight:800;color:#fff;" id="mm-placa">--</div><div style="font-size:10px;color:var(--muted);">Placa</div></div>
+      <div style="flex:1;background:var(--card2);border-radius:12px;padding:10px;"><div style="font-size:14px;font-weight:800;color:var(--text);" id="mm-placa">--</div><div style="font-size:10px;color:var(--muted);">Placa</div></div>
       <div style="flex:1;background:var(--card2);border-radius:12px;padding:10px;"><div style="font-size:14px;font-weight:800;color:var(--dourado);" id="mm-aval">--</div><div style="font-size:10px;color:var(--muted);">Avaliação</div></div>
-      <div style="flex:1;background:var(--card2);border-radius:12px;padding:10px;"><div style="font-size:14px;font-weight:800;color:#fff;" id="mm-corridas">--</div><div style="font-size:10px;color:var(--muted);">Entregas</div></div>
+      <div style="flex:1;background:var(--card2);border-radius:12px;padding:10px;"><div style="font-size:14px;font-weight:800;color:var(--text);" id="mm-corridas">--</div><div style="font-size:10px;color:var(--muted);">Entregas</div></div>
     </div>
     <div class="ped-comentario" id="mm-comentario-wrap" style="display:none;text-align:left;">
       <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:3px;">💬 ÚLTIMO COMENTÁRIO RECEBIDO</div>
@@ -893,7 +893,7 @@ input[type=file]{display:none;}
   <div class="modal-sheet">
     <div style="text-align:center;margin-bottom:16px;">
       <div style="font-size:26px;margin-bottom:7px;">⭐</div>
-      <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:3px;">Como foi com <span id="aval-nome">o motoboy</span>?</div>
+      <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:3px;">Como foi com <span id="aval-nome">o motoboy</span>?</div>
       <div style="font-size:11px;color:var(--muted);">Sua avaliação é obrigatória para continuar usando o app</div>
     </div>
     <div style="display:flex;justify-content:center;gap:9px;margin-bottom:18px;" id="estrelas">
@@ -912,16 +912,16 @@ input[type=file]{display:none;}
 <!-- CRÉDITOS -->
 <div class="modal-base" id="modal-cred">
   <div class="modal-sheet">
-    <div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:5px;">💳 Comprar Créditos</div>
+    <div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:5px;">💳 Comprar Créditos</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Envie via Pix e receba créditos para suas entregas</div>
     <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:13px;">
       <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">Chave Pix</div>
-      <div style="font-size:15px;font-weight:700;color:#fff;">19982480386</div>
+      <div style="font-size:15px;font-weight:700;color:var(--text);">19982480386</div>
       <div style="font-size:11px;color:var(--muted);margin-top:3px;">WhatsApp · Heitor Serra Neto</div>
     </div>
     <div style="display:flex;gap:9px;margin-bottom:13px;">
       <button onclick="copiarPix()" style="flex:1;padding:11px;border-radius:13px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📋 Copiar</button>
-      <button onclick="window.open('https://wa.me/5519982480386?text=Quero+comprar+créditos+Corrida+Já','_blank')" style="flex:1;padding:11px;border-radius:13px;background:#25d366;border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">WhatsApp</button>
+      <button onclick="window.open('https://wa.me/5519982480386?text=Quero+comprar+créditos+Corrida+Já','_blank')" style="flex:1;padding:11px;border-radius:13px;background:#25d366;border:none;color:var(--text);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">WhatsApp</button>
     </div>
     <div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:13px;">Após o pagamento, avise pelo WhatsApp com o comprovante</div>
     <button class="btn-cancel" onclick="document.getElementById('modal-cred').classList.remove('show')">Fechar</button>
@@ -950,7 +950,7 @@ input[type=file]{display:none;}
             <span id="perf-initial">👤</span>
           </div>
         </div>
-        <div class="perf-edit" onclick="event.stopPropagation();document.getElementById('inp-foto-perf').click()">✏️</div>
+        <div class="perf-edit" onclick="event.stopPropagation();abrirOpcoesFotoPerfil()">✏️</div>
       </div>
       <input type="file" id="inp-foto-perf" accept="image/*" onchange="atualizarFoto(this)"/>
       <div class="perf-nome-big" id="perf-nome">--</div>
@@ -985,14 +985,14 @@ input[type=file]{display:none;}
   <div id="hist-lista" style="display:none;"></div>
 
   <button class="btn-sair" onclick="sair()">Sair da conta</button>
-  <div style="text-align:center;margin:16px 0 30px;font-size:10px;color:rgba(255,255,255,0.15);">Entrega Já · Desenvolvido por Heitor Serra Neto</div>
+  <div style="text-align:center;margin:16px 0 30px;font-size:10px;color:var(--muted);">Entrega Já · Desenvolvido por Heitor Serra Neto</div>
 </div>
 
 <!-- MODAL EDITAR PERFIL -->
 <div class="modal-base" id="modal-editar">
   <div class="modal-sheet">
     <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
-    <div style="font-size:18px;font-weight:900;color:#fff;text-align:center;margin-bottom:18px;">Editar Perfil</div>
+    <div style="font-size:18px;font-weight:900;color:var(--text);text-align:center;margin-bottom:18px;">Editar Perfil</div>
     <div style="text-align:center;margin-bottom:18px;">
       <div style="position:relative;display:inline-block;">
         <div id="med-foto" style="width:84px;height:84px;border-radius:50%;background:var(--card2);border:3px solid var(--dourado);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto;cursor:pointer;" onclick="document.getElementById('inp-foto-mod').click()">👤</div>
@@ -1015,7 +1015,7 @@ input[type=file]{display:none;}
 <div class="modal-base" id="modal-recuperar">
   <div class="modal-sheet">
     <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
-    <div style="font-size:18px;font-weight:900;color:#fff;text-align:center;margin-bottom:8px;">🔐 Recuperar senha</div>
+    <div style="font-size:18px;font-weight:900;color:var(--text);text-align:center;margin-bottom:8px;">🔐 Recuperar senha</div>
     <div style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:18px;">Informe seu WhatsApp e responda a pergunta de segurança</div>
     <div id="rec-passo1">
       <div style="margin-bottom:11px;"><div class="campo-label">WhatsApp</div><input class="campo-input" id="rec-fone" type="tel" placeholder="(19) 99999-9999"/></div>
@@ -1024,7 +1024,7 @@ input[type=file]{display:none;}
     <div id="rec-passo2" style="display:none;">
       <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);border-radius:13px;padding:13px;margin-bottom:11px;">
         <div style="font-size:11px;color:#60a5fa;font-weight:700;margin-bottom:5px;">PERGUNTA DE SEGURANÇA</div>
-        <div id="rec-pergunta" style="font-size:14px;color:#fff;font-weight:600;">--</div>
+        <div id="rec-pergunta" style="font-size:14px;color:var(--text);font-weight:600;">--</div>
       </div>
       <div style="margin-bottom:11px;"><div class="campo-label">Sua resposta</div><input class="campo-input" id="rec-resposta" type="text" placeholder="Resposta"/></div>
       <div style="margin-bottom:11px;"><div class="campo-label">Nova senha</div><input class="campo-input" id="rec-nova" type="password" placeholder="Crie a nova senha"/></div>
@@ -1039,7 +1039,7 @@ input[type=file]{display:none;}
 <div class="modal-base" id="modal-termos">
   <div class="modal-sheet" style="max-height:90vh;">
     <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
-    <div style="font-size:17px;font-weight:900;color:#fff;text-align:center;margin-bottom:4px;">Termos de Uso</div>
+    <div style="font-size:17px;font-weight:900;color:var(--text);text-align:center;margin-bottom:4px;">Termos de Uso</div>
     <div style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:16px;">Entrega Já · Política de Responsabilidade</div>
     <div class="termos-texto">
       <h4>1. Sobre a plataforma</h4>
@@ -1080,7 +1080,7 @@ input[type=file]{display:none;}
     <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:6px;">
       <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" style="width:64px;height:64px;border-radius:16px;object-fit:cover;box-shadow:0 4px 16px rgba(251,191,36,0.3);"/>
-      <div style="font-size:20px;font-weight:900;color:#fff;margin-top:8px;letter-spacing:0.5px;">Entrega Já</div>
+      <div style="font-size:20px;font-weight:900;color:var(--text);margin-top:8px;letter-spacing:0.5px;">Entrega Já</div>
     </div>
     <div style="font-size:14px;color:var(--text);text-align:center;margin-bottom:18px;font-weight:600;">Escolha a forma de pagamento desta entrega</div>
     <div class="pgto-opcoes" style="margin-bottom:8px;">
@@ -1101,7 +1101,7 @@ input[type=file]{display:none;}
     <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:16px;">
       <img src="https://raw.githubusercontent.com/heitorserra-81/ENTREGA-JA-Restaurante/refs/heads/main/IMG_1104.png" style="width:78px;height:78px;border-radius:18px;object-fit:cover;box-shadow:0 6px 20px rgba(251,191,36,0.3);"/>
-      <div style="font-size:22px;font-weight:900;color:#fff;margin-top:10px;letter-spacing:0.5px;">Entrega Já</div>
+      <div style="font-size:22px;font-weight:900;color:var(--text);margin-top:10px;letter-spacing:0.5px;">Entrega Já</div>
       <div style="font-size:12px;color:var(--muted);margin-top:3px;">Versão 1.0</div>
       <div style="font-size:12px;color:var(--muted);margin-top:2px;">Desenvolvido por <b style="color:var(--dourado);">Heitor Serra Neto</b></div>
     </div>
@@ -1142,7 +1142,7 @@ input[type=file]{display:none;}
 <!-- MODAL AGENDAR CORRIDA -->
 <div class="modal-base" id="modal-agendada">
   <div class="modal-sheet">
-    <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:5px;">📅 Agendar Entrega</div>
+    <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:5px;">📅 Agendar Entrega</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">O app avisa você 15 minutos antes da hora de chamar o motoboy.</div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
       <div style="display:flex;gap:9px;">
@@ -1163,7 +1163,7 @@ input[type=file]{display:none;}
   <div class="modal-sheet">
     <div style="text-align:center;margin-bottom:16px;">
       <div style="font-size:32px;margin-bottom:8px;">🎁</div>
-      <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:5px;">Indique um amigo!</div>
+      <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:5px;">Indique um amigo!</div>
       <div style="font-size:13px;color:var(--muted);">Compartilhe o link do Entrega Já e ganhe créditos quando seu amigo fizer a primeira entrega</div>
     </div>
     <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:14px;text-align:center;">
@@ -1222,7 +1222,7 @@ input[type=file]{display:none;}
   <div class="modal-sheet">
     <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 14px;"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-      <div style="font-size:17px;font-weight:900;color:#fff;">📦 Minhas entregas</div>
+      <div style="font-size:17px;font-weight:900;color:var(--text);">📦 Minhas entregas</div>
       <button onclick="abrirMapaCombinado()" style="background:rgba(251,191,36,0.1);border:1px solid var(--border);color:var(--dourado);font-size:11px;font-weight:700;padding:7px 12px;border-radius:11px;cursor:pointer;font-family:inherit;">🗺️ Ver todos no mapa</button>
     </div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Toque em uma entrega para acompanhar em detalhe.</div>
@@ -1234,7 +1234,7 @@ input[type=file]{display:none;}
 <!-- MODAL MAPA COMBINADO (todos os motoboys entregando para este restaurante agora) -->
 <div id="modal-mapa-combinado" class="modal-din" style="position:fixed;inset:0;z-index:9993;background:#000;flex-direction:column;">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;padding-top:calc(env(safe-area-inset-top,0px) + 16px);background:var(--card);border-bottom:1px solid var(--border);">
-    <div style="font-size:15px;font-weight:800;color:#fff;">🗺️ Suas entregas no mapa</div>
+    <div style="font-size:15px;font-weight:800;color:var(--text);">🗺️ Suas entregas no mapa</div>
     <button onclick="fecharMapaCombinado()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:34px;height:34px;border-radius:10px;font-size:16px;cursor:pointer;">✕</button>
   </div>
   <div id="mapa-combinado-div" style="flex:1;"></div>
@@ -1248,7 +1248,7 @@ input[type=file]{display:none;}
 
 <!-- CROP -->
 <div class="crop-overlay" id="crop-overlay">
-  <div style="color:#fff;font-size:15px;font-weight:700;">Ajustar foto</div>
+  <div style="color:var(--text);font-size:15px;font-weight:700;">Ajustar foto</div>
   <div style="color:var(--muted);font-size:12px;margin-top:-8px;">Arraste e use dois dedos para zoom</div>
   <div class="crop-container" id="crop-container">
     <canvas class="crop-canvas" id="crop-canvas" width="260" height="260"></canvas>
@@ -1285,7 +1285,7 @@ input[type=file]{display:none;}
 <div id="modal-cardapio" class="modal-din" style="position:fixed;inset:0;z-index:9600;background:rgba(0,0,0,0.9);backdrop-filter:blur(6px);">
   <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <div style="font-size:17px;font-weight:800;color:#fff;">🍽️ Meu cardápio</div>
+      <div style="font-size:17px;font-weight:800;color:var(--text);">🍽️ Meu cardápio</div>
       <button onclick="fecharCardapio()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:36px;height:36px;border-radius:11px;font-size:16px;cursor:pointer;">✕</button>
     </div>
     <input id="busca-prato" class="campo-input" type="text" placeholder="🔍 Buscar prato..." oninput="filtrarPratos(this.value)" style="margin-bottom:12px;"/>
@@ -1301,7 +1301,7 @@ input[type=file]{display:none;}
 <!-- MODAL NOVA CATEGORIA -->
 <div id="modal-categoria" class="modal-din" style="position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,0.85);align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);">
   <div style="background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:22px;padding-bottom:max(30px,calc(env(safe-area-inset-bottom,0px)+22px));width:100%;">
-    <div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:16px;">Nova categoria</div>
+    <div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:16px;">Nova categoria</div>
     <input id="categoria-nome" class="campo-input" type="text" placeholder="Ex: Pizzas, Lanches, Bebidas..." style="margin-bottom:16px;"/>
     <button onclick="salvarCategoria()" class="btn-p" style="width:100%;margin-bottom:9px;">Criar categoria</button>
     <button onclick="document.getElementById('modal-categoria').classList.remove('show')" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Cancelar</button>
@@ -1312,7 +1312,7 @@ input[type=file]{display:none;}
 <div id="modal-importar" class="modal-din" style="position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,0.9);backdrop-filter:blur(6px);">
   <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <div style="font-size:16px;font-weight:800;color:#fff;">🤖 Importar cardápio com IA</div>
+      <div style="font-size:16px;font-weight:800;color:var(--text);">🤖 Importar cardápio com IA</div>
       <button onclick="fecharImportarCardapio()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:36px;height:36px;border-radius:11px;font-size:16px;cursor:pointer;">✕</button>
     </div>
     <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:14px;">
@@ -1342,7 +1342,7 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
 <!-- MODAL NOVO/EDITAR PRATO -->
 <div id="modal-prato" class="modal-din" style="position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,0.85);align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);">
   <div style="background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:22px;padding-bottom:max(30px,calc(env(safe-area-inset-bottom,0px)+22px));width:100%;max-height:85vh;overflow-y:auto;">
-    <div id="prato-titulo" style="font-size:17px;font-weight:800;color:#fff;margin-bottom:16px;">Novo prato</div>
+    <div id="prato-titulo" style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:16px;">Novo prato</div>
     <div style="text-align:center;margin-bottom:16px;">
       <div id="prato-foto-prev" onclick="document.getElementById('inp-foto-prato').click()" style="width:110px;height:110px;border-radius:16px;background:var(--card2);border:2px dashed var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto;cursor:pointer;">📷</div>
       <input type="file" id="inp-foto-prato" accept="image/*" style="display:none;" onchange="processarFotoPrato(this)"/>
@@ -1364,7 +1364,7 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
 <div id="modal-financeiro" class="modal-din" style="position:fixed;inset:0;z-index:9600;background:rgba(0,0,0,0.9);backdrop-filter:blur(6px);">
   <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-      <div style="font-size:17px;font-weight:800;color:#fff;">📊 Financeiro</div>
+      <div style="font-size:17px;font-weight:800;color:var(--text);">📊 Financeiro</div>
       <button onclick="fecharFinanceiro()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:36px;height:36px;border-radius:11px;font-size:16px;cursor:pointer;">✕</button>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;">
@@ -1410,7 +1410,7 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
   <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
       <button onclick="fecharFinVisaoGeral()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:36px;height:36px;border-radius:11px;font-size:16px;cursor:pointer;">←</button>
-      <div style="font-size:16px;font-weight:800;color:#fff;">📈 Visão geral</div>
+      <div style="font-size:16px;font-weight:800;color:var(--text);">📈 Visão geral</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
       <div class="fin-mini-card"><div class="fin-mini-val" id="fin-total-entregas">0</div><div class="fin-mini-lb">Total de entregas</div></div>
@@ -1421,7 +1421,7 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
     <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px;">
       <div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:10px;">Hoje vs. ontem</div>
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div><div style="font-size:11px;color:var(--muted);">Ontem</div><div style="font-size:17px;font-weight:800;color:#fff;" id="fin-valor-ontem">R$ 0,00</div></div>
+        <div><div style="font-size:11px;color:var(--muted);">Ontem</div><div style="font-size:17px;font-weight:800;color:var(--text);" id="fin-valor-ontem">R$ 0,00</div></div>
         <div style="font-size:20px;" id="fin-seta-comp">→</div>
         <div style="text-align:right;"><div style="font-size:11px;color:var(--muted);">Hoje</div><div style="font-size:17px;font-weight:800;color:var(--dourado);" id="fin-valor-hoje-comp">R$ 0,00</div></div>
       </div>
@@ -1441,7 +1441,7 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
   <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
       <button onclick="fecharFinGraficos()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:36px;height:36px;border-radius:11px;font-size:16px;cursor:pointer;">←</button>
-      <div style="font-size:16px;font-weight:800;color:#fff;">📊 Gráficos</div>
+      <div style="font-size:16px;font-weight:800;color:var(--text);">📊 Gráficos</div>
     </div>
     <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px;">
       <div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:14px;">Faturamento — últimos 7 dias</div>
@@ -1459,7 +1459,7 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
   <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
       <button onclick="fecharFinCustos()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:36px;height:36px;border-radius:11px;font-size:16px;cursor:pointer;">←</button>
-      <div style="font-size:16px;font-weight:800;color:#fff;">💳 Custos da plataforma</div>
+      <div style="font-size:16px;font-weight:800;color:var(--text);">💳 Custos da plataforma</div>
     </div>
     <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px;">
       <div style="font-size:30px;font-weight:900;color:var(--dourado);" id="fin-custo-total">R$ 0,00</div>
@@ -1479,7 +1479,7 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
   <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
       <button onclick="fecharFinMargem()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:36px;height:36px;border-radius:11px;font-size:16px;cursor:pointer;">←</button>
-      <div style="font-size:16px;font-weight:800;color:#fff;">💰 Margem de entrega</div>
+      <div style="font-size:16px;font-weight:800;color:var(--text);">💰 Margem de entrega</div>
     </div>
     <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:14px;padding:13px;margin-bottom:16px;font-size:12px;color:var(--text);line-height:1.5;" id="fin-margem-aviso">
       Compara a taxa de entrega que você cobra do cliente com o que a entrega custa (créditos descontados pela plataforma, quando a cobrança estiver ativa).
@@ -1503,7 +1503,7 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
   <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
       <button onclick="fecharFinComparativo()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:36px;height:36px;border-radius:11px;font-size:16px;cursor:pointer;">←</button>
-      <div style="font-size:16px;font-weight:800;color:#fff;">⚖️ Comparativo</div>
+      <div style="font-size:16px;font-weight:800;color:var(--text);">⚖️ Comparativo</div>
     </div>
     <div style="background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.04));border:1px solid rgba(34,197,94,0.3);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px;">
       <div style="font-size:30px;font-weight:900;color:var(--verde);" id="fin-economia-total">R$ 0,00</div>
@@ -1527,7 +1527,7 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
 <div id="modal-seletor-pratos" class="modal-din" style="position:fixed;inset:0;z-index:9600;background:rgba(0,0,0,0.9);backdrop-filter:blur(6px);">
   <div style="position:absolute;inset:0;display:flex;flex-direction:column;padding-top:calc(env(safe-area-inset-top,0px) + 20px);">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:0 18px 14px;">
-      <div style="font-size:17px;font-weight:800;color:#fff;">🍽️ Escolher itens</div>
+      <div style="font-size:17px;font-weight:800;color:var(--text);">🍽️ Escolher itens</div>
       <button onclick="fecharSeletorPratos()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:36px;height:36px;border-radius:11px;font-size:16px;cursor:pointer;">✕</button>
     </div>
     <div style="padding:0 18px 12px;">
@@ -1605,7 +1605,7 @@ Bebidas | Coca-Cola 2L | 12.00 | " style="width:100%;min-height:160px;background
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <div style="display:flex;align-items:center;gap:10px;">
         <button onclick="fecharCategoriaDetalhe()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:34px;height:34px;border-radius:10px;font-size:15px;cursor:pointer;">←</button>
-        <div id="categoria-detalhe-titulo" style="font-size:16px;font-weight:800;color:#fff;">Categoria</div>
+        <div id="categoria-detalhe-titulo" style="font-size:16px;font-weight:800;color:var(--text);">Categoria</div>
       </div>
       <button id="btn-excluir-categoria-detalhe" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-size:11px;font-weight:700;padding:6px 11px;border-radius:9px;cursor:pointer;font-family:inherit;">🗑️ Excluir</button>
     </div>
@@ -1875,6 +1875,32 @@ function atualizarFoto(inp){
 }
 function desenharCrop(){if(!cropImg)return;const cv=document.getElementById("crop-canvas"),ctx=cv.getContext("2d");ctx.clearRect(0,0,260,260);const sc=cropBaseScale*cropScale;ctx.save();ctx.beginPath();if(cropShape==="quadrado"){ctx.rect(5,5,250,250);}else{ctx.arc(130,130,130,0,Math.PI*2);}ctx.clip();ctx.drawImage(cropImg,cropBaseX+cropTX,cropBaseY+cropTY,cropImg.naturalWidth*sc,cropImg.naturalHeight*sc);ctx.restore();}
 function cancelarCrop(){document.getElementById("crop-overlay").style.display="none";cropImg=null;}
+function abrirOpcoesFotoPerfil(){
+  if(!document.getElementById("modal-opcoes-foto"))criarModalOpcoesFoto();
+  document.getElementById("modal-opcoes-foto").classList.add("show");
+}
+function criarModalOpcoesFoto(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div id="modal-opcoes-foto" class="modal-din" style="position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.8);align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);">
+    <div style="background:var(--card);border-radius:22px 22px 0 0;border-top:1px solid var(--border);padding:22px;padding-bottom:max(36px,calc(var(--sab)+22px));width:100%;">
+      <div style="width:38px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 18px;"></div>
+      <button onclick="document.getElementById('modal-opcoes-foto').classList.remove('show');document.getElementById('inp-foto-perf').click()" style="width:100%;padding:15px;border-radius:14px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">📷 Trocar foto</button>
+      <button onclick="excluirFotoPerfil()" style="width:100%;padding:15px;border-radius:14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">🗑️ Excluir foto</button>
+      <button onclick="document.getElementById('modal-opcoes-foto').classList.remove('show')" style="width:100%;padding:14px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer;font-family:inherit;">Cancelar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+async function excluirFotoPerfil(){
+  document.getElementById("modal-opcoes-foto").classList.remove("show");
+  loading(true);
+  try{
+    if(user.tipo!=="anonimo")await db.collection("ej_restaurantes").doc(user.id).update({foto:null});
+    user.foto=null;salvarSessaoLocal();
+    atualizarHome();atualizarPerfil();
+    loading(false);toast("Foto removida.");
+  }catch(e){loading(false);toast("Erro: "+e.message);}
+}
 async function confirmarCrop(){
   if(!cropImg)return;
   const cv=document.getElementById("crop-canvas"),out=document.createElement("canvas");out.width=200;out.height=200;
@@ -2336,7 +2362,7 @@ function criarModalSimulador(){
   div.innerHTML=`<div id="modal-simulador" class="modal-base">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
-      <div style="font-size:17px;font-weight:900;color:#fff;margin-bottom:3px;">🧮 Simulador de frete</div>
+      <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:3px;">🧮 Simulador de frete</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Digite o endereço do cliente e veja na hora quanto custa a entrega — sem chamar ninguém. Perfeito para informar no telefone.</div>
       <div style="position:relative;margin-bottom:10px;">
         <input class="campo-input" id="sim-busca" type="text" placeholder="Rua, bairro do cliente..." autocomplete="off" oninput="simBuscar(this.value)" style="margin-bottom:0;"/>
@@ -2440,7 +2466,7 @@ function sugerirClientes(txt){
       if(combina.length===0){el.style.display="none";return;}
       el.innerHTML=combina.map(c=>`
         <div onclick="usarClienteSugerido('${c.id}')" style="padding:11px 13px;border-bottom:1px solid var(--border);cursor:pointer;">
-          <div style="font-size:13px;font-weight:700;color:#fff;">${c.nome}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);">${c.nome}</div>
           <div style="font-size:10px;color:var(--muted);">${c.totalPedidos||0} pedido${(c.totalPedidos||0)!==1?"s":""}${c.ultimoEndereco?" · 📍 "+c.ultimoEndereco.split(",")[0]:""}</div>
         </div>`).join("");
       el.style.display="block";
@@ -2486,7 +2512,7 @@ function _linhaClienteHTML(c,i){
   return`<div class="linha-cliente" data-nome="${(c.nome||"").toLowerCase()}" onclick="abrirDetalheCliente('${c.id}')" style="background:var(--card);border:1px solid ${i===0?"var(--dourado)":"var(--border)"};border-radius:13px;padding:13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;cursor:pointer;">
     <div style="font-size:19px;flex-shrink:0;">${i===0?"👑":i===1?"🥈":i===2?"🥉":"👤"}</div>
     <div style="flex:1;min-width:0;">
-      <div style="font-size:13px;font-weight:700;color:#fff;">${c.nome}</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);">${c.nome}</div>
       <div style="font-size:11px;color:var(--muted);">${c.totalPedidos||0} pedido${(c.totalPedidos||0)!==1?"s":""} · ${_fmtBR(c.valorTotal||0)}${dt?" · último: "+dt.toLocaleDateString("pt-BR"):""}</div>
     </div>
     <div style="font-size:13px;color:var(--muted);">›</div>
@@ -2553,7 +2579,7 @@ async function abrirMeusCreditos(){
         const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
         const devolvido=c.creditoRestDevolvido===true;
         return`<div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-          <div><div style="font-size:12px;font-weight:700;color:#fff;">${devolvido?"↩️ Devolvido":"➖ Descontado"} · ${(c.destino||"").split(",")[0]}</div><div style="font-size:10px;color:var(--muted);">${_fmtData(dt)}</div></div>
+          <div><div style="font-size:12px;font-weight:700;color:var(--text);">${devolvido?"↩️ Devolvido":"➖ Descontado"} · ${(c.destino||"").split(",")[0]}</div><div style="font-size:10px;color:var(--muted);">${_fmtData(dt)}</div></div>
           <div style="font-size:13px;font-weight:800;color:${devolvido?"#22c55e":"#ef4444"};">${devolvido?"+":"-"}${_fmtBR(c.creditoRestCobrado)}</div>
         </div>`;
       }).join("");
@@ -2567,7 +2593,7 @@ function criarModalDrill(){
     <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(var(--sat) + 18px) 16px calc(var(--sab) + 28px);">
       <div style="display:flex;align-items:center;gap:11px;margin-bottom:16px;">
         <button onclick="fecharDrill()" style="background:rgba(251,191,36,0.1);border:1px solid var(--border);border-radius:13px;color:var(--dourado);font-size:20px;cursor:pointer;padding:8px 15px;font-weight:700;flex-shrink:0;">←</button>
-        <div id="drill-titulo" style="font-size:18px;font-weight:900;color:#fff;"></div>
+        <div id="drill-titulo" style="font-size:18px;font-weight:900;color:var(--text);"></div>
       </div>
       <div id="drill-corpo"></div>
     </div>
@@ -2583,7 +2609,7 @@ function _linhaPedidoDrill(c){
   const podeRepetir=c.destinoLat&&c.destinoLng&&c.status==="concluida";
   return`<div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;margin-bottom:8px;">
     <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-      <div style="font-size:12px;font-weight:700;color:#fff;">${ic} ${c.nomeClienteFinal||(c.destino||"Pedido").split(",")[0]}</div>
+      <div style="font-size:12px;font-weight:700;color:var(--text);">${ic} ${c.nomeClienteFinal||(c.destino||"Pedido").split(",")[0]}</div>
       <div style="font-size:12px;font-weight:800;color:var(--dourado);">${_fmtBR(c.valorPedido||c.valorTotal)}</div>
     </div>
     <div style="font-size:10px;color:var(--muted);">${_fmtData(dt)} · ${c.motoboy?.nome||"sem motoboy"} · ${c.formaPgto||""}${c.trocoPara?" · 💵 Troco: R$ "+Math.max(0,(parseFloat(c.trocoPara)||0)-(c.valorTotal||c.valorPedido||0)).toFixed(2).replace(".",","):""}</div>
@@ -2661,7 +2687,7 @@ function criarModalConfigObsRapidas(){
   const div=document.createElement("div");
   div.innerHTML=`<div class="modal-base" id="modal-obs-rapidas">
     <div class="modal-sheet">
-      <div style="font-size:17px;font-weight:900;color:#fff;margin-bottom:4px;">📝 Observações rápidas</div>
+      <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px;">📝 Observações rápidas</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Crie os atalhos que vão aparecer como botões na hora de montar o pedido.</div>
       <div style="display:flex;gap:8px;margin-bottom:14px;">
         <input class="campo-input" id="nova-obs-rapida" type="text" placeholder="Ex: Sem cebola" style="margin-bottom:0;flex:1;"/>
@@ -2717,7 +2743,7 @@ function renderMotoboyFavoritoAtual(){
   if(user.motoboyFavoritoId){
     el.innerHTML=`<div style="background:rgba(251,191,36,0.08);border:1px solid var(--dourado);border-radius:14px;padding:13px;margin-bottom:14px;display:flex;align-items:center;gap:11px;">
       <div style="font-size:20px;">⭐</div>
-      <div style="flex:1;"><div style="font-size:13px;font-weight:800;color:#fff;">${user.motoboyFavoritoNome}</div><div style="font-size:11px;color:var(--muted);">Chamado primeiro, com 30s de exclusividade</div></div>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:800;color:var(--text);">${user.motoboyFavoritoNome}</div><div style="font-size:11px;color:var(--muted);">Chamado primeiro, com 30s de exclusividade</div></div>
       <button onclick="removerMotoboyFavorito()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-size:11px;font-weight:700;padding:7px 12px;border-radius:10px;cursor:pointer;font-family:inherit;">Remover</button>
     </div>`;
   }else{
@@ -2742,7 +2768,7 @@ async function renderListaMotoboysParaFavoritar(){
     el.innerHTML=ranking.map(m=>`
       <div style="display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid ${user.motoboyFavoritoId===m.id?"var(--dourado)":"var(--border)"};border-radius:13px;padding:11px;margin-bottom:8px;">
         <div style="width:38px;height:38px;border-radius:50%;background:var(--card2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${m.foto?`<img src="${m.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"🏍️"}</div>
-        <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;color:#fff;">${m.nome}</div><div style="font-size:11px;color:var(--muted);">${m.qtd} entrega${m.qtd!==1?"s":""} pra você</div></div>
+        <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;color:var(--text);">${m.nome}</div><div style="font-size:11px;color:var(--muted);">${m.qtd} entrega${m.qtd!==1?"s":""} pra você</div></div>
         ${user.motoboyFavoritoId===m.id?`<div style="font-size:19px;">⭐</div>`:`<button onclick="favoritarMotoboy('${m.id}','${m.nome.replace(/'/g,"")}')" style="background:rgba(251,191,36,0.1);border:1px solid var(--border);color:var(--dourado);font-size:11px;font-weight:700;padding:8px 12px;border-radius:10px;cursor:pointer;font-family:inherit;">Favoritar</button>`}
       </div>`).join("");
   }catch(e){el.innerHTML="<div style='text-align:center;padding:16px;color:var(--muted);font-size:12px;'>Erro ao carregar.</div>";}
@@ -2776,7 +2802,7 @@ function criarModalMotoboyFavorito(){
   div.innerHTML=`<div class="modal-base" id="modal-motoboy-favorito">
     <div class="modal-sheet">
       <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
-      <div style="font-size:17px;font-weight:900;color:#fff;margin-bottom:3px;">⭐ Motoboy favorito</div>
+      <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:3px;">⭐ Motoboy favorito</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Ao chamar uma entrega, seu favorito é avisado primeiro e tem 30 segundos de exclusividade antes de abrir pros outros online.</div>
       <div id="mf-atual"></div>
       <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px;">Motoboys que já te atenderam</div>
@@ -2813,7 +2839,7 @@ function criarModalHorario(){
   div.innerHTML=`<div id="modal-horario" class="modal-base">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
-      <div style="font-size:17px;font-weight:900;color:#fff;margin-bottom:3px;">🕐 Horário de funcionamento</div>
+      <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:3px;">🕐 Horário de funcionamento</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Marque os dias abertos e os horários. Isso fica registrado no seu cadastro.</div>
       <div style="display:flex;align-items:center;gap:10px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:13px;padding:12px;margin-bottom:14px;">
         <input type="checkbox" id="hr-pausado" style="width:19px;height:19px;flex-shrink:0;"/>
@@ -2982,7 +3008,7 @@ async function renderDrillNivel1(cardId){
         });
         const linhas=Object.entries(dias).map(([dia,d])=>`
           <div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-            <div><div style="font-size:13px;font-weight:700;color:#fff;">${dia}</div><div style="font-size:11px;color:var(--muted);">${d.qtd} pedido${d.qtd!==1?"s":""} · ticket ${_fmtBR(d.total/d.qtd)}</div></div>
+            <div><div style="font-size:13px;font-weight:700;color:var(--text);">${dia}</div><div style="font-size:11px;color:var(--muted);">${d.qtd} pedido${d.qtd!==1?"s":""} · ticket ${_fmtBR(d.total/d.qtd)}</div></div>
             <div style="font-size:15px;font-weight:900;color:var(--dourado);">${_fmtBR(d.total)}</div>
           </div>`);
         el.innerHTML=_listaOuVazio(linhas,"Nenhuma venda nos últimos 7 dias.");
@@ -3008,7 +3034,7 @@ async function renderDrillNivel1(cardId){
           <div onclick="renderDrillPrato('${encodeURIComponent(nome).replace(/'/g,"%27")}')" style="background:var(--card);border:1px solid ${i===0?"var(--dourado)":"var(--border)"};border-radius:13px;padding:13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;cursor:pointer;">
             <div style="font-size:20px;flex-shrink:0;">${medalhas[i]||(i+1)+"º"}</div>
             <div style="flex:1;min-width:0;">
-              <div style="font-size:13px;font-weight:700;color:#fff;">${nome}</div>
+              <div style="font-size:13px;font-weight:700;color:var(--text);">${nome}</div>
               <div style="font-size:11px;color:var(--muted);">${d.qtd}x vendido · ${_fmtBR(d.valor)} no total</div>
             </div>
             <div style="font-size:13px;color:var(--muted);">›</div>
@@ -3039,7 +3065,7 @@ async function renderDrillNivel1(cardId){
         const linhas=ranking.map(([nome,d])=>`
           <div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;">
             <div style="font-size:18px;">🏍️</div>
-            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#fff;">${nome}</div><div style="font-size:11px;color:var(--muted);">${d.qtd} entrega${d.qtd!==1?"s":""} · ${_fmtBR(d.valor)} transportado</div></div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--text);">${nome}</div><div style="font-size:11px;color:var(--muted);">${d.qtd} entrega${d.qtd!==1?"s":""} · ${_fmtBR(d.valor)} transportado</div></div>
           </div>`);
         el.innerHTML=_listaOuVazio(linhas,"Nenhum motoboy atendeu você ainda.");
         break;
@@ -3057,7 +3083,7 @@ async function renderDrillNivel1(cardId){
         const linhas=ranking.map((cl,i)=>`
           <div style="background:var(--card);border:1px solid ${i===0?"var(--dourado)":"var(--border)"};border-radius:13px;padding:13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;">
             <div style="font-size:18px;">${i===0?"👑":"👤"}</div>
-            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#fff;">${cl.nome}</div><div style="font-size:11px;color:var(--muted);">${cl.qtd} pedido${cl.qtd!==1?"s":""} · ${_fmtBR(cl.valor)} gasto</div></div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--text);">${cl.nome}</div><div style="font-size:11px;color:var(--muted);">${cl.qtd} pedido${cl.qtd!==1?"s":""} · ${_fmtBR(cl.valor)} gasto</div></div>
           </div>`);
         el.innerHTML=_listaOuVazio(linhas,"Nenhum cliente identificado ainda. Preencha o nome do cliente na notinha ao chamar entregas.");
         break;
@@ -3072,7 +3098,7 @@ async function renderDrillNivel1(cardId){
         const linhas=snap.docs.map(d=>{const m=d.data();return`
           <div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;">
             <div style="width:38px;height:38px;border-radius:50%;background:var(--card2);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${m.foto?`<img src="${m.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"🏍️"}</div>
-            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#fff;">${m.nome||"Motoboy"}</div><div style="font-size:11px;color:var(--muted);">⭐ ${(m.avaliacao||5).toFixed(1)} · ${m.totalEntregas||m.totalCorridas||0} entregas</div></div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--text);">${m.nome||"Motoboy"}</div><div style="font-size:11px;color:var(--muted);">⭐ ${(m.avaliacao||5).toFixed(1)} · ${m.totalEntregas||m.totalCorridas||0} entregas</div></div>
             <div style="font-size:10px;font-weight:700;color:#22c55e;">🟢 ONLINE</div>
           </div>`;});
         el.innerHTML=_listaOuVazio(linhas,"Nenhum motoboy online agora.");
@@ -3108,7 +3134,7 @@ async function renderDrillPrato(nomeEnc){
     const linhas=vendas.map(v=>`
       <div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;margin-bottom:8px;">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
-          <div style="font-size:12px;font-weight:700;color:#fff;">${v.qtd}x · ${v.cliente}</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);">${v.qtd}x · ${v.cliente}</div>
           <div style="font-size:12px;font-weight:800;color:var(--dourado);">${_fmtBR(v.valor)}</div>
         </div>
         <div style="font-size:10px;color:var(--muted);">${_fmtData(v.dt)}${v.destino?" · 📍 "+v.destino.split(",")[0]:""}</div>
@@ -3430,7 +3456,7 @@ async function abrirAgendamentos(){
       let tempoTxt=emMin<0?"⚠️ Atrasado!":emMin<60?"em "+emMin+" min":quando.toLocaleDateString("pt-BR")+" às "+a.hora;
       return`<div style="background:var(--card);border:1px solid ${urg?"#ef4444":"var(--border)"};border-radius:13px;padding:13px;margin-bottom:9px;">
         <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-          <div style="font-size:13px;font-weight:800;color:#fff;">${a.nomeClienteFinal||"Entrega agendada"}</div>
+          <div style="font-size:13px;font-weight:800;color:var(--text);">${a.nomeClienteFinal||"Entrega agendada"}</div>
           <div style="font-size:11px;font-weight:800;color:${urg?"#ef4444":"var(--dourado)"};">${tempoTxt}</div>
         </div>
         <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">📍 ${a.destino}</div>
@@ -3742,7 +3768,7 @@ function criarModalPedidoEsquecido(){
   div.innerHTML=`<div class="modal-base" id="modal-pedido-esquecido">
     <div class="modal-sheet">
       <div style="text-align:center;font-size:36px;margin-bottom:10px;">⏳</div>
-      <div style="font-size:16px;font-weight:900;color:#fff;text-align:center;margin-bottom:6px;">Nenhum motoboy aceitou ainda</div>
+      <div style="font-size:16px;font-weight:900;color:var(--text);text-align:center;margin-bottom:6px;">Nenhum motoboy aceitou ainda</div>
       <div id="pe-texto" style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:18px;line-height:1.5;"></div>
       <button id="pe-btn-ver" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,var(--dourado2),var(--dourado));border:none;color:#1a1a1a;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;margin-bottom:9px;">👀 Ver e decidir</button>
       <button onclick="document.getElementById('modal-pedido-esquecido').classList.remove('show')" style="width:100%;padding:12px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Continuar esperando</button>
@@ -3882,7 +3908,7 @@ function renderListaMinhasEntregas(){
     const label=statusLabel[d.statusEtapa==="no_carro"?"a_caminho":d.status]||d.status;
     return`<div onclick="focarEntregaRestaurante('${d.id}')" style="background:${emFoco?"rgba(251,191,36,0.08)":"var(--card2)"};border:1px solid ${emFoco?"var(--dourado)":"var(--border)"};border-radius:14px;padding:13px;cursor:pointer;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-        <div style="font-size:13px;font-weight:800;color:#fff;">${d.motoboy?.nome||"Aguardando motoboy"}</div>
+        <div style="font-size:13px;font-weight:800;color:var(--text);">${d.motoboy?.nome||"Aguardando motoboy"}</div>
         ${emFoco?'<div style="font-size:10px;font-weight:700;color:var(--dourado);background:rgba(251,191,36,0.15);padding:2px 9px;border-radius:10px;">EM FOCO</div>':''}
       </div>
       <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">${label}</div>
@@ -4389,7 +4415,7 @@ function criarModalAvaliacoesRecebidas(){
   div.innerHTML=`<div class="modal-base" id="modal-avaliacoes-recebidas">
     <div class="modal-sheet">
       <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
-      <div style="font-size:17px;font-weight:900;color:#fff;margin-bottom:4px;">⭐ Avaliações recebidas</div>
+      <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px;">⭐ Avaliações recebidas</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">O que os motoboys disseram sobre suas entregas.</div>
       <div id="lista-avaliacoes-recebidas" style="margin-bottom:9px;"></div>
       <button class="btn-cancel" onclick="fecharAvaliacoesRecebidas()">Fechar</button>
@@ -4459,7 +4485,7 @@ function mostrarAvisoImportante(id,titulo,mensagem){
   div.innerHTML=`<div id="modal-aviso-importante" style="position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:24px;">
     <div style="width:100%;max-width:380px;background:linear-gradient(150deg,var(--card),var(--card2));border:1px solid var(--dourado);border-radius:22px;padding:26px 22px;text-align:center;animation:entradaAviso3D 0.5s cubic-bezier(0.2,0.8,0.3,1);box-shadow:0 20px 60px rgba(0,0,0,0.6);">
       <div style="font-size:44px;margin-bottom:12px;">📢</div>
-      <div style="font-size:18px;font-weight:900;color:#fff;margin-bottom:10px;">${titulo}</div>
+      <div style="font-size:18px;font-weight:900;color:var(--text);margin-bottom:10px;">${titulo}</div>
       <div style="font-size:14px;color:var(--text);line-height:1.5;margin-bottom:22px;">${mensagem}</div>
       <button onclick="fecharAvisoImportante('${id}')" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,var(--dourado2),var(--dourado));border:none;color:#1a1a1a;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;">Ok, entendi</button>
     </div>
@@ -4527,7 +4553,7 @@ window.addEventListener("load",async()=>{
 });
 function mostrarBannerFantasma(){
   const div=document.createElement("div");
-  div.innerHTML=`<div style="position:fixed;top:0;left:0;right:0;z-index:99998;background:linear-gradient(90deg,#7c3aed,#a855f7);padding:8px 14px;padding-top:calc(env(safe-area-inset-top,0px) + 8px);text-align:center;font-size:11px;font-weight:800;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.3);">👻 Modo Admin — você está vendo/agindo como este negócio</div>`;
+  div.innerHTML=`<div style="position:fixed;top:0;left:0;right:0;z-index:99998;background:linear-gradient(90deg,#7c3aed,#a855f7);padding:8px 14px;padding-top:calc(env(safe-area-inset-top,0px) + 8px);text-align:center;font-size:11px;font-weight:800;color:var(--text);box-shadow:0 4px 12px rgba(0,0,0,0.3);">👻 Modo Admin — você está vendo/agindo como este negócio</div>`;
   document.body.appendChild(div.firstElementChild);
 }
 // Em modo fantasma, nunca grava no localStorage deste aparelho — evita misturar com a sessão real do admin.
@@ -4635,7 +4661,7 @@ function renderItemPrato(p){
   return`<div onclick="abrirEditarPrato('${p.id}')" style="display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:11px;margin-bottom:9px;cursor:pointer;">
     <div style="width:56px;height:56px;border-radius:11px;background:var(--card2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;">${p.foto?`<img src="${p.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"🍽️"}</div>
     <div style="flex:1;min-width:0;">
-      <div style="font-size:14px;font-weight:700;color:#fff;">${p.nome||"--"}</div>
+      <div style="font-size:14px;font-weight:700;color:var(--text);">${p.nome||"--"}</div>
       <div style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.descricao||""}</div>
     </div>
     <div style="font-size:14px;font-weight:800;color:var(--dourado);flex-shrink:0;">R$ ${parseFloat(p.preco||0).toFixed(2).replace(".",",")}</div>
@@ -5044,7 +5070,7 @@ function abrirFinMargem(){
     const taxa=c.taxaEntrega||0,custo=c.creditoRestCobrado||0,m=taxa-custo;
     return`<div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;margin-bottom:8px;">
       <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-        <div style="font-size:12px;font-weight:700;color:#fff;">${(c.nomeClienteFinal||(c.destino||"Pedido").split(",")[0])}</div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);">${(c.nomeClienteFinal||(c.destino||"Pedido").split(",")[0])}</div>
         <div style="font-size:12px;font-weight:800;color:${m>=0?"var(--verde)":"#ef4444"};">${m>=0?"+":""}R$ ${m.toFixed(2).replace(".",",")}</div>
       </div>
       <div style="font-size:10px;color:var(--muted);">${dt.toLocaleDateString("pt-BR")} · Taxa: R$ ${taxa.toFixed(2).replace(".",",")} · Custo: R$ ${custo.toFixed(2).replace(".",",")}</div>
@@ -5162,7 +5188,7 @@ function renderSeletorPratos(filtro){
     const cat=ehSemCat?null:_categoriasCache.find(c=>c.id===_catSeletorAberta);
     const pratosCat=ehSemCat?_pratosCache.filter(p=>!p.categoriaId):_pratosCache.filter(p=>p.categoriaId===_catSeletorAberta);
     let html=`<button class="btn-voltar-cats" onclick="toggleCategoriaSeletor(null)">← Todas as categorias</button>`;
-    html+=`<div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:11px;">${ehSemCat?"🍴":iconeParaCategoria(cat?.nome)} ${ehSemCat?"Sem categoria":cat?.nome}</div>`;
+    html+=`<div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:11px;">${ehSemCat?"🍴":iconeParaCategoria(cat?.nome)} ${ehSemCat?"Sem categoria":cat?.nome}</div>`;
     html+=pratosCat.length>0?`<div class="grade-pratos">${pratosCat.map(p=>renderItemSeletor(p)).join("")}</div>`:"<div style='padding:20px;color:var(--muted);font-size:12px;text-align:center;'>Nenhum prato aqui ainda</div>";
     el.innerHTML=html;
     return;
