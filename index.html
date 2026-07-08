@@ -202,7 +202,7 @@ input[type=file]{display:none;}
   width:100%;padding:16px 20px;border-radius:17px;
   background:linear-gradient(135deg,#1e40af,#2563eb,#1d4ed8);
   border:none;
-  color:var(--text);
+  color:#fff;
   font-size:18px;font-weight:900;
   cursor:pointer;font-family:inherit;
   position:relative;z-index:2;overflow:hidden;
@@ -616,10 +616,12 @@ input[type=file]{display:none;}
           </div>
         </div>
       </div>
-      <!-- DIREITA: saldo de créditos + hamburger -->
+      <!-- DIREITA: saldo de créditos + tema (empilhados) + hamburger -->
       <div style="flex:1;"></div>
-      <button onclick="abrirMeusCreditos()" style="background:rgba(251,191,36,0.12);border:1px solid var(--border);border-radius:12px;padding:7px 11px;font-size:11px;font-weight:800;color:var(--dourado);cursor:pointer;flex-shrink:0;margin-right:8px;position:relative;z-index:1;" id="badge-credito-header">💳 --</button>
-      <button onclick="alternarTema()" style="background:var(--card2);border:1px solid var(--border);border-radius:12px;width:34px;height:34px;font-size:15px;cursor:pointer;flex-shrink:0;margin-right:8px;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;" id="btn-tema">🌙</button>
+      <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;margin-right:8px;position:relative;z-index:1;">
+        <button onclick="alternarTema()" style="background:var(--card2);border:1px solid var(--border);border-radius:10px;width:30px;height:30px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;" id="btn-tema">🌙</button>
+        <button onclick="abrirMeusCreditos()" style="background:rgba(251,191,36,0.12);border:1px solid var(--border);border-radius:10px;padding:5px 9px;font-size:10px;font-weight:800;color:var(--dourado);cursor:pointer;white-space:nowrap;" id="badge-credito-header">💳 --</button>
+      </div>
       <button class="btn-ham" onclick="abrirMenu()" style="flex-shrink:0;position:relative;z-index:1;">☰</button>
     </div>
   </div>
@@ -824,7 +826,13 @@ input[type=file]{display:none;}
       <button onclick="voltarHomeSemCancelar()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:13px;font-weight:700;padding:7px 12px;border-radius:11px;cursor:pointer;font-family:inherit;">🏠 Home</button>
       <div id="corrida-outras-badge" style="display:none;flex:1;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;font-size:12px;font-weight:700;padding:7px 12px;border-radius:11px;cursor:pointer;text-align:center;" onclick="abrirMinhasEntregas()"></div>
     </div>
-    <div class="corrida-status" id="corrida-status">🚗 Motoboy a caminho!</div>
+    <div style="display:flex;align-items:center;gap:12px;background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px;">
+      <div id="corrida-status-icone" style="width:48px;height:48px;border-radius:50%;background:rgba(59,130,246,0.15);border:2px solid #3b82f6;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🚗</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Etapa atual</div>
+        <div class="corrida-status" id="corrida-status" style="font-size:18px;font-weight:900;color:#fff;">🚗 Motoboy a caminho!</div>
+      </div>
+    </div>
     <div class="mot-card" onclick="verPerfilMot()">
       <div class="mot-foto" id="mot-foto">🚗</div>
       <div style="flex:1;">
@@ -1698,13 +1706,15 @@ let _dragTO=null,_dragging=false,_dragIdx=null,_dragEl=null,_acabouDrag=false;
   const N=52,pts=[];
   for(let i=0;i<N;i++)pts.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.6+.7});
   function draw(){
-    ctx.fillStyle="#080f1e";ctx.fillRect(0,0,cv.width,cv.height);
+    const corFundo=getComputedStyle(document.documentElement).getPropertyValue("--bg").trim()||"#080f1e";
+    const corDourado=getComputedStyle(document.documentElement).getPropertyValue("--dourado").trim()||"#fbbf24";
+    ctx.fillStyle=corFundo;ctx.fillRect(0,0,cv.width,cv.height);
     for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
       const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
-      if(d<125){ctx.strokeStyle=`rgba(251,191,36,${(1-d/125)*.16})`;ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}
+      if(d<125){ctx.strokeStyle=corDourado;ctx.globalAlpha=(1-d/125)*.16;ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();ctx.globalAlpha=1;}
     }
     pts.forEach(p=>{
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle="rgba(251,191,36,.28)";ctx.fill();
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=corDourado;ctx.globalAlpha=.28;ctx.fill();ctx.globalAlpha=1;
       p.x+=p.vx;p.y+=p.vy;
       if(p.x<0||p.x>cv.width)p.vx*=-1;if(p.y<0||p.y>cv.height)p.vy*=-1;
     });
@@ -1796,6 +1806,12 @@ function incrementarBadgeApp(){_badgeCountRest++;try{if("setAppBadge"in navigato
 function limparBadgeAppRest(){_badgeCountRest=0;try{if("clearAppBadge"in navigator)navigator.clearAppBadge();}catch(e){}}
 function somAceito(){nota(784,0,.1,.8);nota(1047,.12,.1,.8);nota(1318,.24,.08,.8);nota(1047,.34,.08,.7);nota(1318,.44,.4,.75);setTimeout(()=>falar("Entrega Já! Entrega aceita! Seu motoboy está a caminho!"),500);}
 function somChegou(){nota(784,0,.15,.7);nota(1047,.18,.15,.7);nota(1318,.36,.4,.65);setTimeout(()=>falar("Entrega Já! Seu motoboy chegou!"),600);}
+function atualizarStatusEtapaRest(texto,icone){
+  const el=document.getElementById("corrida-status");
+  if(el)el.textContent=texto;
+  const ic=document.getElementById("corrida-status-icone");
+  if(ic)ic.textContent=icone;
+}
 function somConcluida(){nota(659,0,.1,.75);nota(784,.1,.1,.75);nota(988,.2,.1,.8);nota(1318,.3,.5,.85);}
 function somMsgChat(){nota(880,0,.1,.6);nota(1108,.12,.15,.6);}
 
@@ -3829,8 +3845,8 @@ function escutarEntrega(id){
         toast("🚗 "+d.motoboy.nome+" aceitou outra entrega sua!");
       }
     }
-    if(emFoco&&d.status==="motoboy_chegou"){somChegou();notif("📍 Motoboy chegou!","Dirija-se ao veículo.");incrementarBadgeApp();document.getElementById("corrida-status").textContent="📍 Seu motoboy chegou!";}
-    if(emFoco&&d.statusEtapa==="no_carro")document.getElementById("corrida-status").textContent="🚗 A caminho do destino!";
+    if(emFoco&&d.status==="motoboy_chegou"){somChegou();notif("📍 Motoboy chegou!","Dirija-se ao veículo.");incrementarBadgeApp();atualizarStatusEtapaRest("📍 Seu motoboy chegou!","📍");}
+    if(emFoco&&d.statusEtapa==="no_carro")atualizarStatusEtapaRest("🚗 A caminho do destino!","🏁");
     if(d.status==="concluida"){
       if(unsubsEntregas[id]){unsubsEntregas[id]();delete unsubsEntregas[id];}
       const mNome=d.motoboy?.nome||"motoboy";
@@ -4560,7 +4576,7 @@ window.addEventListener("load",async()=>{
 });
 function mostrarBannerFantasma(){
   const div=document.createElement("div");
-  div.innerHTML=`<div style="position:fixed;top:0;left:0;right:0;z-index:99998;background:linear-gradient(90deg,#7c3aed,#a855f7);padding:8px 14px;padding-top:calc(env(safe-area-inset-top,0px) + 8px);text-align:center;font-size:11px;font-weight:800;color:var(--text);box-shadow:0 4px 12px rgba(0,0,0,0.3);">👻 Modo Admin — você está vendo/agindo como este negócio</div>`;
+  div.innerHTML=`<div style="position:fixed;top:0;left:0;right:0;z-index:99998;background:linear-gradient(90deg,#7c3aed,#a855f7);padding:8px 14px;padding-top:calc(env(safe-area-inset-top,0px) + 8px);text-align:center;font-size:11px;font-weight:800;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.3);">👻 Modo Admin — você está vendo/agindo como este negócio</div>`;
   document.body.appendChild(div.firstElementChild);
 }
 // Em modo fantasma, nunca grava no localStorage deste aparelho — evita misturar com a sessão real do admin.
