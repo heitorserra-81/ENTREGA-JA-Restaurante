@@ -259,11 +259,14 @@ input[type=file]{display:none;}
 .entrega-painel{background:var(--card);border-top:1px solid var(--border);border-radius:22px 22px 0 0;padding:14px 16px;padding-bottom:max(14px,calc(var(--sab)+14px));}
 .entrega-status{font-size:13px;font-weight:700;color:var(--dourado);margin-bottom:9px;}
 .mot-card{display:flex;align-items:center;gap:11px;padding:11px;background:var(--card2);border-radius:14px;border:1px solid var(--border);margin-bottom:9px;cursor:pointer;}
-.mot-foto{width:48px;height:48px;border-radius:50%;background:var(--bg);border:2px solid var(--dourado);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:18px;}
+#mapa-corrida{position:relative;width:100%;height:230px;flex-shrink:0;background:var(--card2);}
+.mot-card{display:flex;flex-direction:column;align-items:center;gap:7px;padding:18px 20px;background:var(--card2);border-radius:20px;border:1px solid var(--border);margin:0 auto 12px;max-width:250px;cursor:pointer;position:relative;}
+.mot-foto{width:64px;height:64px;border-radius:50%;background:var(--bg);border:2px solid var(--dourado);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:24px;}
 .mot-foto img{width:100%;height:100%;object-fit:cover;}
-.mot-nome{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;}
-.mot-veic{font-size:11px;color:var(--muted);}
-.mot-placa{font-size:11px;font-weight:700;color:var(--dourado);}
+.mot-nome{font-size:15px;font-weight:800;color:var(--text);text-align:center;}
+.mot-veic{font-size:11px;color:var(--muted);text-align:center;}
+.mot-placa{font-size:11px;font-weight:700;color:var(--dourado);text-align:center;}
+.mot-seta{position:absolute;top:12px;right:16px;color:var(--muted);font-size:15px;}
 .entrega-valor{font-size:22px;font-weight:900;color:var(--dourado);text-align:center;margin-bottom:9px;}
 .acoes{display:flex;gap:7px;margin-bottom:9px;}
 .btn-acao{flex:1;padding:10px;border-radius:13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px;border:1px solid var(--border);}
@@ -830,24 +833,18 @@ input[type=file]{display:none;}
       <div id="corrida-status-icone" style="width:48px;height:48px;border-radius:50%;background:rgba(59,130,246,0.15);border:2px solid #3b82f6;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🚗</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Etapa atual</div>
-        <div class="corrida-status" id="corrida-status" style="font-size:18px;font-weight:900;color:#fff;">🚗 Motoboy a caminho!</div>
+        <div class="corrida-status" id="corrida-status" style="font-size:18px;font-weight:900;color:var(--text);">🚗 Motoboy a caminho!</div>
       </div>
     </div>
     <div class="mot-card" onclick="verPerfilMot()">
       <div class="mot-foto" id="mot-foto">🚗</div>
-      <div style="flex:1;">
-        <div class="mot-nome" id="mot-nome">--</div>
-        <div class="mot-veic" id="mot-veic">--</div>
-        <div class="mot-placa" id="mot-placa">--</div>
-      </div>
-      <div style="color:var(--muted);font-size:17px;">›</div>
+      <div class="mot-nome" id="mot-nome">--</div>
+      <div class="mot-veic" id="mot-veic">--</div>
+      <div class="mot-placa" id="mot-placa">--</div>
+      <div class="mot-seta">›</div>
     </div>
     <div class="corrida-valor" id="corrida-valor">R$ --</div>
-    <div class="acoes">
-      <button class="btn-acao" style="background:rgba(239,68,68,0.1);color:#ef4444;flex:1;" onclick="sosEntrega()">🆘 SOS</button>
-      <button class="btn-acao" style="background:rgba(34,197,94,0.1);color:#22c55e;flex:1;" onclick="compartilhar()">📤 Compartilhar</button>
-    </div>
-    <button onclick="enviarRastreioWhatsApp()" style="width:100%;margin-top:10px;padding:13px;border-radius:14px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);color:#22c55e;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">🛵 Enviar rastreio pro cliente pelo WhatsApp</button>
+    <button onclick="enviarRastreioWhatsApp()" style="width:100%;margin-top:6px;padding:16px;border-radius:16px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 16px rgba(34,197,94,0.35);display:flex;align-items:center;justify-content:center;gap:8px;">📍 Enviar rastreio pro cliente pelo WhatsApp</button>
     <button class="btn-cancelar-cor" onclick="cancelarEntrega()">Cancelar entrega</button>
     <button onclick="abrirChat()" style="position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);right:18px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;box-shadow:0 6px 18px rgba(37,99,235,0.5);font-size:24px;cursor:pointer;z-index:50;display:flex;align-items:center;justify-content:center;">💬<div id="chat-badge-rest" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:var(--text);font-size:11px;font-weight:900;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid var(--bg);">0</div></button>
   </div>
@@ -1706,8 +1703,8 @@ let _dragTO=null,_dragging=false,_dragIdx=null,_dragEl=null,_acabouDrag=false;
   const N=52,pts=[];
   for(let i=0;i<N;i++)pts.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.6+.7});
   function draw(){
-    const corFundo=getComputedStyle(document.documentElement).getPropertyValue("--bg").trim()||"#080f1e";
-    const corDourado=getComputedStyle(document.documentElement).getPropertyValue("--dourado").trim()||"#fbbf24";
+    const corFundo=getComputedStyle(document.body).getPropertyValue("--bg").trim()||"#080f1e";
+    const corDourado=getComputedStyle(document.body).getPropertyValue("--dourado").trim()||"#fbbf24";
     ctx.fillStyle=corFundo;ctx.fillRect(0,0,cv.width,cv.height);
     for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
       const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
@@ -1793,7 +1790,7 @@ function fecharPWA(){document.getElementById("pwa-banner").classList.remove("sho
 
 // ── NOTIF ──
 async function pedirNotif(){try{if("Notification"in window)await Notification.requestPermission();}catch(e){}}
-function notif(t,b){if(Notification.permission==="granted")try{new Notification(t,{body:b,icon:document.getElementById("logo-splash")?.src||"",tag:"cj",vibrate:[200,100,200]});}catch(e){}}
+function notif(t,b){if(Notification.permission==="granted")try{new Notification(t,{body:b,icon:document.getElementById("logo-splash")?.src||"",tag:"cj-"+Date.now(),vibrate:[200,100,200]});}catch(e){}}
 
 // ── SOM ──
 let _ac=null;
