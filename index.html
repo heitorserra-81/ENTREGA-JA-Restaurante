@@ -267,7 +267,7 @@ input[type=file]{display:none;}
 .entrega-valor{font-size:22px;font-weight:900;color:var(--dourado);text-align:center;margin-bottom:9px;}
 .acoes{display:flex;gap:7px;margin-bottom:9px;}
 .btn-acao{flex:1;padding:10px;border-radius:13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px;border:1px solid var(--border);}
-.btn-cancelar-cor{width:100%;padding:11px;border-radius:13px;background:transparent;border:1px solid rgba(239,68,68,0.2);color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-cancelar-cor{width:100%;padding:16px;margin-top:14px;border-radius:18px;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 16px rgba(239,68,68,0.35);}
 
 /* CHAT */
 #modal-chat{display:none;position:fixed;inset:0;z-index:9980;background:rgba(0,0,0,0.8);align-items:flex-end;backdrop-filter:blur(6px);}
@@ -823,7 +823,7 @@ input[type=file]{display:none;}
   </div>
   <div class="corrida-painel">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">
-      <button onclick="voltarHomeSemCancelar()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:13px;font-weight:700;padding:7px 12px;border-radius:11px;cursor:pointer;font-family:inherit;">🏠 Home</button>
+      <button onclick="voltarHomeSemCancelar()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:15px;font-weight:800;padding:12px 18px;border-radius:14px;cursor:pointer;font-family:inherit;min-height:44px;">🏠 Home</button>
       <div id="corrida-outras-badge" style="display:none;flex:1;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;font-size:12px;font-weight:700;padding:7px 12px;border-radius:11px;cursor:pointer;text-align:center;" onclick="abrirMinhasEntregas()"></div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px;">
@@ -1798,6 +1798,11 @@ function notif(t,b){if(Notification.permission==="granted")try{new Notification(
 // ── SOM ──
 let _ac=null;
 function getAC(){if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();if(_ac.state==="suspended")_ac.resume();return _ac;}
+// iOS suspende o motor de áudio sozinho quando o app fica em segundo plano — reativa a
+// cada toque na tela pra evitar que o som de notificação fique mudo depois da 1ª vez.
+document.addEventListener("touchstart",()=>{try{getAC();}catch(e){}},{passive:true});
+document.addEventListener("click",()=>{try{getAC();}catch(e){}},{passive:true});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")try{getAC();}catch(e){}});
 function nota(f,s,d,v=.7){try{const c=getAC(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.setValueAtTime(f,c.currentTime+s);g.gain.setValueAtTime(0,c.currentTime+s);g.gain.linearRampToValueAtTime(v,c.currentTime+s+.01);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+s+d);o.start(c.currentTime+s);o.stop(c.currentTime+s+d+.05);}catch(e){}}
 function falar(txt){try{if(!("speechSynthesis"in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang="pt-BR";u.rate=1;u.pitch=1.1;const v=speechSynthesis.getVoices().find(x=>x.lang.startsWith("pt"));if(v)u.voice=v;speechSynthesis.speak(u);}catch(e){}}
 // ── BADGE NO ÍCONE DO APP (contador vermelho, funciona no iPhone com app instalado) ──
@@ -3744,9 +3749,9 @@ async function confirmarPgtoEChamar(){
       }catch(e){}
     }
     entregaAtiva={...pedido,id};loading(false);
-    limparSelecaoPratos();
-    document.getElementById("campo-obs").value="";
-    document.getElementById("campo-valor-manual").value="";
+    // OBS: o cardápio selecionado (e obs/valor manual) NÃO é mais limpo aqui de propósito —
+    // assim, se a entrega for cancelada e chamada de novo, os itens continuam preenchidos,
+    // igual já acontecia com troco/forma de pagamento. Uso o botão "Limpar seleção" pra zerar.
     document.getElementById("chk-cobrar-taxa").checked=false;
     document.getElementById("taxa-entrega-box").style.display="none";
     _taxaEntregaValor=0;
@@ -4239,6 +4244,10 @@ function iniciarMapaEntrega(d){
     const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 42" width="34" height="42"><circle cx="17" cy="9" r="8" fill="#fbbf24" stroke="#fff" stroke-width="2"/><path d="M3 40 Q3 25 17 23 Q31 25 31 40Z" fill="#fbbf24" stroke="#fff" stroke-width="2"/></svg>`;
     L.divIcon&&L.marker(posAtual,{icon:L.divIcon({html:`<div style="filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));">${svg}</div>`,className:"",iconSize:[34,42],iconAnchor:[17,40]})}).addTo(mapaEntrega);
   }
+  // Garante que o mapa "aprenda" o tamanho real do container depois que a tela ficou visível
+  // (sem isso, ele pode nascer com tamanho zero e ficar em branco)
+  setTimeout(()=>{if(mapaEntrega){mapaEntrega.invalidateSize();if(posAtual)mapaEntrega.setView(posAtual,14);}},150);
+  setTimeout(()=>{if(mapaEntrega){mapaEntrega.invalidateSize();if(posAtual)mapaEntrega.setView(posAtual,14);}},500);
 }
 
 function abrirMapaFull(){
